@@ -15,10 +15,11 @@
     "next-auth": "^3.1.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "react-icons": "^3.11.0",
+    "tailwindcss": "^2.0.1-compat",
     "typescript": "^4.1.2"
   },
   "devDependencies": {
-    "postcss-preset-env": "^6.7.0",
-    "tailwindcss": "^2.0.1"
+    "postcss-preset-env": "^6.7.0"
   }
 }
