@@ -11,6 +11,7 @@
     "@tailwindcss/typography": "^0.3.1",
     "@types/node": "^14.14.9",
     "@types/react": "^17.0.0",
+    "mongoose": "^5.10.16",
     "next": "10.0.3",
     "next-auth": "^3.1.0",
     "react": "17.0.1",
