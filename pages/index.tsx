@@ -26,7 +26,6 @@ export default function Home() {
 
     return (
         <>
-            <Navbar/>
             <div className="max-w-7xl relative mx-auto">
                 <div className="max-w-3xl mx-auto px-4">
                     <h1 className="up-h1">November 24, 2020</h1>

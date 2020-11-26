@@ -13,8 +13,8 @@ const unreqString = {
 const authorObj = {
     name: reqString,
     image: reqString,
-    email: reqString,
-    urlName: { type: String, required: false, unique: true, },
+    email: { ...reqString, unique: true },
+    urlName: { ...unreqString, unique: true, },
     bio: unreqString,
     linkedin: unreqString,
     twitter: unreqString,
@@ -43,9 +43,8 @@ const commentSchema: Schema = new Schema({
 
 const updateSchema: Schema = new Schema({
     authorId: ObjectId,
-    author: authorObj,
     body: reqString,
-    title: {type: String, required: false},
+    title: unreqString,
     date: Date,
     readBy: [ObjectId],
     comments: [commentSchema],

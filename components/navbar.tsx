@@ -12,7 +12,11 @@ export default function Navbar({}: {  }) {
             <div className="max-w-7xl mx-auto h-16 flex items-center px-4">
                 <Link href="/"><a><img src="/logo.svg" className="h-12"/></a></Link>
                 <div className="max-w-2xl w-full mx-auto hidden lg:block">
-                    <input type="text" placeholder="Search" className="border-2 h-12 px-5 rounded-md w-full"/>
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        className="border-2 h-12 px-4 rounded-md w-full"
+                    />
                 </div>
                 <div className="ml-auto">
                     {session ? (
@@ -27,11 +31,11 @@ export default function Navbar({}: {  }) {
                         </div>
                     ) : (
                         <button
-                            className="h-12 px-5 border-2 border-black hover:bg-black hover:text-white rounded-md transition"
+                            className="up-button primary"
                             onClick={() => signIn('google')}
                         >
                             <div className="flex items-center">
-                                <FaGoogle/><span className="ml-2 font-semibold">Sign in</span>
+                                <FaGoogle/><span className="ml-2">Sign in</span>
                             </div>
                         </button>
                     )}

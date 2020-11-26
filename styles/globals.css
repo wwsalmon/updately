@@ -6,6 +6,24 @@ body {
     font-family: "IBM Plex Sans", sans-serif;
 }
 
+.EasyMDEContainer .editor-toolbar{
+    font-size: 1rem;
+    border: 0;
+    padding-left: 0;
+    padding-right: 0;
+    position: sticky;
+    top: 4rem;
+    z-index: 5;
+    background-color: white;
+}
+
+.EasyMDEContainer div.CodeMirror{
+    border: 0;
+    padding-top: 2rem;
+    padding-left: 0;
+    padding-right: 0;
+}
+
 .content {
     font-size: 20px;
 }
@@ -19,4 +37,53 @@ body {
 .up-h2 {
     font-size: 24px;
     @apply opacity-50;
+}
+
+.up-overline {
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.up-button {
+    @apply px-4 h-12 rounded-md transition font-semibold;
+}
+
+.up-button:disabled {
+    @apply opacity-25;
+    cursor: not-allowed;
+}
+
+.up-button.primary {
+    background-color: #0026FF;
+    @apply text-white;
+}
+
+.up-button:not(.text):not(.primary) {
+    @apply border-2 border-black;
+}
+
+.up-button:not(.text):not(:disabled):hover {
+    @apply bg-black text-white;
+}
+
+.up-button.text:not(:disabled):hover{
+    @apply bg-gray-300;
+}
+
+.up-spinner {
+    position: absolute;
+    top: calc(50% - 0.5rem);
+    left: calc(50% - 0.5rem);
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 0.2rem solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    animation: up-spin 1s linear infinite;
+}
+
+@keyframes up-spin {
+    0% { transform: rotate(0deg); }
+    100% {transform: rotate(360deg); }
 }
