@@ -34,10 +34,10 @@ export default function UserProfile({ data, updateUrl }) {
             </div>
             <div className="absolute left-4 top-8 hidden xl:block h-full">
                 <div className="sticky top-24">
-                    {data.updates.map((update, i) => (
+                    {data.updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
                         <div
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition"}`}
-                            key={i}
+                            key={update._id}
                         >
                             <Link href={`/@${data.urlName}/${update.url}`}>
                                 <a>

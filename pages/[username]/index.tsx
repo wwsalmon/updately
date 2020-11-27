@@ -41,7 +41,7 @@ export default function UserProfile({ data }) {
                         )}
                     </div>
 
-                    {data.updates.length > 0 ? data.updates.map(update => (
+                    {data.updates.length > 0 ? data.updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map(update => (
                         <a key={update._id} className="block my-8" href={`/@${data.urlName}/${update.url}`}>
                             <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM dd, yyyy")}</h3>
                             <p className="up-ui-item-subtitle">
