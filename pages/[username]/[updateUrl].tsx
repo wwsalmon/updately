@@ -11,6 +11,7 @@ import axios from "axios";
 import {useRouter} from "next/router";
 import Showdown from "showdown";
 import Parser from "html-react-parser";
+import FollowButton from "../../components/FollowButton";
 
 export default function UpdatePage(props: { data: any, updateUrl: string, userData: any }) {
     const router = useRouter();
@@ -57,21 +58,6 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
         setIsEdit(false);
     }
 
-    function onFollow() {
-        setIsFollowLoading(true);
-
-        axios.post("/api/follow-user", {
-            id: data._id,
-        }).then(res => {
-            setIsFollowLoading(false);
-            setUserData(res.data.currUserData);
-            setData(res.data.followUserData);
-        }).catch(e => {
-            console.log(e);
-            setIsFollowLoading(false);
-        });
-    }
-
     const markdownConverter = new Showdown.Converter({
         strikethrough: true,
         tasklists: true
@@ -89,26 +75,13 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                             </div>
                         </a>
                     </Link>
-                    {isOwner ? (
-                        <p className="ml-auto">Testing</p>
-                    ) : userData ? (
-                        <div className="relative ml-auto">
-                            {userData.following.includes(data._id) ? (
-                                <button className="up-button text" onClick={onFollow}>
-                                    <span className={isFollowLoading ? "invisible" : ""}>Following</span>
-                                </button>
-                            ) : (
-                                <button className="up-button small" onClick={onFollow}>
-                                    <span className={isFollowLoading ? "invisible" : ""}>Follow</span>
-                                </button>
-                            )}
-                            {isFollowLoading && (
-                                <div className="up-spinner dark"/>
-                            )}
-                        </div>
-                    ) : (
-                        <Link href="/sign-in"><a className="up-button ml-auto small">Follow</a></Link>
-                    )}
+                    <div className="ml-auto">
+                        {isOwner ? (
+                            <p>Testing</p>
+                        ) : (
+                            <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
+                        )}
+                    </div>
                 </div>
                 {isEdit ? (
                     <EditUpdate
@@ -174,10 +147,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const updateUrl: string = context.params.updateUrl;
     const data = await getUpdateRequest(username, updateUrl);
     const session = await getSession(context);
-
     const userData = session ? await getCurrUserRequest(session.user.email) : null;
-
-    console.log(userData);
 
     if (!data) return { notFound: true };
 

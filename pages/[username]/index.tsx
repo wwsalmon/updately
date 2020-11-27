@@ -5,12 +5,16 @@ import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
 import {dateOnly} from "../../utils/utils";
+import {getCurrUserRequest} from "../../utils/requests";
+import React, {useState} from "react";
+import axios from "axios";
+import FollowButton from "../../components/FollowButton";
 
-export default function UserProfile({ data }) {
-    console.log(data);
-
+export default function UserProfile(props: { data, userData }) {
     const [session, loading] = useSession();
-    const isOwner = !loading && session && (data.email === session.user.email);
+    const isOwner = !loading && session && (props.data.email === session.user.email);
+    const [data, setData] = useState<any>(props.data);
+    const [userData, setUserData] = useState<any>(props.userData);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
@@ -24,6 +28,11 @@ export default function UserProfile({ data }) {
                     <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-full rounded-full"/>
                 </div>
                 <h1 className="up-h1">{data.name}</h1>
+                <div className="ml-auto">
+                    {!isOwner && (
+                        <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
+                    )}
+                </div>
             </div>
 
             <hr className="my-8"/>
@@ -62,13 +71,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (Array.isArray(context.params.username) || context.params.username.substr(0, 1) !== "@") return { notFound: true };
     const username: string = context.params.username.substr(1);
     const data = await getProfileRequest(username);
+    const session = await getSession(context);
+    const userData = session ? await getCurrUserRequest(session.user.email) : null;
 
     console.log(username, data);
 
     if (!data) return { notFound: true };
 
     if (data.private) {
-        const session = await getSession();
 
         if (!session || data.followers.findIndex(d => d === session.user.email)) {
             let resData = data.slice(0);
@@ -80,5 +90,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
     }
 
-    return { props: { data: JSON.parse(JSON.stringify(data)) }};
+    return { props: { data: JSON.parse(JSON.stringify(data)), userData: JSON.parse(JSON.stringify(userData)) }};
 };
