@@ -1,10 +1,14 @@
 import {FaEllipsisV} from "react-icons/fa";
 import {ReactNode, useEffect, useRef, useState} from "react";
 import short from "short-uuid";
+import MenuButton from "./MenuButton";
+import MenuLink from "./MenuLink";
 
-export default function MoreMenu({items, buttonText = <FaEllipsisV/>} : {
+export default function MoreMenu({items, buttonText = <FaEllipsisV/>, buttonClassName, className} : {
     items: {label: string, href?: string, onClick?: () => any}[],
-    buttonText?: string | ReactNode
+    buttonText?: string | ReactNode,
+    buttonClassName?: string,
+    className?: string,
 }) {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const thisButton = useRef<HTMLButtonElement>(null);
@@ -27,9 +31,9 @@ export default function MoreMenu({items, buttonText = <FaEllipsisV/>} : {
     }, []);
 
     return (
-        <div className="relative">
+        <div className={className || "relative"}>
             <button
-                className="up-button text"
+                className={buttonClassName || "up-button text"}
                 onClick={() => setIsOpen(!isOpen)}
                 id={short.generate()}
                 ref={thisButton}
@@ -37,13 +41,9 @@ export default function MoreMenu({items, buttonText = <FaEllipsisV/>} : {
             {isOpen && (
                 <div className="absolute top-0 mt-16 shadow-lg rounded-md z-10 bg-white">
                     {items.map(item => item.href ? (
-                        <a className="p-4 hover:bg-gray-100 block" href={item.href}>
-                            {item.label}
-                        </a>
+                        <MenuLink text={item.label} href={item.href}/>
                     ) : (item.onClick && (
-                        <button className="p-4 hover:bg-gray-100" onClick={item.onClick}>
-                            {item.label}
-                        </button>
+                        <MenuButton text={item.label} onClick={item.onClick}/>
                     )))}
                 </div>
             )}

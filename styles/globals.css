@@ -103,3 +103,11 @@ a.up-button {
     0% { transform: rotate(0deg); }
     100% {transform: rotate(360deg); }
 }
+
+.up-hover-dropdown {
+    display: none;
+}
+
+.up-hover-button:hover > .up-hover-dropdown {
+    display: block;
+}

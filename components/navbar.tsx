@@ -1,8 +1,9 @@
 import React from 'react';
-import {FaGoogle} from "react-icons/fa";
-import {useSession} from "next-auth/client";
-import {signIn, signOut} from 'next-auth/client';
+import {FaCaretDown, FaGoogle} from "react-icons/fa";
+import {signIn, signOut, useSession} from "next-auth/client";
 import Link from "next/link";
+import MenuButton from "./MenuButton";
+import MenuLink from "./MenuLink";
 
 export default function Navbar({}: {  }) {
     const [session, loading] = useSession();
@@ -13,14 +14,19 @@ export default function Navbar({}: {  }) {
                 <Link href="/"><a><img src="/logo.svg" className="h-12"/></a></Link>
                 <div className="ml-auto">
                     {session ? (
-                        <div className="flex items-center">
-                            <button
-                                className="font-semibold"
-                                onClick={signOut}
-                            >
-                                Sign out
-                            </button>
-                            <img src={session.user.image} className="w-10 h-10 ml-4 rounded-full"/>
+                        <div className="relative up-hover-button">
+                            <div className="flex items-center">
+                                <FaCaretDown/>
+                                <img
+                                    src={session.user.image}
+                                    alt={`Profile picture of ${session.user.name}`}
+                                    className="w-10 h-10 ml-2 rounded-full"
+                                />
+                            </div>
+                            <div className="up-hover-dropdown absolute top-0 mt-10 shadow-lg rounded-md z-10 bg-white">
+                                <MenuLink text="My profile" href=""/>
+                                <MenuButton text="Sign out" onClick={signOut}/>
+                            </div>
                         </div>
                     ) : (
                         <button
