@@ -3,13 +3,14 @@ import {getSession, useSession} from "next-auth/client";
 import {getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {dateOnly} from "../../utils/utils";
-import MarkdownView from "react-showdown";
 import Link from "next/link";
 import MoreMenu from "../../components/MoreMenu";
 import React, {useState} from "react";
 import EditUpdate from "../../components/EditUpdate";
 import axios from "axios";
 import {useRouter} from "next/router";
+import Showdown from "showdown";
+import Parser from "html-react-parser";
 
 export default function UpdatePage(props: { data: any, updateUrl: string }) {
     const router = useRouter();
@@ -54,6 +55,11 @@ export default function UpdatePage(props: { data: any, updateUrl: string }) {
         setDate(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
         setIsEdit(false);
     }
+
+    const markdownConverter = new Showdown.Converter({
+        strikethrough: true,
+        tasklists: true
+    });
 
     return (
         <div className="max-w-7xl relative mx-auto">
@@ -101,7 +107,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string }) {
                         </div>
                         <hr className="my-8"/>
                         <div className="prose content my-8">
-                            <MarkdownView markdown={thisUpdate.body} options={{ strikethrough: true, tasklists: true }}/>
+                            {Parser(markdownConverter.makeHtml(thisUpdate.body))}
                         </div>
                     </>
                 )}
