@@ -6,12 +6,54 @@ import {dateOnly} from "../../utils/utils";
 import MarkdownView from "react-showdown";
 import Link from "next/link";
 import MoreMenu from "../../components/MoreMenu";
+import React, {useState} from "react";
+import EditUpdate from "../../components/EditUpdate";
+import axios from "axios";
+import {useRouter} from "next/router";
 
-export default function UserProfile({ data, updateUrl }) {
+export default function UpdatePage(props: { data: any, updateUrl: string }) {
+    const router = useRouter();
+
+    const [data, setData] = useState<any>(props.data);
+
     const [session, loading] = useSession();
     const isOwner = !loading && session && (data.email === session.user.email);
+    const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(props.updateUrl));
 
-    const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(updateUrl));
+    const [isEdit, setIsEdit] = useState<boolean>(false);
+    const [body, setBody] = useState<string>(thisUpdate.body);
+    const [title, setTitle] = useState<string>(thisUpdate.title);
+    const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    function onEdit() {
+        setIsLoading(true);
+
+        axios.post("/api/edit-update", {
+            id: thisUpdate._id,
+            username: data.urlName,
+            date: date,
+            body: body,
+            title: title,
+        }).then(res => {
+            setIsLoading(false);
+            setIsEdit(false);
+            if (res.data.urlChanged) {
+                router.push(`/@${data.urlName}/${res.data.data.updates.find(d => d._id === thisUpdate._id).url}`);
+            }
+            else setData(res.data.data);
+        }).catch(e => {
+            console.log(e);
+            setIsLoading(false);
+        });
+    }
+
+    function onCancelEdit() {
+        setBody(thisUpdate.body);
+        setTitle(thisUpdate.title);
+        setDate(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
+        setIsEdit(false);
+    }
 
     return (
         <div className="max-w-7xl relative mx-auto">
@@ -27,25 +69,42 @@ export default function UserProfile({ data, updateUrl }) {
                         </div>
                     </a>
                 </Link>
-                <div className="flex">
-                    <div className="mr-4">
-                        <h1 className="up-h1">{format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")}</h1>
-                        <h2 className="up-h2">{thisUpdate.title}</h2>
-                    </div>
-                    {isOwner && (
-                        <div className="ml-auto">
-                            <MoreMenu
-                                items={[
-                                    {label: "Edit", onClick: () => console.log("editing")}
-                                ]}
-                            />
+                {isEdit ? (
+                    <EditUpdate
+                        body={body}
+                        setBody={setBody}
+                        title={title}
+                        setTitle={setTitle}
+                        date={date}
+                        setDate={setDate}
+                        isLoading={isLoading}
+                        onSave={onEdit}
+                        onCancel={onCancelEdit}
+                        confirmText="Save changes"
+                    />
+                ) : (
+                    <>
+                        <div className="flex">
+                            <div className="mr-4">
+                                <h1 className="up-h1">{format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")}</h1>
+                                <h2 className="up-h2">{thisUpdate.title}</h2>
+                            </div>
+                            {isOwner && (
+                                <div className="ml-auto">
+                                    <MoreMenu
+                                        items={[
+                                            {label: "Edit", onClick: () => setIsEdit(true)}
+                                        ]}
+                                    />
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-                <hr className="my-8"/>
-                <div className="prose content my-8">
-                    <MarkdownView markdown={thisUpdate.body} options={{ strikethrough: true, tasklists: true }}/>
-                </div>
+                        <hr className="my-8"/>
+                        <div className="prose content my-8">
+                            <MarkdownView markdown={thisUpdate.body} options={{ strikethrough: true, tasklists: true }}/>
+                        </div>
+                    </>
+                )}
             </div>
             <div className="absolute left-4 top-8 hidden xl:block h-full">
                 <div className="sticky top-24">
@@ -54,7 +113,7 @@ export default function UserProfile({ data, updateUrl }) {
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition"}`}
                             key={update._id}
                         >
-                            <Link href={`/@${data.urlName}/${update.url}`}>
+                            <Link href={`/@${data.urlName}/${update.url}`} shallow={false}>
                                 <a>
                                     <div className="font-bold"><span>{format(dateOnly(update.date), "MMMM dd, yyyy")}</span></div>
                                     <div><span>{update.title.substr(0,24)}{update.title.length > 24 ? "..." : ""}</span></div>
@@ -89,5 +148,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
     }
 
-    return { props: { data: JSON.parse(JSON.stringify(data)), updateUrl: updateUrl }};
+    return { props: { data: JSON.parse(JSON.stringify(data)), updateUrl: updateUrl, key: updateUrl }};
 };

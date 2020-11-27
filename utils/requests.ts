@@ -8,5 +8,5 @@ export function getUpdateRequest(username: string, url: string) {
         useFindAndModify: false,
     });
 
-    return userModel.findOne({ "urlName": username });
+    return userModel.findOne({ "urlName": username, "updates.url": encodeURIComponent(url) });
 }
