@@ -34,7 +34,7 @@ export default function NewUpdate(){
             <h1 className="up-h1">New update</h1>
 
             <div className="my-8">
-                <div className="up-overline my-4"><span>Date</span></div>
+                <div className="up-ui-title my-4"><span>Date</span></div>
                 <input
                     type="date"
                     className="w-full text-xl h-12"
@@ -46,7 +46,7 @@ export default function NewUpdate(){
             <hr className="my-8"/>
 
             <div className="my-8">
-                <div className="up-overline my-4"><span>Title (optional)</span></div>
+                <div className="up-ui-title my-4"><span>Title (optional)</span></div>
                 <input
                     type="text"
                     className="w-full text-xl h-12"
@@ -59,7 +59,7 @@ export default function NewUpdate(){
             <hr className="my-8"/>
 
             <div className="my-8">
-                <div className="up-overline my-4"><span>Body</span></div>
+                <div className="up-ui-title my-4"><span>Body</span></div>
                 <div className="prose content max-w-full">
                     <SimpleMDE
                         id="helloworld"
@@ -84,7 +84,7 @@ export default function NewUpdate(){
                         <div className="up-spinner"/>
                     )}
                 </div>
-                <button className="up-button text mx-2">Cancel</button>
+                <button className="up-button text mx-2" onClick={() => router.push("/")}>Cancel</button>
             </div>
 
         </div>

@@ -44,6 +44,7 @@ const commentSchema: Schema = new Schema({
 const updateSchema: Schema = new Schema({
     authorId: ObjectId,
     body: reqString,
+    url: reqString,
     title: unreqString,
     date: Date,
     readBy: [ObjectId],
@@ -54,9 +55,14 @@ const updateSchema: Schema = new Schema({
 
 const userSchema: Schema = new Schema({
     ...authorObj,
+    private: {type: Boolean, required: true},
     updates: [updateSchema],
     following: [ObjectId],
-    followers: [ObjectId],
+    followers: [reqString], // emails of followers
+    requests: [reqString], // emails of users requesting follows
+    requesting: [ObjectId],
+}, {
+    timestamps: true,
 });
 
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);

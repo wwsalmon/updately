@@ -24,6 +24,10 @@ body {
     padding-right: 0;
 }
 
+.prose .task-list-item:before{
+    display: none;
+}
+
 .content {
     font-size: 20px;
 }
@@ -39,14 +43,26 @@ body {
     @apply opacity-50;
 }
 
-.up-overline {
+.up-ui-title {
     font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+}
+
+.up-ui-item-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.up-ui-item-subtitle {
+    font-size: 20px;
 }
 
 .up-button {
     @apply px-4 h-12 rounded-md transition font-semibold;
+}
+
+a.up-button {
+    @apply inline-block;
+    line-height: 3rem;
 }
 
 .up-button:disabled {

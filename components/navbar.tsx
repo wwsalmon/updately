@@ -11,13 +11,6 @@ export default function Navbar({}: {  }) {
         <div className="w-full bg-white sticky mb-8 top-0 z-10">
             <div className="max-w-7xl mx-auto h-16 flex items-center px-4">
                 <Link href="/"><a><img src="/logo.svg" className="h-12"/></a></Link>
-                <div className="max-w-2xl w-full mx-auto hidden lg:block">
-                    <input
-                        type="text"
-                        placeholder="Search"
-                        className="border-2 h-12 px-4 rounded-md w-full"
-                    />
-                </div>
                 <div className="ml-auto">
                     {session ? (
                         <div className="flex items-center">

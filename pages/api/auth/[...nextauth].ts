@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
 import mongoose from "mongoose";
 import {userModel} from "../../../models/models";
+import short from "short-uuid";
 
 const options = {
     providers: [
@@ -33,6 +34,7 @@ const options = {
                         email: user.email,
                         name: user.name,
                         image: user.image,
+                        urlName: user.name.split(" ").join("-") + "-" + short.generate(),
                     }, (err, newUser) => {
                         if (err) return Promise.reject(new Error(err));
                         console.log(newUser);
