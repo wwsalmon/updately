@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import {GetServerSideProps} from "next";
 import {getProfileRequest} from "../api/get-profile";
-import {getSession} from "next-auth/client";
+import {getSession, useSession} from "next-auth/client";
 import {getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {dateOnly} from "../../utils/utils";
@@ -9,6 +9,9 @@ import MarkdownView from "react-showdown";
 import Link from "next/link";
 
 export default function UserProfile({ data, updateUrl }) {
+    const [session, loading] = useSession();
+    const isOwner = !loading && session && (data.email === session.user.email);
+
     const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(updateUrl));
 
     return (

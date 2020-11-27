@@ -10,8 +10,7 @@ export default function UserProfile({ data }) {
     console.log(data);
 
     const [session, loading] = useSession();
-
-    const isOwner = !loading && (data.email === session.user.email);
+    const isOwner = !loading && session && (data.email === session.user.email);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
