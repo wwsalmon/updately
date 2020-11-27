@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {getSession, useSession} from "next-auth/client";
-import {getUpdateRequest} from "../../utils/requests";
+import {getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {dateOnly} from "../../utils/utils";
 import Link from "next/link";
@@ -12,12 +12,12 @@ import {useRouter} from "next/router";
 import Showdown from "showdown";
 import Parser from "html-react-parser";
 
-export default function UpdatePage(props: { data: any, updateUrl: string }) {
+export default function UpdatePage(props: { data: any, updateUrl: string, userData: any }) {
     const router = useRouter();
-
-    const [data, setData] = useState<any>(props.data);
-
     const [session, loading] = useSession();
+    const [data, setData] = useState<any>(props.data);
+    const [userData, setUserData] = useState<any>(props.userData);
+
     const isOwner = !loading && session && (data.email === session.user.email);
     const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(props.updateUrl));
 
@@ -26,6 +26,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string }) {
     const [title, setTitle] = useState<string>(thisUpdate.title);
     const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false);
 
     function onEdit() {
         setIsLoading(true);
@@ -56,6 +57,21 @@ export default function UpdatePage(props: { data: any, updateUrl: string }) {
         setIsEdit(false);
     }
 
+    function onFollow() {
+        setIsFollowLoading(true);
+
+        axios.post("/api/follow-user", {
+            id: data._id,
+        }).then(res => {
+            setIsFollowLoading(false);
+            setUserData(res.data.currUserData);
+            setData(res.data.followUserData);
+        }).catch(e => {
+            console.log(e);
+            setIsFollowLoading(false);
+        });
+    }
+
     const markdownConverter = new Showdown.Converter({
         strikethrough: true,
         tasklists: true
@@ -64,17 +80,36 @@ export default function UpdatePage(props: { data: any, updateUrl: string }) {
     return (
         <div className="max-w-7xl relative mx-auto">
             <div className="max-w-3xl mx-auto px-4">
-                <Link href={`/@${data.urlName}`}>
-                    <a className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
-                        <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-10 h-10 rounded-full mr-4"/>
-                        <div>
-                            <div className="up-ui-title"><span>{data.name}</span></div>
+                <div className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
+                    <Link href={`/@${data.urlName}`}>
+                        <a href="" className="flex items-center">
+                            <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-10 h-10 rounded-full mr-4"/>
+                            <div>
+                                <div className="up-ui-title"><span>{data.name}</span></div>
+                            </div>
+                        </a>
+                    </Link>
+                    {isOwner ? (
+                        <p className="ml-auto">Testing</p>
+                    ) : userData ? (
+                        <div className="relative ml-auto">
+                            {userData.following.includes(data._id) ? (
+                                <button className="up-button text" onClick={onFollow}>
+                                    <span className={isFollowLoading ? "invisible" : ""}>Following</span>
+                                </button>
+                            ) : (
+                                <button className="up-button small" onClick={onFollow}>
+                                    <span className={isFollowLoading ? "invisible" : ""}>Follow</span>
+                                </button>
+                            )}
+                            {isFollowLoading && (
+                                <div className="up-spinner dark"/>
+                            )}
                         </div>
-                        <div className="ml-auto opacity-50">
-                            <span>{format(dateOnly(thisUpdate.date), "MMMM dd, yyyy")}</span>
-                        </div>
-                    </a>
-                </Link>
+                    ) : (
+                        <Link href="/sign-in"><a className="up-button ml-auto small">Follow</a></Link>
+                    )}
+                </div>
                 {isEdit ? (
                     <EditUpdate
                         body={body}
@@ -138,12 +173,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const username: string = context.params.username.substr(1);
     const updateUrl: string = context.params.updateUrl;
     const data = await getUpdateRequest(username, updateUrl);
+    const session = await getSession(context);
+
+    const userData = session ? await getCurrUserRequest(session.user.email) : null;
+
+    console.log(userData);
 
     if (!data) return { notFound: true };
 
     if (data.private) {
-        const session = await getSession();
-
         if (!session || data.followers.findIndex(d => d === session.user.email)) {
             let resData = data.slice(0);
             delete resData.updates;
@@ -154,5 +192,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
     }
 
-    return { props: { data: JSON.parse(JSON.stringify(data)), updateUrl: updateUrl, key: updateUrl }};
+    return { props: { data: JSON.parse(JSON.stringify(data)), updateUrl: updateUrl, userData: JSON.parse(JSON.stringify(userData)), key: updateUrl }};
 };

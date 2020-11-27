@@ -42,7 +42,6 @@ const commentSchema: Schema = new Schema({
 });
 
 const updateSchema: Schema = new Schema({
-    authorId: ObjectId,
     body: reqString,
     url: reqString,
     title: unreqString,
@@ -66,6 +65,3 @@ const userSchema: Schema = new Schema({
 });
 
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
-export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);
-export const subCommentModel = mongoose.models.subComment || mongoose.model('subComment', subCommentSchema);
-export const updateModel = mongoose.models.update || mongoose.model('update', updateSchema);

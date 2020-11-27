@@ -20,24 +20,23 @@ const options = {
                     useFindAndModify: false,
                 });
 
-                userModel.find({ email: user.email }, (err, foundItems) => {
+                userModel.findOne({ email: user.email }, (err, foundItem) => {
                     if (err) return Promise.reject(new Error(err));
 
                     // if user object already exists, return
-                    if (foundItems.length > 0) {
-                        console.log(foundItems);
-                        return Promise.resolve(true);
-                    }
+                    if (foundItem) return Promise.resolve(true);
+
+                    const urlName = user.name.split(" ").join("-") + "-" + short.generate();
 
                     // otherwise, create new user object
                     userModel.create({
                         email: user.email,
                         name: user.name,
                         image: user.image,
-                        urlName: user.name.split(" ").join("-") + "-" + short.generate(),
+                        urlName: urlName,
+                        private: false,
                     }, (err, newUser) => {
                         if (err) return Promise.reject(new Error(err));
-                        console.log(newUser);
                         return Promise.resolve(newUser);
                     });
                 });
