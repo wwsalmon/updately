@@ -1,12 +1,11 @@
-import { useRouter } from "next/router";
 import {GetServerSideProps} from "next";
-import {getProfileRequest} from "../api/get-profile";
 import {getSession, useSession} from "next-auth/client";
 import {getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {dateOnly} from "../../utils/utils";
 import MarkdownView from "react-showdown";
 import Link from "next/link";
+import MoreMenu from "../../components/MoreMenu";
 
 export default function UserProfile({ data, updateUrl }) {
     const [session, loading] = useSession();
@@ -18,7 +17,7 @@ export default function UserProfile({ data, updateUrl }) {
         <div className="max-w-7xl relative mx-auto">
             <div className="max-w-3xl mx-auto px-4">
                 <Link href={`/@${data.urlName}`}>
-                    <a className="flex h-16 my-8 items-center sticky top-0 bg-white z-10">
+                    <a className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
                         <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-10 h-10 rounded-full mr-4"/>
                         <div>
                             <div className="up-ui-title"><span>{data.name}</span></div>
@@ -28,8 +27,21 @@ export default function UserProfile({ data, updateUrl }) {
                         </div>
                     </a>
                 </Link>
-                <h1 className="up-h1">{format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")}</h1>
-                <h2 className="up-h2">{thisUpdate.title}</h2>
+                <div className="flex">
+                    <div className="mr-4">
+                        <h1 className="up-h1">{format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")}</h1>
+                        <h2 className="up-h2">{thisUpdate.title}</h2>
+                    </div>
+                    {isOwner && (
+                        <div className="ml-auto">
+                            <MoreMenu
+                                items={[
+                                    {label: "Edit", onClick: () => console.log("editing")}
+                                ]}
+                            />
+                        </div>
+                    )}
+                </div>
                 <hr className="my-8"/>
                 <div className="prose content my-8">
                     <MarkdownView markdown={thisUpdate.body} options={{ strikethrough: true, tasklists: true }}/>
