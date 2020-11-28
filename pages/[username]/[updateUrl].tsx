@@ -94,7 +94,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                     </Link>
                     <div className="ml-auto">
                         {isOwner ? (
-                            <p>Testing</p>
+                            <Link href="/new-update"><a className="up-button primary small">Post new update</a></Link>
                         ) : (
                             <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
                         )}
