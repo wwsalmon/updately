@@ -59,6 +59,18 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
         setIsEdit(false);
     }
 
+    function handleDelete() {
+        axios.post("/api/delete-update", {
+            id: thisUpdate._id,
+            username: data.urlName,
+        }).then(() => {
+            router.push("/@" + data.urlName);
+        }).catch(e => {
+            console.log(e);
+            setIsLoading(false);
+        })
+    }
+
     const markdownConverter = new Showdown.Converter({
         strikethrough: true,
         tasklists: true
@@ -112,7 +124,8 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                                 <div className="ml-auto">
                                     <MoreMenu
                                         items={[
-                                            {label: "Edit", onClick: () => setIsEdit(true)}
+                                            {label: "Edit", onClick: () => setIsEdit(true)},
+                                            {label: "Delete", onClick: handleDelete}
                                         ]}
                                     />
                                 </div>
