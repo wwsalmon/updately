@@ -44,7 +44,7 @@ export async function getDemoFeedRequest() {
         useFindAndModify: false,
     });
 
-    return await userModel.find({ "_id": { $in: ["5fbf523741f4a430145ed84e", "5fc19ca2faa0244fe0feb0b5"]}});
+    return await userModel.find({ "_id": { $in: ["5fbf523741f4a430145ed84e", "5fc1e19db231d6000811ec5d"]}});
 }
 
 export async function getProfilesByEmails(emailList: string[]) {
