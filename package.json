@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "postbuild": "next-on-netlify"
+    "start": "next start"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.3.1",
@@ -18,7 +17,6 @@
     "mongoose": "^5.10.16",
     "next": "^10.0.3",
     "next-auth": "^3.1.0",
-    "next-on-netlify": "^2.6.3",
     "next-seo": "^4.17.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
