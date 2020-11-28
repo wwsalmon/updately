@@ -23,8 +23,7 @@ export default function NewUpdate() {
             body: body,
             title: title,
         }).then(res => {
-            console.log(res);
-            router.push("/");
+            router.push(res.data.url);
         }).catch(e => {
             console.log(e);
             setPostLoading(false);

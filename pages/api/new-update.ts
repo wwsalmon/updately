@@ -42,7 +42,7 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
 
         console.log("Info saved.");
 
-        res.status(200).json({message: "success"});
+        res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
     } catch (e) {
         res.status(500).json({error: e});
     }
