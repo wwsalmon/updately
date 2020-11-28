@@ -4,6 +4,7 @@ import {getCurrUserFeedRequest, getDemoFeedRequest} from "../utils/requests";
 import React from "react";
 import Link from "next/link";
 import UpdateFeed from "../components/UpdateFeed";
+import { NextSeo } from 'next-seo';
 
 export default function Home({userData, feedData}) {
     let followUsers: {
@@ -18,6 +19,10 @@ export default function Home({userData, feedData}) {
 
     return (
         <>
+            <NextSeo
+                title={userData ? "Your feed | Updately" : "Updately: Social platform for daily updates"}
+                description="Write daily updates, share them with friends, and see friends' updates for social accountability and goal-setting."
+            />
             <div className="max-w-4xl relative mx-auto px-4">
                 {userData ? (
                     <>

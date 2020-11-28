@@ -8,6 +8,7 @@ import {dateOnly} from "../../utils/utils";
 import {getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
 import React, {useState} from "react";
 import FollowButton from "../../components/FollowButton";
+import {NextSeo} from "next-seo";
 
 export default function UserProfile(props: { data, userData, userFollowers }) {
     const [session, loading] = useSession();
@@ -17,7 +18,10 @@ export default function UserProfile(props: { data, userData, userFollowers }) {
 
     return (
         <div className="max-w-4xl mx-auto px-4">
-
+            <NextSeo
+                title={`${data.name}'s daily updates | Updately`}
+                description={`Follow ${data.name} on Updately to get their updates in your feed.`}
+            />
             <div className="sm:flex my-8">
                 <div className="flex items-center">
                     <div className="w-16 mr-8">

@@ -12,6 +12,7 @@ import {useRouter} from "next/router";
 import Showdown from "showdown";
 import Parser from "html-react-parser";
 import FollowButton from "../../components/FollowButton";
+import {NextSeo} from "next-seo";
 
 export default function UpdatePage(props: { data: any, updateUrl: string, userData: any }) {
     const router = useRouter();
@@ -65,6 +66,10 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
 
     return (
         <div className="max-w-7xl relative mx-auto">
+            <NextSeo
+                title={`${format(dateOnly(thisUpdate.date), "MM/dd/yy")} | ${data.name}'s daily updates on Updately`}
+                description={`${data.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
+            />
             <div className="max-w-3xl mx-auto px-4">
                 <div className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
                     <Link href={`/@${data.urlName}`}>
