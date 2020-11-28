@@ -18,15 +18,19 @@ export default function UserProfile(props: { data, userData, userFollowers }) {
     return (
         <div className="max-w-4xl mx-auto px-4">
 
-            <div className="flex my-8">
-                <div className="w-16 mr-8">
-                    <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-full rounded-full"/>
+            <div className="sm:flex my-8">
+                <div className="flex items-center">
+                    <div className="w-16 mr-8">
+                        <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-full rounded-full"/>
+                    </div>
+                    <h1 className="up-h1">{data.name}</h1>
                 </div>
-                <h1 className="up-h1">{data.name}</h1>
-                <div className="ml-auto">
-                    {!isOwner && (
-                        <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData} primary={true}/>
-                    )}
+                <div className="flex sm:ml-auto mt-6 sm:mt-0">
+                    <div className="ml-auto">
+                        {!isOwner && (
+                            <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData} primary={true}/>
+                        )}
+                    </div>
                 </div>
             </div>
 

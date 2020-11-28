@@ -100,7 +100,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                     <>
                         <div className="flex">
                             <div className="mr-4">
-                                <h1 className="up-h1">{format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")}</h1>
+                                <h1 className="up-h1 mb-4">{format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")}</h1>
                                 <h2 className="up-h2">{thisUpdate.title}</h2>
                             </div>
                             {isOwner && (
@@ -120,8 +120,9 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                     </>
                 )}
             </div>
-            <div className="absolute left-4 top-8 hidden xl:block h-full">
-                <div className="sticky top-24">
+            <div className="xl:absolute xl:left-4 xl:top-8 xl:h-full max-w-3xl mx-auto px-4 xl:mx-0 xl:px-0">
+                <hr className="my-8 xl:hidden"/>
+                <div className="xl:sticky xl:top-24">
                     {data.updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
                         <div
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition"}`}

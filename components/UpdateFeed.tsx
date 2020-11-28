@@ -37,20 +37,22 @@ export default function UpdateFeed({feedData, count}: {feedData: any, count: num
                     )}
                     <Link href={"/@" + update.author.urlName + "/" + update.url}>
                         <a>
-                            <div className="flex items-center">
-                                <img
-                                    src={update.author.image}
-                                    alt={`Profile picture of ${update.author.name}`}
-                                    className="w-16 h-16 rounded-full mr-4"
-                                />
-                                <div className="my-6 leading-snug mr-4">
-                                    <div className="up-ui-item-title"><span>{update.author.name}</span></div>
-                                    <p className="up-ui-item-subtitle">
-                                        {update.title && (<span className="mr-2">{update.title}</span>)}
-                                        <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
-                                    </p>
+                            <div className="sm:flex items-center">
+                                <div className="flex items-center">
+                                    <img
+                                        src={update.author.image}
+                                        alt={`Profile picture of ${update.author.name}`}
+                                        className="w-16 h-16 rounded-full mr-4"
+                                    />
+                                    <div className="my-6 leading-snug mr-4">
+                                        <div className="up-ui-item-title"><span>{update.author.name}</span></div>
+                                        <p className="up-ui-item-subtitle">
+                                            {update.title && (<span className="mr-2">{update.title}</span>)}
+                                            <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="ml-auto flex-shrink-0">
+                                <div className="ml-auto flex-shrink-0 mb-4 sm:mb-0">
                                     <p className="opacity-50">{formatDistanceToNow(new Date(update.createdAt))} ago</p>
                                 </div>
                             </div>

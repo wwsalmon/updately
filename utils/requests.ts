@@ -32,8 +32,6 @@ export async function getCurrUserFeedRequest(email: string) {
 
     if (userData.following.length === 0) return {userData: userData, feedData: null};
 
-    console.log(userData.following);
-
     const feedData = await userModel.find({ "_id": { $in: userData.following}});
 
     return {userData: userData, feedData: feedData};
