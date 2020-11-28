@@ -20,3 +20,21 @@ export function getCurrUserRequest(email: string) {
 
     return userModel.findOne({ email: email });
 }
+
+export async function getCurrUserFeedRequest(email: string) {
+    mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+
+    const userData = await userModel.findOne({ email: email });
+
+    if (userData.following.length === 0) return {userData: userData, feedData: null};
+
+    console.log(userData.following);
+
+    const feedData = await userModel.find({ "_id": { $in: userData.following}});
+
+    return {userData: userData, feedData: feedData};
+}
