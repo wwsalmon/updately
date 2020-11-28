@@ -5,12 +5,11 @@ import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
 import {dateOnly} from "../../utils/utils";
-import {getCurrUserRequest} from "../../utils/requests";
+import {getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
 import React, {useState} from "react";
-import axios from "axios";
 import FollowButton from "../../components/FollowButton";
 
-export default function UserProfile(props: { data, userData }) {
+export default function UserProfile(props: { data, userData, userFollowers }) {
     const [session, loading] = useSession();
     const isOwner = !loading && session && (props.data.email === session.user.email);
     const [data, setData] = useState<any>(props.data);
@@ -19,10 +18,6 @@ export default function UserProfile(props: { data, userData }) {
     return (
         <div className="max-w-4xl mx-auto px-4">
 
-            <div className="my-4 up-ui-title">
-                <span>User profile</span>
-            </div>
-
             <div className="flex my-8">
                 <div className="w-16 mr-8">
                     <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-full rounded-full"/>
@@ -30,10 +25,28 @@ export default function UserProfile(props: { data, userData }) {
                 <h1 className="up-h1">{data.name}</h1>
                 <div className="ml-auto">
                     {!isOwner && (
-                        <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
+                        <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData} primary={true}/>
                     )}
                 </div>
             </div>
+
+            {isOwner && (
+                <>
+                    <div className="my-4">
+                        <h2 className="up-ui-title">Your followers ({props.userFollowers.length})</h2>
+                        <p>Have your friends follow you by sharing this profile page with them!</p>
+                    </div>
+                    <div className="flex wrap">
+                        {props.userFollowers.map(user => (
+                            <Link href={"/@" + user.urlName}>
+                                <a>
+                                    <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
+                                </a>
+                            </Link>
+                        ))}
+                    </div>
+                </>
+            )}
 
             <hr className="my-8"/>
 
@@ -69,14 +82,16 @@ export default function UserProfile(props: { data, userData }) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     if (Array.isArray(context.params.username) || context.params.username.substr(0, 1) !== "@") return { notFound: true };
+
     const username: string = context.params.username.substr(1);
     const data = await getProfileRequest(username);
-    const session = await getSession(context);
-    const userData = session ? await getCurrUserRequest(session.user.email) : null;
-
-    console.log(username, data);
-
     if (!data) return { notFound: true };
+
+    const session = await getSession(context);
+    const userData = session ? (session.user.email === data.email ? data : await getCurrUserRequest(session.user.email)) : null;
+
+    let userFollowers = session ? (session.user.email === data.email ? await getProfilesByEmails(userData.followers) : []) : [];
+    if (userFollowers) userFollowers = userFollowers.map(user => ({name: user.name, image: user.image, urlName: user.urlName}));
 
     if (data.private) {
 
@@ -86,9 +101,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             delete resData.followers;
             delete resData.following;
             resData.privateView = true;
-            return { props: { data: resData }};
+            return { props: { data: resData, userData: null, userFollowers: null, key: data._id.toString() }};
         }
     }
 
-    return { props: { data: JSON.parse(JSON.stringify(data)), userData: JSON.parse(JSON.stringify(userData)) }};
+    return { props: { data: JSON.parse(JSON.stringify(data)), userData: JSON.parse(JSON.stringify(userData)), userFollowers: userFollowers, key: data._id.toString() }};
 };

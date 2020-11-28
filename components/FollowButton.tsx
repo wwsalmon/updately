@@ -2,7 +2,7 @@ import axios from "axios";
 import {useState} from "react";
 import Link from "next/link";
 
-export default function FollowButton({data, setData, userData, setUserData}){
+export default function FollowButton({data, setData, userData, setUserData, primary = false}){
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     function onFollow() {
@@ -29,7 +29,7 @@ export default function FollowButton({data, setData, userData, setUserData}){
                             <span className={isLoading ? "invisible" : ""}>Following</span>
                         </button>
                     ) : (
-                        <button className="up-button small" onClick={onFollow}>
+                        <button className={`up-button small ${primary ? "primary" : ""}`} onClick={onFollow}>
                             <span className={isLoading ? "invisible" : ""}>Follow</span>
                         </button>
                     )}

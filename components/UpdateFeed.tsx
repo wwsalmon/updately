@@ -27,7 +27,7 @@ export default function UpdateFeed({feedData, count}: {feedData: any, count: num
 
     return (
         <>
-            {feedUpdates.map((update, i) => (
+            {feedUpdates.length > 0 ? feedUpdates.map((update, i) => (
                 <>
                     {(i === 0 || update.date !== feedUpdates[i - 1].date) && (
                         <>
@@ -57,7 +57,11 @@ export default function UpdateFeed({feedData, count}: {feedData: any, count: num
                         </a>
                     </Link>
                 </>
-            ))}
+            )) : (
+                <div className="prose content my-6">
+                    <p>Looks like the users you're following haven't posted anything yet. Follow more people or remind your friends to write their updates!</p>
+                </div>
+            )}
         </>
     )
 }

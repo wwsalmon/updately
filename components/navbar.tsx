@@ -24,7 +24,6 @@ export default function Navbar({}: {  }) {
                                 />
                             </div>
                             <div className="up-hover-dropdown absolute top-0 mt-10 shadow-lg rounded-md z-10 bg-white">
-                                <MenuLink text="My profile" href=""/>
                                 <MenuButton text="Sign out" onClick={signOut}/>
                             </div>
                         </div>

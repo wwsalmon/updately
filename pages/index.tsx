@@ -80,5 +80,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     let {userData, feedData} = await getCurrUserFeedRequest(session.user.email);
-    return {props: {userData: JSON.parse(JSON.stringify(userData)), feedData: JSON.parse(JSON.stringify(feedData))}};
+    return {props: {userData: JSON.parse(JSON.stringify(userData)), feedData: JSON.parse(JSON.stringify(feedData || []))}};
 };
