@@ -40,10 +40,10 @@ export default function MoreMenu({items, buttonText = <FaEllipsisV/>, buttonClas
             >{buttonText}</button>
             {isOpen && (
                 <div className="absolute top-0 mt-16 shadow-lg rounded-md z-10 bg-white">
-                    {items.map(item => item.href ? (
-                        <MenuLink text={item.label} href={item.href}/>
+                    {items.map((item, i) => item.href ? (
+                        <MenuLink text={item.label} href={item.href} key={i}/>
                     ) : (item.onClick && (
-                        <MenuButton text={item.label} onClick={item.onClick}/>
+                        <MenuButton text={item.label} onClick={item.onClick} key={i}/>
                     )))}
                 </div>
             )}

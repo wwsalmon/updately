@@ -29,8 +29,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         context.res.setHeader("location", "/");
         context.res.statusCode = 302;
         context.res.end();
-        return;
+        return {props: {}};
     }
 
-    return {props: {}}
+    return {props: {}};
 };

@@ -40,7 +40,7 @@ export default function Home({userData, feedData}) {
                         </div>
                         <div className="flex wrap">
                             {followUsers.map(user => (
-                                <Link href={"/@" + user.urlName}>
+                                <Link href={"/@" + user.urlName} key={user.urlName}>
                                     <a>
                                         <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
                                     </a>
