@@ -38,3 +38,17 @@ export async function getCurrUserFeedRequest(email: string) {
 
     return {userData: userData, feedData: feedData};
 }
+
+export async function getDemoFeedRequest() {
+    console.log("demo feed request");
+
+    mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+
+    const feedData = await userModel.find({ "_id": { $in: ["5fbf523741f4a430145ed84e", "5fc19ca2faa0244fe0feb0b5"]}});
+
+    return feedData;
+}
