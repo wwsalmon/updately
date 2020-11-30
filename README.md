@@ -1,30 +1,16 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Updately
 
-## Getting Started
+A social platform for daily updates.
 
-First, run the development server:
+## Development
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+Both Updately's frontend and backend are built in Next.js. Auth is handled using `next-auth` with Google OAuth as the only provider, and MongoDB is used for data storage.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/import?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+To get a local version of Updately running:
+1. Clone this repo
+2. Make a `.env` file in the project root with the following variables:
+    - GOOGLE_CLIENT_ID: client ID from Google OAuth credentials (follow Google/`/next-auth` instructions to set up yourself)
+    - GOOGLE_CLIENT_SECRET: client secret from Google OAuth credentials
+    - NEXTAUTH_URL: http://localhost:3000 or whatever your URL is
+    - MONGODB_URL: MongoDB URL with specified cluster, password, etc. Set up your own MongoDB cluster for this
+3. Run `npm run dev` to spin up a local server. Have fun!
