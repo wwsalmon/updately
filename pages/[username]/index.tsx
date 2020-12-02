@@ -5,7 +5,7 @@ import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
 import {dateOnly} from "../../utils/utils";
-import {getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
+import {createAccount, getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
 import React, {useState} from "react";
 import FollowButton from "../../components/FollowButton";
 import {NextSeo} from "next-seo";

@@ -3,6 +3,7 @@ import Providers from "next-auth/providers";
 import mongoose from "mongoose";
 import {userModel} from "../../../models/models";
 import short from "short-uuid";
+import {createAccount} from "../../../utils/requests";
 
 const options = {
     providers: [
@@ -13,37 +14,19 @@ const options = {
     ],
     callbacks: {
         signIn: async (user, account, profile) => {
-            try {
-                mongoose.connect(process.env.MONGODB_URL, {
-                    useNewUrlParser: true,
-                    useUnifiedTopology: true,
-                    useFindAndModify: false,
-                });
+            await mongoose.connect(process.env.MONGODB_URL, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                useFindAndModify: false,
+            });
 
-                userModel.findOne({ email: user.email }, (err, foundItem) => {
-                    if (err) return Promise.reject(new Error(err));
+            const foundItem = await userModel.findOne({ email: user.email }).exec();
 
-                    // if user object already exists, return
-                    if (foundItem) return Promise.resolve(true);
+            if (foundItem) return true;
 
-                    const urlName = user.name.split(" ").join("-") + "-" + short.generate();
+            await createAccount(user);
 
-                    // otherwise, create new user object
-                    userModel.create({
-                        email: user.email,
-                        name: user.name,
-                        image: user.image,
-                        urlName: urlName,
-                        private: false,
-                    }, (err, newUser) => {
-                        if (err) return Promise.reject(new Error(err));
-                        return Promise.resolve(newUser);
-                    });
-                });
-            } catch (e) {
-                console.log(e);
-                return Promise.reject(new Error(e));
-            }
+            return true;
         }
     }
 };

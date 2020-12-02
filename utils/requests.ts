@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import {userModel} from "../models/models";
+import short from "short-uuid";
 
-export function getUpdateRequest(username: string, url: string) {
-    mongoose.connect(process.env.MONGODB_URL, {
+export async function getUpdateRequest(username: string, url: string) {
+    await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -11,8 +12,8 @@ export function getUpdateRequest(username: string, url: string) {
     return userModel.findOne({ "urlName": username, "updates.url": encodeURIComponent(url) });
 }
 
-export function getCurrUserRequest(email: string) {
-    mongoose.connect(process.env.MONGODB_URL, {
+export async function getCurrUserRequest(email: string) {
+    await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -21,14 +22,16 @@ export function getCurrUserRequest(email: string) {
     return userModel.findOne({ email: email });
 }
 
-export async function getCurrUserFeedRequest(email: string) {
-    mongoose.connect(process.env.MONGODB_URL, {
+export async function getCurrUserFeedRequest(user) {
+    await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
     });
 
-    const userData = await userModel.findOne({ email: email });
+    let userData = await userModel.findOne({ email: user.email });
+
+    if (!userData) userData = await createAccount(user);
 
     if (userData.following.length === 0) return {userData: userData, feedData: null};
 
@@ -38,21 +41,39 @@ export async function getCurrUserFeedRequest(email: string) {
 }
 
 export async function getDemoFeedRequest() {
-    mongoose.connect(process.env.MONGODB_URL, {
+    await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
     });
 
-    return await userModel.find({ "_id": { $in: ["5fbf523741f4a430145ed84e", "5fc1e19db231d6000811ec5d"]}});
+    return userModel.find({ "_id": { $in: ["5fbf523741f4a430145ed84e", "5fc1e19db231d6000811ec5d"]}});
 }
 
 export async function getProfilesByEmails(emailList: string[]) {
-    mongoose.connect(process.env.MONGODB_URL, {
+    await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
     });
 
-    return await userModel.find({ "email": { $in: emailList }});
+    return userModel.find({ "email": { $in: emailList }});
+}
+
+export async function createAccount(user) {
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+
+    const urlName = user.name.split(" ").join("-") + "-" + short.generate();
+
+    return userModel.create({
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        urlName: urlName,
+        private: false,
+    });
 }
