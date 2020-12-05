@@ -80,8 +80,8 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
     return (
         <div className="max-w-7xl relative mx-auto">
             <NextSeo
-                title={`${format(dateOnly(thisUpdate.date), "MM/dd/yy")} | ${data.name}'s daily updates on Updately`}
-                description={`${data.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
+                title={`${format(dateOnly(thisUpdate.date), "MM/d/yy")} | ${data.name}'s daily updates on Updately`}
+                description={`${data.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
                 <div className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
@@ -118,7 +118,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                     <>
                         <div className="flex">
                             <div className="mr-4">
-                                <h1 className="up-h1 mb-4">{format(dateOnly(thisUpdate.date), "EEEE, MMMM dd")}</h1>
+                                <h1 className="up-h1 mb-4">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
                                 <h2 className="up-h2">{thisUpdate.title}</h2>
                             </div>
                             {isOwner && (
@@ -149,7 +149,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                         >
                             <Link href={`/@${data.urlName}/${update.url}`} shallow={false}>
                                 <a>
-                                    <div className="font-bold"><span>{format(dateOnly(update.date), "MMMM dd, yyyy")}</span></div>
+                                    <div className="font-bold"><span>{format(dateOnly(update.date), "MMMM d, yyyy")}</span></div>
                                     <div><span>{update.title.substr(0,24)}{update.title.length > 24 ? "..." : ""}</span></div>
                                 </a>
                             </Link>

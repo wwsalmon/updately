@@ -72,7 +72,7 @@ export default function UserProfile(props: { data, userData, userFollowers }) {
 
                     {data.updates.length > 0 ? data.updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map(update => (
                         <a key={update._id} className="block my-8" href={`/@${data.urlName}/${update.url}`}>
-                            <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM dd, yyyy")}</h3>
+                            <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
                             <p className="up-ui-item-subtitle">
                                 {update.title && (<span className="mr-2">{update.title}</span>)}
                                 <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>

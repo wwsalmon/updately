@@ -32,7 +32,7 @@ export default function UpdateFeed({feedData, count}: {feedData: any, count: num
                     {(i === 0 || update.date !== feedUpdates[i - 1].date) && (
                         <>
                             <hr className="my-8"/>
-                            <h3 className="up-ui-title mt-12 mb-6">{format(dateOnly(update.date), "EEEE, MMMM dd, yyyy")}</h3>
+                            <h3 className="up-ui-title mt-12 mb-6">{format(dateOnly(update.date), "EEEE, MMMM d, yyyy")}</h3>
                         </>
                     )}
                     <Link href={"/@" + update.author.urlName + "/" + update.url}>
