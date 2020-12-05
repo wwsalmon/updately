@@ -73,7 +73,8 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
 
     const markdownConverter = new Showdown.Converter({
         strikethrough: true,
-        tasklists: true
+        tasklists: true,
+        tables: true,
     });
 
     return (
