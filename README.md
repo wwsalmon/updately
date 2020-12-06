@@ -4,7 +4,7 @@ A social platform for daily updates.
 
 ## Development
 
-Both Updately's frontend and backend are built in Next.js. Auth is handled using `next-auth` with Google OAuth as the only provider, and MongoDB is used for data storage.
+Both Updately's frontend and backend are built in Next.js. Auth is handled using `next-auth` with Google OAuth as the only provider, and MongoDB is used for data storage. **For full details, check out [this blog post](https://www.samsonzhang.com/2020/12/05/i-built-and-launched-a-social-platform-app-in-three-days-heres-how-i-did-it-and-what-i-learned.html).**
 
 To get a local version of Updately running:
 1. Clone this repo
