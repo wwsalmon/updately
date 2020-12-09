@@ -4,7 +4,7 @@ import {getSession, useSession} from "next-auth/client";
 import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
-import {dateOnly} from "../../utils/utils";
+import {cleanForJSON, dateOnly} from "../../utils/utils";
 import {createAccount, getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
 import React, {useState} from "react";
 import FollowButton from "../../components/FollowButton";
@@ -95,7 +95,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const userData = session ? (session.user.email === data.email ? data : await getCurrUserRequest(session.user.email)) : null;
 
     let followers = await getProfilesByEmails(data.followers);
-    if (followers) followers = followers.map(user => ({name: user.name, image: user.image, urlName: user.urlName}));
 
     if (data.private) {
 
@@ -109,5 +108,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
     }
 
-    return { props: { data: JSON.parse(JSON.stringify(data)), userData: JSON.parse(JSON.stringify(userData)), followers: followers, key: data._id.toString() }};
+    return { props: { data: cleanForJSON(data), userData: cleanForJSON(userData), followers: cleanForJSON(followers), key: data._id.toString() }};
 };

@@ -57,7 +57,10 @@ export async function getProfilesByEmails(emailList: string[]) {
         useFindAndModify: false,
     });
 
-    return userModel.find({ "email": { $in: emailList }});
+    return userModel.aggregate([
+        {$match: {"email": { $in: emailList }}},
+        {$group: {_id: "$_id", name: {$first: "$name"}, image: {$first: "$image"}, urlName: {$first: "$urlName"}}}
+    ]);
 }
 
 export async function createAccount(user) {

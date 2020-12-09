@@ -3,3 +3,7 @@ export function dateOnly(date: string): Date {
     const newDate = new Date(initDate.valueOf() + initDate.getTimezoneOffset() * 60 * 1000);
     return newDate;
 }
+
+export function cleanForJSON(input: any): any {
+    return JSON.parse(JSON.stringify(input));
+}

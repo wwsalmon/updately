@@ -5,6 +5,7 @@ import React from "react";
 import Link from "next/link";
 import UpdateFeed from "../components/UpdateFeed";
 import { NextSeo } from 'next-seo';
+import {cleanForJSON} from "../utils/utils";
 
 export default function Home({userData, feedData}) {
     let followUsers: {
@@ -80,9 +81,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (!session) {
         const feedData = await getDemoFeedRequest();
-        return {props: {userData: null, feedData: JSON.parse(JSON.stringify(feedData))}}
+        return {props: {userData: null, feedData: cleanForJSON(feedData)}}
     }
 
     let {userData, feedData} = await getCurrUserFeedRequest(session.user);
-    return {props: {userData: JSON.parse(JSON.stringify(userData)), feedData: JSON.parse(JSON.stringify(feedData || []))}};
+    return {props: {userData: cleanForJSON(userData), feedData: cleanForJSON(feedData || [])}};
 };

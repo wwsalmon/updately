@@ -2,7 +2,7 @@ import {GetServerSideProps} from "next";
 import {getSession, useSession} from "next-auth/client";
 import {getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
-import {dateOnly} from "../../utils/utils";
+import {cleanForJSON, dateOnly} from "../../utils/utils";
 import Link from "next/link";
 import MoreMenu from "../../components/MoreMenu";
 import React, {useState} from "react";
@@ -182,5 +182,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
     }
 
-    return { props: { data: JSON.parse(JSON.stringify(data)), updateUrl: updateUrl, userData: JSON.parse(JSON.stringify(userData)), key: updateUrl }};
+    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
 };
