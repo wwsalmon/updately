@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import {userModel} from "../models/models";
 import short from "short-uuid";
+import axios from "axios";
 
 export async function getUpdateRequest(username: string, url: string) {
     await mongoose.connect(process.env.MONGODB_URL, {
@@ -64,6 +65,16 @@ export async function getProfilesByEmails(emailList: string[]) {
 }
 
 export async function createAccount(user) {
+    await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
+        email: user.email,
+        name: user.name,
+    }, {
+        headers: {
+            "X-MailerLite-ApiKey": process.env.MAILERLITE_KEY,
+            "Content-Type": "application/json",
+        }
+    });
+
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,

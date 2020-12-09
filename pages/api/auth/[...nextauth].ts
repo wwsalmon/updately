@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
 import mongoose from "mongoose";
 import {userModel} from "../../../models/models";
-import short from "short-uuid";
 import {createAccount} from "../../../utils/requests";
 
 const options = {
