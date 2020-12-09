@@ -10,7 +10,7 @@ import React, {useState} from "react";
 import FollowButton from "../../components/FollowButton";
 import {NextSeo} from "next-seo";
 
-export default function UserProfile(props: { data, userData, userFollowers }) {
+export default function UserProfile(props: { data, userData, followers }) {
     const [session, loading] = useSession();
     const isOwner = !loading && session && (props.data.email === session.user.email);
     const [data, setData] = useState<any>(props.data);
@@ -38,23 +38,19 @@ export default function UserProfile(props: { data, userData, userFollowers }) {
                 </div>
             </div>
 
-            {isOwner && (
-                <>
-                    <div className="my-4">
-                        <h2 className="up-ui-title">Your followers ({props.userFollowers.length})</h2>
-                        <p>Have your friends follow you by sharing this profile page with them!</p>
-                    </div>
-                    <div className="flex wrap">
-                        {props.userFollowers.map(user => (
-                            <Link href={"/@" + user.urlName} key={user.urlName}>
-                                <a>
-                                    <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
-                                </a>
-                            </Link>
-                        ))}
-                    </div>
-                </>
-            )}
+            <div className="my-4">
+                <h2 className="up-ui-title">{isOwner ? "Your" : `${props.data.name}'s`} followers ({props.followers.length})</h2>
+                {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
+            </div>
+            <div className="flex wrap">
+                {props.followers.map(user => (
+                    <Link href={"/@" + user.urlName} key={user.urlName}>
+                        <a>
+                            <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
+                        </a>
+                    </Link>
+                ))}
+            </div>
 
             <hr className="my-8"/>
 
@@ -98,8 +94,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const session = await getSession(context);
     const userData = session ? (session.user.email === data.email ? data : await getCurrUserRequest(session.user.email)) : null;
 
-    let userFollowers = session ? (session.user.email === data.email ? await getProfilesByEmails(userData.followers) : []) : [];
-    if (userFollowers) userFollowers = userFollowers.map(user => ({name: user.name, image: user.image, urlName: user.urlName}));
+    let followers = await getProfilesByEmails(data.followers);
+    if (followers) followers = followers.map(user => ({name: user.name, image: user.image, urlName: user.urlName}));
 
     if (data.private) {
 
@@ -109,9 +105,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             delete resData.followers;
             delete resData.following;
             resData.privateView = true;
-            return { props: { data: resData, userData: null, userFollowers: null, key: data._id.toString() }};
+            return { props: { data: resData, userData: null, followers: null, key: data._id.toString() }};
         }
     }
 
-    return { props: { data: JSON.parse(JSON.stringify(data)), userData: JSON.parse(JSON.stringify(userData)), userFollowers: userFollowers, key: data._id.toString() }};
+    return { props: { data: JSON.parse(JSON.stringify(data)), userData: JSON.parse(JSON.stringify(userData)), followers: followers, key: data._id.toString() }};
 };
