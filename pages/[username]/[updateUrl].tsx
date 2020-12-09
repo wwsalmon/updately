@@ -120,6 +120,10 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                             <div className="mr-4">
                                 <h1 className="up-h1 mb-4">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
                                 <h2 className="up-h2">{thisUpdate.title}</h2>
+                                <div className="mt-8 md:flex opacity-50">
+                                    <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d 'at' h:mm a")}</p>
+                                    <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
+                                </div>
                             </div>
                             {isOwner && (
                                 <div className="ml-auto">
