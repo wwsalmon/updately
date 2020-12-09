@@ -1,5 +1,5 @@
 import React from 'react';
-import {FaCaretDown, FaGoogle} from "react-icons/fa";
+import {FaCaretDown, FaGoogle, FaSearch} from "react-icons/fa";
 import {signIn, signOut, useSession} from "next-auth/client";
 import Link from "next/link";
 import MenuButton from "./MenuButton";
@@ -12,7 +12,12 @@ export default function Navbar({}: {  }) {
         <div className="w-full bg-white sticky mb-8 top-0 z-20">
             <div className="max-w-7xl mx-auto h-16 flex items-center px-4">
                 <Link href="/"><a><img src="/logo.svg" className="h-12"/></a></Link>
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center">
+                    <Link href="/search">
+                        <a className="mr-6">
+                            <FaSearch/>
+                        </a>
+                    </Link>
                     {session ? (
                         <div className="relative up-hover-button">
                             <div className="flex items-center">

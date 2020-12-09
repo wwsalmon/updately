@@ -37,7 +37,7 @@ export default function Home({userData, feedData}) {
                         </div>
                         <div className="my-6">
                             <h3 className="up-ui-title">Following ({followUsers.length})</h3>
-                            <p>Ask friends to share their Updately profiles with you to follow them!</p>
+                            <p>Ask friends to share their Updately profiles with you, <Link href="/search"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
                         <div className="flex wrap">
                             {followUsers.map(user => (
