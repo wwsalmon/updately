@@ -1,6 +1,6 @@
 module.exports = {
   async up(db, client) {
-    await db.collection("users").update({}, {
+    await db.collection("users").updateMany({}, {
       $set: {
         updates: [],
       }
