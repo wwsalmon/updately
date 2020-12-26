@@ -29,6 +29,7 @@
     "words-count": "^1.1.0"
   },
   "devDependencies": {
+    "migrate-mongo": "^8.1.4",
     "postcss-preset-env": "^6.7.0"
   }
 }
