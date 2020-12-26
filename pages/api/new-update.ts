@@ -1,7 +1,7 @@
 import {getSession} from "next-auth/client";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
-import {userModel} from "../../models/models";
+import {userModel, updateModel} from "../../models/models";
 import short from "short-uuid";
 
 export default async function newUpdateHandler(req: NextApiRequest, res: NextApiResponse) {
@@ -27,20 +27,15 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
         if (req.body.title) url += "-" + encodeURIComponent(req.body.title.split(" ").slice(0, 5).join("-"));
         url += "-" + short.generate();
 
-        thisUser.updates.push({
+        const newUpdate = {
             date: new Date(req.body.date),
             body: req.body.body,
             url: url,
             title: req.body.title || "",
-        });
+            userId: new mongoose.Types.ObjectId(thisUser.id),
+        };
 
-        thisUser.markModified("updates");
-
-        console.log("Update data changed. Attempting to save info with new object", thisUser);
-
-        await thisUser.save();
-
-        console.log("Info saved.");
+        updateModel.create(newUpdate);
 
         res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
     } catch (e) {

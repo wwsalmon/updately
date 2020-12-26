@@ -52,6 +52,18 @@ const updateSchema: Schema = new Schema({
     timestamps: true,
 });
 
+const updateV2Schema: Schema = new Schema({
+    userId: ObjectId,
+    body: reqString,
+    url: reqString,
+    title: unreqString,
+    date: Date,
+    readBy: [ObjectId],
+    comments: [commentSchema],
+}, {
+    timestamps: true,
+});
+
 const userSchema: Schema = new Schema({
     ...authorObj,
     private: {type: Boolean, required: true},
@@ -65,3 +77,4 @@ const userSchema: Schema = new Schema({
 });
 
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
+export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
