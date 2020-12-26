@@ -13,7 +13,7 @@ export async function getUpdateRequest(username: string, url: string) {
     let user = await userModel.findOne({ "urlName": username });
     if (user === null) return null;
     const updates = await updateModel.find({ "userId": user._id });
-    if (!updates.some(d => d.url === url)) return null;
+    if (!updates.some(d => d.url === encodeURIComponent(url))) return null;
 
     return {
         user: user,
