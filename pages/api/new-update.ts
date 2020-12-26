@@ -35,7 +35,7 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
             userId: new mongoose.Types.ObjectId(thisUser.id),
         };
 
-        updateModel.create(newUpdate);
+        await updateModel.create(newUpdate);
 
         res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
     } catch (e) {
