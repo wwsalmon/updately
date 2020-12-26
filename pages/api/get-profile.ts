@@ -1,7 +1,7 @@
 import {getSession} from "next-auth/client";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
-import {userModel} from "../../models/models";
+import {updateModel, userModel} from "../../models/models";
 import {AxiosPromise} from "axios";
 
 export default async function getProfileHandler(req: NextApiRequest, res: NextApiResponse) {
@@ -23,12 +23,20 @@ export default async function getProfileHandler(req: NextApiRequest, res: NextAp
     }
 }
 
-export function getProfileRequest(username: string) {
+export async function getProfileRequest(username: string) {
     mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
     });
 
-    return userModel.findOne({ urlName: username });
+    let userData = await userModel.findOne({ urlName: username });
+
+    if (userData === null) return null;
+
+    const userUpdates = await updateModel.find({ userId: userData.id });
+
+    userData.updates.push.apply(userData.updates, userUpdates);
+
+    return userData;
 }
