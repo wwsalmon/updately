@@ -4,48 +4,29 @@ import Link from "next/link";
 import React from "react";
 import wordsCount from "words-count";
 
-export default function UpdateFeed({feedData, count}: {feedData: any, count: number}) {
-    let feedUpdates: any[] = [];
-
-    if (feedData) {
-        for (let user of feedData) {
-            for (let update of user.updates) {
-                let updateObj = {
-                    ...update,
-                    author: {
-                        name: user.name,
-                        image: user.image,
-                        urlName: user.urlName,
-                    }
-                };
-                feedUpdates.push(updateObj);
-            }
-        }
-        feedUpdates.sort((a, b) => +new Date(b.date) - +new Date(a.date));
-        feedUpdates = feedUpdates.slice(0, count);
-    }
+export default function UpdateFeed({updates, users, count}: {updates: any, users: any, count: number}) {
 
     return (
         <>
-            {feedUpdates.length > 0 ? feedUpdates.map((update, i) => (
+            {updates.length > 0 ? updates.map((update, i) => (
                 <div key={update._id}>
-                    {(i === 0 || update.date !== feedUpdates[i - 1].date) && (
+                    {(i === 0 || update.date !== updates[i - 1].date) && (
                         <>
                             <hr className="my-8"/>
                             <h3 className="up-ui-title mt-12 mb-6">{format(dateOnly(update.date), "EEEE, MMMM d, yyyy")}</h3>
                         </>
                     )}
-                    <Link href={"/@" + update.author.urlName + "/" + update.url}>
+                    <Link href={"/@" + users.find(d => d._id === update.userId).urlName + "/" + update.url}>
                         <a>
                             <div className="sm:flex items-center">
                                 <div className="flex items-center">
                                     <img
-                                        src={update.author.image}
-                                        alt={`Profile picture of ${update.author.name}`}
+                                        src={users.find(d => d._id === update.userId).image}
+                                        alt={`Profile picture of ${users.find(d => d._id === update.userId).name}`}
                                         className="w-16 h-16 rounded-full mr-4"
                                     />
                                     <div className="my-6 leading-snug mr-4">
-                                        <div className="up-ui-item-title"><span>{update.author.name}</span></div>
+                                        <div className="up-ui-item-title"><span>{users.find(d => d._id === update.userId).name}</span></div>
                                         <p className="up-ui-item-subtitle">
                                             {update.title && (<span className="mr-2">{update.title}</span>)}
                                             <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>

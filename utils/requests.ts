@@ -46,13 +46,12 @@ export async function getCurrUserFeedRequest(user) {
 
     if (userData.following.length === 0) return {userData: userData, feedData: null};
 
-    let followingUsers = await userModel.find({ "_id": { $in: userData.following}});
-    let followingUserUpdates = await updateModel.find({ "userId": { $in: userData.following }});
-    for (let update of followingUserUpdates) {
-        const userIndex = followingUsers.findIndex(d => d.id.toString() === update.userId.toString());
-        followingUsers[userIndex].updates.push(update);
-    }
-    return {userData: userData, feedData: followingUsers};
+    const users = await userModel.find({ "_id": { $in: userData.following}});
+    const updates = await updateModel.find({ "userId": { $in: userData.following }}).sort("-date").limit(20);
+    return {userData: userData, feedData: {
+        users: users,
+        updates: updates,
+    }};
 }
 
 export async function getDemoFeedRequest() {
@@ -62,16 +61,19 @@ export async function getDemoFeedRequest() {
         useFindAndModify: false,
     });
 
-    let retval = [];
+    const updates = await updateModel.find().sort('-date').limit(10);
 
-    for (let id of ["5fbf523741f4a430145ed84e", "5fc1e19db231d6000811ec5d"]) {
-        let userData = await userModel.findOne({ "_id": id });
-        const userUpdates = await updateModel.find({ "userId": id });
-        userData.updates.push.apply(userData.updates, userUpdates);
-        retval.push(userData);
+    let userIds = [];
+    for (let update of updates) {
+        if (!userIds.includes(update.userId)) userIds.push(update.userId);
     }
 
-    return retval;
+    const users = await userModel.find({"_id": { $in: userIds }});
+
+    return {
+        updates: updates,
+        users: users,
+    };
 }
 
 export async function getProfilesByEmails(emailList: string[]) {

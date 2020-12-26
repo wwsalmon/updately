@@ -8,15 +8,6 @@ import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
 
 export default function Home({userData, feedData}) {
-    let followUsers: {
-        name: string,
-        image: string,
-        urlName: string,
-    }[] = [];
-
-    if (userData) {
-        followUsers = feedData.map(user => ({name: user.name, image: user.image, urlName: user.urlName}));
-    }
 
     return (
         <>
@@ -36,11 +27,11 @@ export default function Home({userData, feedData}) {
                             <h1 className="up-h1 order-1">Your feed</h1>
                         </div>
                         <div className="my-6">
-                            <h3 className="up-ui-title">Following ({followUsers.length})</h3>
+                            <h3 className="up-ui-title">Following ({feedData.users.length})</h3>
                             <p>Ask friends to share their Updately profiles with you, <Link href="/search"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
                         <div className="flex wrap">
-                            {followUsers.map(user => (
+                            {feedData.users.map(user => (
                                 <Link href={"/@" + user.urlName} key={user.urlName}>
                                     <a>
                                         <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
@@ -48,7 +39,7 @@ export default function Home({userData, feedData}) {
                                 </Link>
                             ))}
                         </div>
-                        <UpdateFeed feedData={feedData} count={20}/>
+                        <UpdateFeed updates={feedData.updates} users={feedData.users} count={20}/>
                     </>
                 ) : (
                     <>
@@ -64,7 +55,7 @@ export default function Home({userData, feedData}) {
                             </ol>
                             <p>Check out some (real!) examples:</p>
                         </div>
-                        <UpdateFeed feedData={feedData} count={3}/>
+                        <UpdateFeed updates={feedData.updates} users={feedData.users} count={10}/>
                         <hr className="my-12"/>
                         <div className="prose content my-6">
                             <p>So what are you waiting for? <b>Hit that blue button on the navbar to sign up now!</b></p>
