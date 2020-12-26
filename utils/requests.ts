@@ -58,7 +58,16 @@ export async function getDemoFeedRequest() {
         useFindAndModify: false,
     });
 
-    return userModel.find({ "_id": { $in: ["5fbf523741f4a430145ed84e", "5fc1e19db231d6000811ec5d"]}});
+    let retval = [];
+
+    for (let id of ["5fbf523741f4a430145ed84e", "5fc1e19db231d6000811ec5d"]) {
+        let userData = await userModel.findOne({ "_id": id });
+        const userUpdates = await updateModel.find({ "userId": id });
+        userData.updates.push.apply(userData.updates, userUpdates);
+        retval.push(userData);
+    }
+
+    return retval;
 }
 
 export async function getProfilesByEmails(emailList: string[]) {
