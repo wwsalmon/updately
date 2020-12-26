@@ -12,22 +12,22 @@ import {NextSeo} from "next-seo";
 
 export default function UserProfile(props: { data, userData, followers }) {
     const [session, loading] = useSession();
-    const isOwner = !loading && session && (props.data.email === session.user.email);
+    const isOwner = !loading && session && (props.data.user.email === session.user.email);
     const [data, setData] = useState<any>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
             <NextSeo
-                title={`${data.name}'s daily updates | Updately`}
-                description={`Follow ${data.name} on Updately to get their updates in your feed.`}
+                title={`${data.user.name}'s daily updates | Updately`}
+                description={`Follow ${data.user.name} on Updately to get their updates in your feed.`}
             />
             <div className="sm:flex my-8">
                 <div className="flex items-center">
                     <div className="w-16 mr-8">
-                        <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-full rounded-full"/>
+                        <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-full rounded-full"/>
                     </div>
-                    <h1 className="up-h1">{data.name}</h1>
+                    <h1 className="up-h1">{data.user.name}</h1>
                 </div>
                 <div className="flex sm:ml-auto mt-6 sm:mt-0">
                     <div className="ml-auto">
@@ -39,7 +39,7 @@ export default function UserProfile(props: { data, userData, followers }) {
             </div>
 
             <div className="my-4">
-                <h2 className="up-ui-title">{isOwner ? "Your" : `${props.data.name}'s`} followers ({props.followers.length})</h2>
+                <h2 className="up-ui-title">{isOwner ? "Your" : `${props.data.user.name}'s`} followers ({props.followers.length})</h2>
                 {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
             </div>
             <div className="flex wrap">
@@ -54,7 +54,7 @@ export default function UserProfile(props: { data, userData, followers }) {
 
             <hr className="my-8"/>
 
-            {data.privateView ? (
+            {data.user.privateView ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
@@ -67,7 +67,7 @@ export default function UserProfile(props: { data, userData, followers }) {
                     </div>
 
                     {data.updates.length > 0 ? data.updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map(update => (
-                        <a key={update._id} className="block my-8" href={`/@${data.urlName}/${update.url}`}>
+                        <a key={update._id} className="block my-8" href={`/@${data.user.urlName}/${update.url}`}>
                             <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
                             <p className="up-ui-item-subtitle">
                                 {update.title && (<span className="mr-2">{update.title}</span>)}
@@ -92,21 +92,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (!data) return { notFound: true };
 
     const session = await getSession(context);
-    const userData = session ? (session.user.email === data.email ? data : await getCurrUserRequest(session.user.email)) : null;
+    const userData = session ? (session.user.email === data.user.email ? data.user : await getCurrUserRequest(session.user.email)) : null;
 
-    let followers = await getProfilesByEmails(data.followers);
+    let followers = await getProfilesByEmails(data.user.followers);
 
-    if (data.private) {
-
-        if (!session || data.followers.findIndex(d => d === session.user.email)) {
-            let resData = data.slice(0);
-            delete resData.updates;
-            delete resData.followers;
-            delete resData.following;
-            resData.privateView = true;
-            return { props: { data: resData, userData: null, followers: null, key: data._id.toString() }};
-        }
-    }
-
-    return { props: { data: cleanForJSON(data), userData: cleanForJSON(userData), followers: cleanForJSON(followers), key: data._id.toString() }};
+    return { props: { data: cleanForJSON(data), userData: cleanForJSON(userData), followers: cleanForJSON(followers), key: data.user._id.toString() }};
 };

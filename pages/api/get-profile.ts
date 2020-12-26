@@ -30,13 +30,9 @@ export async function getProfileRequest(username: string) {
         useFindAndModify: false,
     });
 
-    let userData = await userModel.findOne({ urlName: username });
+    let user = await userModel.findOne({ urlName: username });
+    if (user === null) return null;
+    const updates = await updateModel.find({ userId: user._id });
 
-    if (userData === null) return null;
-
-    const userUpdates = await updateModel.find({ userId: userData.id });
-
-    userData.updates.push.apply(userData.updates, userUpdates);
-
-    return userData;
+    return {user: user, updates: updates};
 }
