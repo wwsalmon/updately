@@ -62,7 +62,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
     function handleDelete() {
         axios.post("/api/delete-update", {
             id: thisUpdate._id,
-            username: data.urlName,
+            userId: data._id,
         }).then(() => {
             router.push("/@" + data.urlName);
         }).catch(e => {
