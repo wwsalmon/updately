@@ -46,9 +46,13 @@ export async function getCurrUserFeedRequest(user) {
 
     if (userData.following.length === 0) return {userData: userData, feedData: null};
 
-    const feedData = await userModel.find({ "_id": { $in: userData.following}});
-
-    return {userData: userData, feedData: feedData};
+    let followingUsers = await userModel.find({ "_id": { $in: userData.following}});
+    let followingUserUpdates = await updateModel.find({ "userId": { $in: userData.following }});
+    for (let update of followingUserUpdates) {
+        const userIndex = followingUsers.findIndex(d => d.id.toString() === update.userId.toString());
+        followingUsers[userIndex].updates.push(update);
+    }
+    return {userData: userData, feedData: followingUsers};
 }
 
 export async function getDemoFeedRequest() {
