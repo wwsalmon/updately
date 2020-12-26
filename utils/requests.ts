@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {userModel} from "../models/models";
+import {updateModel, userModel} from "../models/models";
 import short from "short-uuid";
 import axios from "axios";
 
@@ -10,7 +10,17 @@ export async function getUpdateRequest(username: string, url: string) {
         useFindAndModify: false,
     });
 
-    return userModel.findOne({ "urlName": username, "updates.url": encodeURIComponent(url) });
+    let updateUser = await userModel.findOne({ "urlName": username });
+
+    if (updateUser === null) return updateUser;
+
+    const updateV2s = await updateModel.find({ "userId": updateUser.id });
+
+    updateUser.updates.push.apply(updateUser.updates, updateV2s);
+
+    if (!updateUser.updates.some(d => d.url === url)) return null;
+
+    return updateUser;
 }
 
 export async function getCurrUserRequest(email: string) {
