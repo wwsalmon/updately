@@ -10,17 +10,15 @@ export async function getUpdateRequest(username: string, url: string) {
         useFindAndModify: false,
     });
 
-    let updateUser = await userModel.findOne({ "urlName": username });
+    let user = await userModel.findOne({ "urlName": username });
+    if (user === null) return null;
+    const updates = await updateModel.find({ "userId": user._id });
+    if (!updates.some(d => d.url === url)) return null;
 
-    if (updateUser === null) return updateUser;
-
-    const updateV2s = await updateModel.find({ "userId": updateUser.id });
-
-    updateUser.updates.push.apply(updateUser.updates, updateV2s);
-
-    if (!updateUser.updates.some(d => d.url === url)) return null;
-
-    return updateUser;
+    return {
+        user: user,
+        updates: updates,
+    };
 }
 
 export async function getCurrUserRequest(email: string) {

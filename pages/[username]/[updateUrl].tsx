@@ -20,7 +20,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
     const [data, setData] = useState<any>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
-    const isOwner = !loading && session && (data.email === session.user.email);
+    const isOwner = !loading && session && (data.user.email === session.user.email);
     const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(props.updateUrl));
 
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -28,14 +28,13 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
     const [title, setTitle] = useState<string>(thisUpdate.title);
     const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false);
 
     function onEdit() {
         setIsLoading(true);
 
         axios.post("/api/edit-update", {
             id: thisUpdate._id,
-            username: data.urlName,
+            username: data.user.urlName,
             date: date,
             body: body,
             title: title,
@@ -43,9 +42,16 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
             setIsLoading(false);
             setIsEdit(false);
             if (res.data.urlChanged) {
-                router.push(`/@${data.urlName}/${res.data.data.updates.find(d => d._id === thisUpdate._id).url}`);
+                router.push(`/@${data.user.urlName}/${res.data.urlChanged}`);
             }
-            else setData(res.data.data);
+            else {
+                let newData = {...data};
+                const thisUpdateIndex = newData.updates.findIndex(d => d._id === thisUpdate._id);
+                newData.updates[thisUpdateIndex].date = date;
+                newData.updates[thisUpdateIndex].body = body;
+                newData.updates[thisUpdateIndex].title = title;
+                setData(newData);
+            }
         }).catch(e => {
             console.log(e);
             setIsLoading(false);
@@ -62,9 +68,9 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
     function handleDelete() {
         axios.post("/api/delete-update", {
             id: thisUpdate._id,
-            userId: data._id,
+            userId: data.user._id,
         }).then(() => {
-            router.push("/@" + data.urlName);
+            router.push("/@" + data.user.urlName);
         }).catch(e => {
             console.log(e);
             setIsLoading(false);
@@ -80,16 +86,16 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
     return (
         <div className="max-w-7xl relative mx-auto">
             <NextSeo
-                title={`${format(dateOnly(thisUpdate.date), "MM/d/yy")} | ${data.name}'s daily updates on Updately`}
-                description={`${data.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
+                title={`${format(dateOnly(thisUpdate.date), "MM/d/yy")} | ${data.user.name}'s daily updates on Updately`}
+                description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
                 <div className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
-                    <Link href={`/@${data.urlName}`}>
+                    <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
-                            <img src={data.image} alt={`Profile picture of ${data.name}`} className="w-10 h-10 rounded-full mr-4"/>
+                            <img src={data.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
                             <div>
-                                <div className="up-ui-title"><span>{data.name}</span></div>
+                                <div className="up-ui-title"><span>{data.user.name}</span></div>
                             </div>
                         </a>
                     </Link>
@@ -151,7 +157,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition"}`}
                             key={update._id}
                         >
-                            <Link href={`/@${data.urlName}/${update.url}`} shallow={false}>
+                            <Link href={`/@${data.user.urlName}/${update.url}`} shallow={false}>
                                 <a>
                                     <div className="font-bold"><span>{format(dateOnly(update.date), "MMMM d, yyyy")}</span></div>
                                     <div><span>{update.title.substr(0,24)}{update.title.length > 24 ? "..." : ""}</span></div>
@@ -174,17 +180,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const userData = session ? await getCurrUserRequest(session.user.email) : null;
 
     if (!data) return { notFound: true };
-
-    if (data.private) {
-        if (!session || data.followers.findIndex(d => d === session.user.email)) {
-            let resData = data.slice(0);
-            delete resData.updates;
-            delete resData.followers;
-            delete resData.following;
-            resData.privateView = true;
-            return { props: { data: resData, updateUrl: updateUrl }};
-        }
-    }
 
     return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
 };

@@ -9,7 +9,7 @@ export default function FollowButton({data, setData, userData, setUserData, prim
         setIsLoading(true);
 
         axios.post("/api/follow-user", {
-            id: data._id,
+            id: data.user._id,
         }).then(res => {
             setIsLoading(false);
             setUserData(res.data.currUserData);
@@ -24,7 +24,7 @@ export default function FollowButton({data, setData, userData, setUserData, prim
         <>
             {userData ? (
                 <div className="relative">
-                    {userData.following.includes(data._id) ? (
+                    {userData.following.includes(data.user._id) ? (
                         <button className="up-button text" onClick={onFollow}>
                             <span className={isLoading ? "invisible" : ""}>Following</span>
                         </button>
