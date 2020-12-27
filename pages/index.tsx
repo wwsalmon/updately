@@ -6,8 +6,9 @@ import Link from "next/link";
 import UpdateFeed from "../components/UpdateFeed";
 import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
+import {Update, User} from "../utils/types";
 
-export default function Home({userData, feedData}) {
+export default function Home({userData, feedData}: {userData: User, feedData: {users: User[], updates: Update[]}}) {
 
     return (
         <>

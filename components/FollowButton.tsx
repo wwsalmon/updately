@@ -1,8 +1,15 @@
 import axios from "axios";
-import {useState} from "react";
+import {Dispatch, SetStateAction, useState} from "react";
 import Link from "next/link";
+import {Update, User} from "../utils/types";
 
-export default function FollowButton({data, setData, userData, setUserData, primary = false}){
+export default function FollowButton({data, setData, userData, setUserData, primary = false}: {
+    data: {user: User, updates: Update[]},
+    setData: Dispatch<SetStateAction<{user: User, updates: Update[]}>>,
+    userData: User,
+    setUserData: Dispatch<SetStateAction<User>>,
+    primary: boolean,
+}){
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     function onFollow() {

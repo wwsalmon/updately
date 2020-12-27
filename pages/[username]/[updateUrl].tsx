@@ -13,8 +13,9 @@ import Showdown from "showdown";
 import Parser from "html-react-parser";
 import FollowButton from "../../components/FollowButton";
 import {NextSeo} from "next-seo";
+import {Update, User} from "../../utils/types";
 
-export default function UpdatePage(props: { data: any, updateUrl: string, userData: any }) {
+export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
     const [session, loading] = useSession();
     const [data, setData] = useState<any>(props.data);

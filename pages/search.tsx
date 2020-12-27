@@ -3,15 +3,11 @@ import axios from "axios";
 import Link from "next/link";
 import {NextSeo} from "next-seo";
 import {FaTimes} from "react-icons/fa";
+import {User} from "../utils/types";
 
 export default function SearchPage() {
     const [query, setQuery] = useState<string>("");
-    const [matches, setMatches] = useState<{
-        _id: any,
-        name: string,
-        image: string,
-        urlName: string,
-    }[]>([]);
+    const [matches, setMatches] = useState<User[]>([]);
 
     useEffect(() => {
         if (query === "") return setMatches([]);

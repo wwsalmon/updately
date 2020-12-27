@@ -3,8 +3,9 @@ import {dateOnly} from "../utils/utils";
 import Link from "next/link";
 import React from "react";
 import wordsCount from "words-count";
+import {Update, User} from "../utils/types";
 
-export default function UpdateFeed({updates, users, count}: {updates: any, users: any, count: number}) {
+export default function UpdateFeed({updates, users, count}: {updates: Update[], users: User[], count: number}) {
 
     return (
         <>
