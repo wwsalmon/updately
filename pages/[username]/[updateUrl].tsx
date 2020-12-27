@@ -93,7 +93,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                 <div className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
-                            <img src={data.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
+                            <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
                             <div>
                                 <div className="up-ui-title"><span>{data.user.name}</span></div>
                             </div>
