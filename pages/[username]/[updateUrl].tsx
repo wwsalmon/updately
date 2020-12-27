@@ -13,8 +13,9 @@ import Showdown from "showdown";
 import Parser from "html-react-parser";
 import FollowButton from "../../components/FollowButton";
 import {NextSeo} from "next-seo";
+import {Update, User} from "../../utils/types";
 
-export default function UpdatePage(props: { data: any, updateUrl: string, userData: any }) {
+export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
     const [session, loading] = useSession();
     const [data, setData] = useState<any>(props.data);
@@ -93,7 +94,7 @@ export default function UpdatePage(props: { data: any, updateUrl: string, userDa
                 <div className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
-                            <img src={data.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
+                            <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
                             <div>
                                 <div className="up-ui-title"><span>{data.user.name}</span></div>
                             </div>

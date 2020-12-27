@@ -9,12 +9,13 @@ import {createAccount, getCurrUserRequest, getProfilesByEmails} from "../../util
 import React, {useState} from "react";
 import FollowButton from "../../components/FollowButton";
 import {NextSeo} from "next-seo";
+import {Update, User} from "../../utils/types";
 
-export default function UserProfile(props: { data, userData, followers }) {
+export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[] }) {
     const [session, loading] = useSession();
     const isOwner = !loading && session && (props.data.user.email === session.user.email);
-    const [data, setData] = useState<any>(props.data);
-    const [userData, setUserData] = useState<any>(props.userData);
+    const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
+    const [userData, setUserData] = useState<User>(props.userData);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
@@ -54,7 +55,7 @@ export default function UserProfile(props: { data, userData, followers }) {
 
             <hr className="my-8"/>
 
-            {data.user.privateView ? (
+            {data.user.private ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
