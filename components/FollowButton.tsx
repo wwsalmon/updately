@@ -8,7 +8,7 @@ export default function FollowButton({data, setData, userData, setUserData, prim
     setData: Dispatch<SetStateAction<{user: User, updates: Update[]}>>,
     userData: User,
     setUserData: Dispatch<SetStateAction<User>>,
-    primary: boolean,
+    primary?: boolean,
 }){
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
