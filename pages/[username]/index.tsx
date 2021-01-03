@@ -30,7 +30,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                     </div>
                     <div>
                         <h1 className="up-h1">{data.user.name}</h1>
-                        {session && data.user.followers.includes(session.user.email) && (
+                        {userData && data.user.following.includes(userData._id) && (
                             <p className="text-xs mt-2 bg-black rounded-md p-2 text-white inline-block">Follows you</p>
                         )}
                     </div>
