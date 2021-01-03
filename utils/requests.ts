@@ -59,7 +59,7 @@ export async function getDemoFeedRequest() {
         useFindAndModify: false,
     });
 
-    const updates = await updateModel.find().sort('-date').limit(10);
+    const updates = await updateModel.find().sort('-date').limit(20);
 
     let userIds = [];
     for (let update of updates) {
