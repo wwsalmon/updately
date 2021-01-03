@@ -87,6 +87,19 @@ export async function getProfilesByEmails(emailList: string[]) {
     ]);
 }
 
+export async function getProfilesByIds(idList: string[]){
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+
+    return userModel.aggregate([
+        {$match: {_id: { $in: idList }}},
+        {$group: {_id: "$_id", name: {$first: "$name"}, image: {$first: "$image"}, urlName: {$first: "$urlName"}}}
+    ]);
+}
+
 export async function createAccount(user) {
     await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
         email: user.email,

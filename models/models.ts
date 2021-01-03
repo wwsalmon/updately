@@ -26,7 +26,7 @@ const commentSchema: Schema = new Schema({
     updateId: ObjectId,
     body: reqString,
     isSubComment: {type: Boolean, required: true},
-    commentId: ObjectId,
+    parentCommentId: ObjectId,
 }, {
     timestamps: true,
 });
