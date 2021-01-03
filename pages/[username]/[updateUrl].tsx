@@ -14,6 +14,7 @@ import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
+import UpdateComments from "../../components/UpdateComments";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -147,6 +148,8 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         <div className="prose content my-8">
                             {Parser(markdownConverter.makeHtml(thisUpdate.body))}
                         </div>
+                        <hr className="my-8"/>
+                        <UpdateComments updateId={thisUpdate._id} userData={userData}/>
                     </>
                 )}
             </div>
