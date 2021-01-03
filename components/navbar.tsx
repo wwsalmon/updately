@@ -8,8 +8,7 @@ import MenuLink from "./MenuLink";
 import {useRouter} from "next/router";
 import NavbarItem from "./NavbarItem";
 import {FiChevronDown, FiHome, FiSearch, FiUser} from "react-icons/fi";
-
-const fetcher = url => fetch(url).then(res => res.json());
+import {fetcher} from "../utils/utils";
 
 export default function Navbar() {
     const router = useRouter();
