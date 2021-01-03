@@ -18,7 +18,7 @@ import {Update, User} from "../../utils/types";
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
     const [session, loading] = useSession();
-    const [data, setData] = useState<any>(props.data);
+    const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
     const isOwner = !loading && session && (data.user.email === session.user.email);

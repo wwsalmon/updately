@@ -20,7 +20,9 @@ export default function FollowButton({data, setData, userData, setUserData, prim
         }).then(res => {
             setIsLoading(false);
             setUserData(res.data.currUserData);
-            setData(res.data.followUserData);
+            let newData = {...data};
+            newData.user = res.data.followUserData;
+            setData(newData);
         }).catch(e => {
             console.log(e);
             setIsLoading(false);
