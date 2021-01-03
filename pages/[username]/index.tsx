@@ -7,7 +7,7 @@ import Link from "next/link";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
 import {getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
 import React, {useState} from "react";
-import FollowButton from "../../components/FollowButton";
+import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 
@@ -38,7 +38,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 <div className="flex sm:ml-auto mt-6 sm:mt-0">
                     <div className="ml-auto">
                         {!isOwner && (
-                            <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData} primary={true}/>
+                            <ProfileFollowButton data={data} setData={setData} userData={userData} setUserData={setUserData} primary={true}/>
                         )}
                     </div>
                 </div>

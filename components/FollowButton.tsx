@@ -1,44 +1,23 @@
-import axios from "axios";
-import {Dispatch, SetStateAction, useState} from "react";
+import React from 'react';
 import Link from "next/link";
-import {Update, User} from "../utils/types";
 
-export default function FollowButton({data, setData, userData, setUserData, primary = false}: {
-    data: {user: User, updates: Update[]},
-    setData: Dispatch<SetStateAction<{user: User, updates: Update[]}>>,
-    userData: User,
-    setUserData: Dispatch<SetStateAction<User>>,
+export default function FollowButton({isFollowing, isLoading, isLoggedIn, onClick, primary = false}: {
+    isFollowing: boolean,
+    isLoading: boolean,
+    isLoggedIn: boolean,
+    onClick: () => any,
     primary?: boolean,
-}){
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    function onFollow() {
-        setIsLoading(true);
-
-        axios.post("/api/follow-user", {
-            id: data.user._id,
-        }).then(res => {
-            setIsLoading(false);
-            setUserData(res.data.currUserData);
-            let newData = {...data};
-            newData.user = res.data.followUserData;
-            setData(newData);
-        }).catch(e => {
-            console.log(e);
-            setIsLoading(false);
-        });
-    }
-
+}) {
     return (
         <>
-            {userData ? (
+            {isLoggedIn ? (
                 <div className="relative">
-                    {userData.following.includes(data.user._id) ? (
-                        <button className="up-button text" onClick={onFollow}>
+                    {isFollowing ? (
+                        <button className="up-button text" onClick={onClick}>
                             <span className={isLoading ? "invisible" : ""}>Following</span>
                         </button>
                     ) : (
-                        <button className={`up-button small ${primary ? "primary" : ""}`} onClick={onFollow}>
+                        <button className={`up-button small ${primary ? "primary" : ""}`} onClick={onClick}>
                             <span className={isLoading ? "invisible" : ""}>Follow</span>
                         </button>
                     )}
@@ -50,5 +29,5 @@ export default function FollowButton({data, setData, userData, setUserData, prim
                 <Link href="/sign-in"><a className="up-button small">Follow</a></Link>
             )}
         </>
-    )
+    );
 }

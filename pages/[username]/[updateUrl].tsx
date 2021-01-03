@@ -11,7 +11,7 @@ import axios from "axios";
 import {useRouter} from "next/router";
 import Showdown from "showdown";
 import Parser from "html-react-parser";
-import FollowButton from "../../components/FollowButton";
+import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 
@@ -104,7 +104,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         {isOwner ? (
                             <Link href="/new-update"><a className="up-button primary small">Post new update</a></Link>
                         ) : (
-                            <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
+                            <ProfileFollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
                         )}
                     </div>
                 </div>
