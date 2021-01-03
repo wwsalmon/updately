@@ -28,7 +28,12 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                     <div className="w-16 mr-8">
                         <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-full rounded-full"/>
                     </div>
-                    <h1 className="up-h1">{data.user.name}</h1>
+                    <div>
+                        <h1 className="up-h1">{data.user.name}</h1>
+                        {session && data.user.followers.includes(session.user.email) && (
+                            <p className="text-xs mt-2 bg-black rounded-md p-2 text-white inline-block">Follows you</p>
+                        )}
+                    </div>
                 </div>
                 <div className="flex sm:ml-auto mt-6 sm:mt-0">
                     <div className="ml-auto">
