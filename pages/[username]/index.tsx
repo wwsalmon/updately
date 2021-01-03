@@ -5,7 +5,7 @@ import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
-import {createAccount, getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
+import {getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
 import React, {useState} from "react";
 import FollowButton from "../../components/FollowButton";
 import {NextSeo} from "next-seo";
@@ -23,7 +23,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 title={`${data.user.name}'s daily updates | Updately`}
                 description={`Follow ${data.user.name} on Updately to get their updates in your feed.`}
             />
-            <div className="sm:flex my-8">
+            <div className="sm:flex my-16">
                 <div className="flex items-center">
                     <div className="w-16 mr-8">
                         <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-full rounded-full"/>

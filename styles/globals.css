@@ -66,7 +66,7 @@ body {
     @apply h-10;
 }
 
-a.up-button {
+a.up-button:not(.hidden) {
     @apply inline-block;
     line-height: 3rem;
 }
