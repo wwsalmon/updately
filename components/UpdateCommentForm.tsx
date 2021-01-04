@@ -48,7 +48,7 @@ export default function UpdateCommentForm({updateId, userData, parentCommentId =
                 <div className="ml-auto relative">
                     <button
                         className="up-button text ml-auto mr-4"
-                        disabled={commentText.length === 0}
+                        disabled={!parentCommentId && commentText.length === 0}
                         onClick={clearComment}
                     >
                         Cancel
