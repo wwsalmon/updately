@@ -21,7 +21,6 @@ export default function UpdateCommentForm({updateId, userData, parentCommentId =
             updateId: updateId,
             commentId: parentCommentId,
         }).then(res => {
-            console.log(res);
             setIsLoading(false);
             clearComment();
             callback();

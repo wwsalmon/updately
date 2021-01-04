@@ -1,9 +1,10 @@
-import React, {Dispatch, SetStateAction, useState} from 'react';
+import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
 import {CommentObj, User} from "../utils/types";
 import Link from "next/link";
 import {format} from "date-fns";
-import {FiCornerUpRight} from "react-icons/fi";
+import {FiCornerUpRight, FiTrash} from "react-icons/fi";
 import UpdateCommentForm from "./UpdateCommentForm";
+import axios from "axios";
 
 export default function UpdateCommentItem({comment, users, userData, refreshIteration, setRefreshIteration}: {
     comment: CommentObj,
@@ -13,6 +14,30 @@ export default function UpdateCommentItem({comment, users, userData, refreshIter
     setRefreshIteration: Dispatch<SetStateAction<number>>,
 }) {
     const [replyOpen, setReplyOpen] = useState<boolean>(false);
+    const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+    const confirmDeleteRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        function cancelDelete(e) {
+            if (confirmDeleteRef.current && !confirmDeleteRef.current.contains(e.target)) setConfirmDelete(false);
+        }
+
+        document.addEventListener("mousedown", cancelDelete);
+
+        return () => {
+            document.removeEventListener("mousedown", cancelDelete);
+        };
+    }, [confirmDeleteRef]);
+
+    function onDelete() {
+        axios.post("/api/delete-comment", {
+            commentId: comment._id,
+        }).then(() => {
+            setRefreshIteration(refreshIteration + 1);
+        }).catch(e => {
+            console.log(e);
+        })
+    }
 
     return (
         <div className="flex">
@@ -37,14 +62,34 @@ export default function UpdateCommentItem({comment, users, userData, refreshIter
                                 </span>
                 </p>
                 <p className="sm:text-xl">{comment.body}</p>
-                <button
-                    className={`opacity-25 mt-2 inline-flex items-center ${replyOpen ? "cursor-default" : "hover:opacity-75"}`}
-                    onClick={() => setReplyOpen(true)}
-                    disabled={replyOpen}
-                >
-                    <FiCornerUpRight/>
-                    <span className="ml-2">{replyOpen ? "Replying" : "Reply"}</span>
-                </button>
+                <div className="flex mt-2">
+                    <button
+                        className={`opacity-25 inline-flex items-center ${replyOpen ? "cursor-default" : "hover:opacity-75"}`}
+                        onClick={() => setReplyOpen(true)}
+                        disabled={replyOpen}
+                    >
+                        <FiCornerUpRight/>
+                        <span className="ml-2">{replyOpen ? "Replying" : "Reply"}</span>
+                    </button>
+                    {confirmDelete ? (
+                        <button
+                            className="opacity-75 inline-flex items-center hover:opacity-100 ml-8 text-red-400"
+                            ref={confirmDeleteRef}
+                            onClick={onDelete}
+                        >
+                            <FiTrash/>
+                            <span className="ml-2">Are you sure you want to delete this comment?</span>
+                        </button>
+                    ) : (
+                        <button
+                            className="opacity-25 inline-flex items-center hover:opacity-75 ml-8"
+                            onClick={() => setConfirmDelete(true)}
+                        >
+                            <FiTrash/>
+                            <span className="ml-2">Delete</span>
+                        </button>
+                    )}
+                </div>
                 {replyOpen && (
                     <div className="my-4">
                         <UpdateCommentForm

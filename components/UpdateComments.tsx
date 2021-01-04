@@ -22,7 +22,7 @@ export default function UpdateComments({updateId, userData}: { updateId: string,
             </div>
             <div className="my-4">
                 {data && data.comments.filter(d => !d.parentCommentId).map((comment: CommentObj) => (
-                    <div className="mb-8">
+                    <div className="mb-12">
                         <UpdateCommentItem
                             comment={comment}
                             users={data.users}
@@ -30,9 +30,9 @@ export default function UpdateComments({updateId, userData}: { updateId: string,
                             refreshIteration={refreshIteration}
                             setRefreshIteration={setRefreshIteration}
                         />
-                        <div className="pl-16 mt-4">
+                        <div className="pl-16 mt-6">
                             {data.comments.filter(d => d.parentCommentId === comment._id).map(subComment => (
-                                <div className="mb-4">
+                                <div className="mb-6">
                                     <UpdateCommentItem
                                         comment={subComment}
                                         users={data.users}
