@@ -1,22 +1,23 @@
 import React, {useEffect, useState} from 'react';
 import {User} from "../utils/types";
 import axios from "axios";
-import Link from "next/link";
 import {FiX} from "react-icons/fi";
+import UserListItem from "./UserListItem";
 
-export default function ExploreSearch({userData}: { userData: User }) {
+export default function ExploreSearch(props: { userData: User }) {
     const [query, setQuery] = useState<string>("");
-    const [matches, setMatches] = useState<User[]>([]);
+    const [userData, setUserData] = useState<User>(props.userData);
+    const [userList, setUserList] = useState<User[]>([]);
 
     useEffect(() => {
-        if (query === "") return setMatches([]);
+        if (query === "") return setUserList([]);
 
         axios.get(`/api/search-user`, {
             params: {
                 s: query,
             }
         }).then(res => {
-            setMatches(res.data.results);
+            setUserList(res.data.results);
         }).catch(e => {
             console.log(e);
         });
@@ -40,15 +41,14 @@ export default function ExploreSearch({userData}: { userData: User }) {
                     <FiX/>
                 </button>
             </div>
-            {matches.map((match, i) => (
-                <Link href={"/@" + match.urlName} key={match.urlName}>
-                    <a>
-                        <div className="my-4 flex items-center">
-                            <img src={match.image} className="w-16 h-16 rounded-full mr-6" alt={match.name}/>
-                            <div className="up-ui-item-title"><span>{match.name}</span></div>
-                        </div>
-                    </a>
-                </Link>
+            {userList.map(user => (
+                <UserListItem
+                    itemUserId={user._id}
+                    userList={userList}
+                    setUserList={setUserList}
+                    userData={userData}
+                    setUserData={setUserData}
+                />
             ))}
         </>
     );
