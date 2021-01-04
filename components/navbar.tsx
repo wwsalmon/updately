@@ -42,11 +42,11 @@ export default function Navbar() {
                                             className="w-10 h-10 ml-2 rounded-full"
                                         />
                                     </div>
-                                    <div className="up-hover-dropdown absolute top-0 mt-10 shadow-lg rounded-md z-10 bg-white">
-                                        <MenuButton text="Sign out" onClick={signOut}/>
+                                    <div className="up-hover-dropdown absolute top-0 right-0 mt-10 shadow-lg rounded-md z-10 bg-white">
                                         {data && (
                                             <MenuLink text="Profile" href={`/@${data.data.urlName}`}/>
                                         )}
+                                        <MenuButton text="Sign out" onClick={signOut}/>
                                     </div>
                                 </div>
                             </>

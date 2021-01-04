@@ -37,7 +37,7 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
                     </>
                 ) : (
                     <>
-                        <h1 className="up-h1">Welcome to Updately!</h1>
+                        <h1 className="up-h1 mt-16">Welcome to Updately!</h1>
                         <div className="prose content my-6">
                             <p>Updately is a <b>social platform for daily updates</b> (or weekly or hourly, whatever works for you).</p>
                             <p>How it works is pretty straightforward:</p>
