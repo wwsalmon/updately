@@ -2,10 +2,6 @@ import React, {useState} from 'react';
 import {CommentObj, User} from "../utils/types";
 import useSWR from "swr";
 import {fetcher} from "../utils/utils";
-import axios from "axios";
-import {format} from "date-fns";
-import Link from "next/link";
-import {FiCornerUpRight} from "react-icons/fi";
 import UpdateCommentForm from "./UpdateCommentForm";
 import UpdateCommentItem from "./UpdateCommentItem";
 
