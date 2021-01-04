@@ -88,7 +88,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     return (
         <div className="max-w-7xl relative mx-auto">
             <NextSeo
-                title={`${format(dateOnly(thisUpdate.date), "MM/d/yy")} | ${data.user.name}'s daily updates on Updately`}
+                title={`${format(dateOnly(thisUpdate.date), "M/d/yy")} | ${data.user.name}'s daily updates on Updately`}
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
