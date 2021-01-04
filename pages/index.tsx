@@ -7,6 +7,7 @@ import UpdateFeed from "../components/UpdateFeed";
 import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
 import {Update, User} from "../utils/types";
+import UserPfpList from "../components/UserPfpList";
 
 export default function Home({userData, feedData}: {userData: User, feedData: {users: User[], updates: Update[]}}) {
 
@@ -19,32 +20,21 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
             <div className="max-w-4xl relative mx-auto px-4">
                 {userData ? (
                     <>
-                        <div className="sm:flex items-center">
-                            <div className="flex my-4 sm:my-0 sm:ml-auto order-2">
-                                <Link href={"/@" + userData.urlName}><a className="up-button text ml-auto">Your profile</a></Link>
-                                <Link href="/new-update"><a className="up-button primary ml-4">Post new update</a></Link>
-                            </div>
-                            <hr className="my-6 sm:hidden"/>
-                            <h1 className="up-h1 order-1">Your feed</h1>
-                        </div>
+                        <h1 className="up-h1 mt-16">Your feed</h1>
                         <div className="my-6">
-                            <h3 className="up-ui-title">Following ({feedData.users.length})</h3>
-                            <p>Ask friends to share their Updately profiles with you, <Link href="/search"><a className="underline">or search for them by name</a></Link>!</p>
+                            <Link href={`@${userData.urlName}/following`}>
+                                <a className="up-ui-title">
+                                    Following ({userData.following.length})
+                                </a>
+                            </Link>
+                            <p>Ask friends to share their Updately profiles with you, <Link href="/explore"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
-                        <div className="flex wrap">
-                            {feedData.users.map(user => (
-                                <Link href={"/@" + user.urlName} key={user.urlName}>
-                                    <a>
-                                        <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
-                                    </a>
-                                </Link>
-                            ))}
-                        </div>
+                        <UserPfpList isFollowers={false} userList={feedData.users} pageUser={userData}/>
                         <UpdateFeed updates={feedData.updates} users={feedData.users} count={20}/>
                     </>
                 ) : (
                     <>
-                        <h1 className="up-h1">Welcome to Updately!</h1>
+                        <h1 className="up-h1 mt-16">Welcome to Updately!</h1>
                         <div className="prose content my-6">
                             <p>Updately is a <b>social platform for daily updates</b> (or weekly or hourly, whatever works for you).</p>
                             <p>How it works is pretty straightforward:</p>

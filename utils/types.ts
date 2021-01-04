@@ -25,3 +25,14 @@ export interface Update {
     createdAt: string, // date string
     updatedAt: string, // date string
 }
+
+export interface CommentObj {
+    _id: string,
+    authorId: string,
+    updateId: string,
+    body: string,
+    isSubComment: boolean,
+    parentCommentId: string,
+    createdAt: string, // date string
+    updatedAt: string, // date string
+}

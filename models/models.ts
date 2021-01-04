@@ -21,22 +21,12 @@ const authorObj = {
     website: unreqString,
 };
 
-const commentObj = {
+const commentSchema: Schema = new Schema({
     authorId: ObjectId,
-    author: authorObj,
     updateId: ObjectId,
     body: reqString,
-};
-
-const subCommentSchema: Schema = new Schema({
-    ...commentObj,
-}, {
-    timestamps: true,
-});
-
-const commentSchema: Schema = new Schema({
-    ...commentObj,
-    subComments: [subCommentSchema],
+    isSubComment: {type: Boolean, required: true},
+    parentCommentId: ObjectId,
 }, {
     timestamps: true,
 });
@@ -47,7 +37,6 @@ const updateSchema: Schema = new Schema({
     title: unreqString,
     date: Date,
     readBy: [ObjectId],
-    comments: [commentSchema],
 }, {
     timestamps: true,
 });
@@ -78,3 +67,4 @@ const userSchema: Schema = new Schema({
 
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
 export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
+export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);

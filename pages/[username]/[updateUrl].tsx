@@ -11,14 +11,15 @@ import axios from "axios";
 import {useRouter} from "next/router";
 import Showdown from "showdown";
 import Parser from "html-react-parser";
-import FollowButton from "../../components/FollowButton";
+import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
+import UpdateComments from "../../components/UpdateComments";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
     const [session, loading] = useSession();
-    const [data, setData] = useState<any>(props.data);
+    const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
     const isOwner = !loading && session && (data.user.email === session.user.email);
@@ -91,7 +92,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
-                <div className="flex h-16 my-8 items-center sticky top-0 bg-white z-30">
+                <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-30">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
                             <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
@@ -101,10 +102,8 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         </a>
                     </Link>
                     <div className="ml-auto">
-                        {isOwner ? (
-                            <Link href="/new-update"><a className="up-button primary small">Post new update</a></Link>
-                        ) : (
-                            <FollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
+                        {!isOwner && (
+                            <ProfileFollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
                         )}
                     </div>
                 </div>
@@ -147,6 +146,8 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         <div className="prose content my-8">
                             {Parser(markdownConverter.makeHtml(thisUpdate.body))}
                         </div>
+                        <hr className="my-8"/>
+                        <UpdateComments updateId={thisUpdate._id} userData={userData}/>
                     </>
                 )}
             </div>

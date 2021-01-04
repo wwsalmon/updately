@@ -59,7 +59,7 @@ export async function getDemoFeedRequest() {
         useFindAndModify: false,
     });
 
-    const updates = await updateModel.find().sort('-date').limit(10);
+    const updates = await updateModel.find().sort('-date').limit(20);
 
     let userIds = [];
     for (let update of updates) {
@@ -83,6 +83,19 @@ export async function getProfilesByEmails(emailList: string[]) {
 
     return userModel.aggregate([
         {$match: {"email": { $in: emailList }}},
+        {$group: {_id: "$_id", name: {$first: "$name"}, image: {$first: "$image"}, urlName: {$first: "$urlName"}}}
+    ]);
+}
+
+export async function getProfilesByIds(idList: string[]){
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+
+    return userModel.aggregate([
+        {$match: {_id: { $in: idList }}},
         {$group: {_id: "$_id", name: {$first: "$name"}, image: {$first: "$image"}, urlName: {$first: "$urlName"}}}
     ]);
 }
