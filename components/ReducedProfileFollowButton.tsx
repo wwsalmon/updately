@@ -3,9 +3,9 @@ import {Dispatch, SetStateAction, useState} from "react";
 import {Update, User} from "../utils/types";
 import FollowButton from "./FollowButton";
 
-export default function ProfileFollowButton({data, setData, userData, setUserData, primary = false}: {
-    data: {user: User, updates: Update[]},
-    setData: Dispatch<SetStateAction<{user: User, updates: Update[]}>>,
+export default function ReducedProfileFollowButton({data, setData, userData, setUserData, primary = false}: {
+    data: User,
+    setData: Dispatch<SetStateAction<User>>,
     userData: User,
     setUserData: Dispatch<SetStateAction<User>>,
     primary?: boolean,
@@ -16,13 +16,11 @@ export default function ProfileFollowButton({data, setData, userData, setUserDat
         setIsLoading(true);
 
         axios.post("/api/follow-user", {
-            id: data.user._id,
+            id: data._id,
         }).then(res => {
             setIsLoading(false);
             setUserData(res.data.currUserData);
-            let newData = {...data};
-            newData.user = res.data.followUserData;
-            setData(newData);
+            setData(res.data.followUserData);
         }).catch(e => {
             console.log(e);
             setIsLoading(false);
@@ -32,7 +30,7 @@ export default function ProfileFollowButton({data, setData, userData, setUserDat
     return (
         <>
             <FollowButton
-                isFollowing={userData && userData.following.includes(data.user._id)}
+                isFollowing={userData && userData.following.includes(data._id)}
                 isLoading={isLoading}
                 isLoggedIn={!!userData}
                 onClick={onFollow}

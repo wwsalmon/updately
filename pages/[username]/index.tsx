@@ -5,13 +5,15 @@ import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
-import {getCurrUserRequest, getProfilesByEmails} from "../../utils/requests";
+import {getCurrUserRequest, getProfilesByEmails, getProfilesByIds} from "../../utils/requests";
 import React, {useState} from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
+import UserPfpList from "../../components/UserPfpList";
+import UserHeaderLeft from "../../components/UserHeaderLeft";
 
-export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[] }) {
+export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[] }) {
     const [session, loading] = useSession();
     const isOwner = !loading && session && (props.data.user.email === session.user.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
@@ -23,18 +25,8 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 title={`${data.user.name}'s daily updates | Updately`}
                 description={`Follow ${data.user.name} on Updately to get their updates in your feed.`}
             />
-            <div className="sm:flex my-16">
-                <div className="flex items-center">
-                    <div className="w-16 mr-8">
-                        <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-full rounded-full"/>
-                    </div>
-                    <div>
-                        <h1 className="up-h1">{data.user.name}</h1>
-                        {userData && data.user.following.includes(userData._id) && (
-                            <p className="text-xs mt-2 bg-black rounded-md p-2 text-white inline-block">Follows you</p>
-                        )}
-                    </div>
-                </div>
+            <div className="sm:flex mt-16 mb-8">
+                <UserHeaderLeft pageUser={data.user} userData={userData}/>
                 <div className="flex sm:ml-auto mt-6 sm:mt-0">
                     <div className="ml-auto">
                         {!isOwner && (
@@ -44,19 +36,22 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 </div>
             </div>
 
-            <div className="my-4">
-                <h2 className="up-ui-title">{isOwner ? "Your" : `${props.data.user.name}'s`} followers ({props.followers.length})</h2>
+            <Link href={`@${data.user.urlName}/following`}>
+                <a className="up-ui-title mb-4 block">
+                    Following ({props.following.length})
+                </a>
+            </Link>
+            <UserPfpList userList={props.following} pageUser={data.user} isFollowers={false}/>
+
+            <div className="mb-4 mt-12">
+                <Link href={`@${data.user.urlName}/followers`}>
+                    <a className="up-ui-title">
+                        Followers ({props.followers.length})
+                    </a>
+                </Link>
                 {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
             </div>
-            <div className="flex wrap">
-                {props.followers.map(user => (
-                    <Link href={"/@" + user.urlName} key={user.urlName}>
-                        <a>
-                            <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
-                        </a>
-                    </Link>
-                ))}
-            </div>
+            <UserPfpList userList={props.followers} pageUser={data.user} isFollowers={true}/>
 
             <hr className="my-8"/>
 
@@ -65,7 +60,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
             ) : (
                 <>
                     <div className="flex items-center">
-                        <h2 className="up-ui-title my-4">Latest updates</h2>
+                        <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
 
                         {isOwner && (
                             <Link href="/new-update"><a className="up-button primary my-4 ml-auto">Post new update</a></Link>
@@ -101,6 +96,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const userData = session ? (session.user.email === data.user.email ? data.user : await getCurrUserRequest(session.user.email)) : null;
 
     let followers = await getProfilesByEmails(data.user.followers);
+    let following = await getProfilesByIds(data.user.following);
 
-    return { props: { data: cleanForJSON(data), userData: cleanForJSON(userData), followers: cleanForJSON(followers), key: data.user._id.toString() }};
+    return { props: { data: cleanForJSON(data), userData: cleanForJSON(userData), followers: cleanForJSON(followers), following: cleanForJSON(following), key: data.user._id.toString() }};
 };

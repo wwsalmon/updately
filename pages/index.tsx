@@ -7,6 +7,7 @@ import UpdateFeed from "../components/UpdateFeed";
 import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
 import {Update, User} from "../utils/types";
+import UserPfpList from "../components/UserPfpList";
 
 export default function Home({userData, feedData}: {userData: User, feedData: {users: User[], updates: Update[]}}) {
 
@@ -21,18 +22,14 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
                     <>
                         <h1 className="up-h1 mt-16">Your feed</h1>
                         <div className="my-6">
-                            <h3 className="up-ui-title">Following ({feedData.users.length})</h3>
-                            <p>Ask friends to share their Updately profiles with you, <Link href="/search"><a className="underline">or search for them by name</a></Link>!</p>
+                            <Link href={`@${userData.urlName}/following`}>
+                                <a className="up-ui-title">
+                                    Following ({userData.following.length})
+                                </a>
+                            </Link>
+                            <p>Ask friends to share their Updately profiles with you, <Link href="/explore"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
-                        <div className="flex wrap">
-                            {feedData.users.map(user => (
-                                <Link href={"/@" + user.urlName} key={user.urlName}>
-                                    <a>
-                                        <img src={user.image} className="w-10 h-10 rounded-full mr-4" alt={user.name}/>
-                                    </a>
-                                </Link>
-                            ))}
-                        </div>
+                        <UserPfpList isFollowers={false} userList={feedData.users} pageUser={userData}/>
                         <UpdateFeed updates={feedData.updates} users={feedData.users} count={20}/>
                     </>
                 ) : (

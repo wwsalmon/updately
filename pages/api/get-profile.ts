@@ -6,8 +6,6 @@ import {AxiosPromise} from "axios";
 
 export default async function getProfileHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405);
-
-    const session = await getSession({ req });
     if (Array.isArray(req.query.username)) return res.status(500).json({message: "Error: multiple usernames in query"});
     const username: string = req.query.username;
     if (!username) return res.status(500).json({message: "Cannot get profile, no username given"});
@@ -24,7 +22,7 @@ export default async function getProfileHandler(req: NextApiRequest, res: NextAp
 }
 
 export async function getProfileRequest(username: string) {
-    mongoose.connect(process.env.MONGODB_URL, {
+    await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -35,4 +33,14 @@ export async function getProfileRequest(username: string) {
     const updates = await updateModel.find({ userId: user._id });
 
     return {user: user, updates: updates};
+}
+
+export async function getProfileReducedRequest(username: string) {
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+
+    return await userModel.findOne({ urlName: username });
 }
