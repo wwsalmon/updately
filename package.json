@@ -13,6 +13,7 @@
     "@types/react": "^17.0.0",
     "axios": "^0.21.0",
     "date-fns": "^2.16.1",
+    "escape-html": "^1.0.3",
     "html-react-parser": "^0.14.2",
     "mongoose": "^5.10.16",
     "next": "^10.0.3",

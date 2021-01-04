@@ -15,6 +15,7 @@ import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
+import escape from "escape-html";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -144,7 +145,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         </div>
                         <hr className="my-8"/>
                         <div className="prose content my-8">
-                            {Parser(markdownConverter.makeHtml(thisUpdate.body))}
+                            {Parser(markdownConverter.makeHtml(escape(thisUpdate.body)))}
                         </div>
                         <hr className="my-8"/>
                         <UpdateComments updateId={thisUpdate._id} userData={userData}/>
