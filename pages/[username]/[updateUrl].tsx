@@ -148,7 +148,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             {Parser(markdownConverter.makeHtml(escape(thisUpdate.body)))}
                         </div>
                         <hr className="my-8"/>
-                        <UpdateComments updateId={thisUpdate._id} userData={userData}/>
+                        <UpdateComments update={thisUpdate} userData={userData}/>
                     </>
                 )}
             </div>

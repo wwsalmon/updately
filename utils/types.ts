@@ -36,3 +36,13 @@ export interface CommentObj {
     createdAt: string, // date string
     updatedAt: string, // date string
 }
+
+export interface Notification {
+    _id: string,
+    userId: string,
+    message: string,
+    link: string,
+    read: boolean,
+    createdAt: string, // date string
+    updatedAt: string, // date string
+}

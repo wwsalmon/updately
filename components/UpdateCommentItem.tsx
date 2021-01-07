@@ -1,13 +1,14 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
-import {CommentObj, User} from "../utils/types";
+import {CommentObj, Update, User} from "../utils/types";
 import Link from "next/link";
 import {format} from "date-fns";
 import {FiCornerUpRight, FiTrash} from "react-icons/fi";
 import UpdateCommentForm from "./UpdateCommentForm";
 import axios from "axios";
 
-export default function UpdateCommentItem({comment, users, userData, refreshIteration, setRefreshIteration}: {
+export default function UpdateCommentItem({comment, update, users, userData, refreshIteration, setRefreshIteration}: {
     comment: CommentObj,
+    update: Update,
     users: User[],
     userData: User,
     refreshIteration: number,
@@ -93,7 +94,7 @@ export default function UpdateCommentItem({comment, users, userData, refreshIter
                 {replyOpen && (
                     <div className="my-4">
                         <UpdateCommentForm
-                            updateId={comment.updateId}
+                            update={update}
                             userData={userData}
                             parentCommentId={comment.parentCommentId || comment._id}
                             callback={() => setRefreshIteration(refreshIteration + 1)}

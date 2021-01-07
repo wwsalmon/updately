@@ -1,20 +1,20 @@
 import React, {useState} from 'react';
-import {CommentObj, User} from "../utils/types";
+import {CommentObj, Update, User} from "../utils/types";
 import useSWR from "swr";
 import {fetcher} from "../utils/utils";
 import UpdateCommentForm from "./UpdateCommentForm";
 import UpdateCommentItem from "./UpdateCommentItem";
 
-export default function UpdateComments({updateId, userData}: { updateId: string, userData: User }) {
+export default function UpdateComments({update, userData}: { update: Update, userData: User }) {
     const [refreshIteration, setRefreshIteration] = useState<number>(0);
-    const {data, error} = useSWR(`/api/get-comments?updateId=${updateId}&?iter=${refreshIteration}`, fetcher);
+    const {data, error} = useSWR(`/api/get-comments?updateId=${update._id}&?iter=${refreshIteration}`, fetcher);
 
     return (
         <>
             <div className="up-ui-title mb-4"><span>Comments {data ? `(${data.comments.length})` : ""}</span></div>
             <div className="my-4">
                 <UpdateCommentForm
-                    updateId={updateId}
+                    update={update}
                     userData={userData}
                     callback={() => setRefreshIteration(refreshIteration + 1)}
                     onCancel={() => null}
@@ -25,6 +25,7 @@ export default function UpdateComments({updateId, userData}: { updateId: string,
                     <div className="mb-12">
                         <UpdateCommentItem
                             comment={comment}
+                            update={update}
                             users={data.users}
                             userData={userData}
                             refreshIteration={refreshIteration}
@@ -35,6 +36,7 @@ export default function UpdateComments({updateId, userData}: { updateId: string,
                                 <div className="mb-6">
                                     <UpdateCommentItem
                                         comment={subComment}
+                                        update={update}
                                         users={data.users}
                                         userData={userData}
                                         refreshIteration={refreshIteration}

@@ -65,6 +65,17 @@ const userSchema: Schema = new Schema({
     timestamps: true,
 });
 
+const notificationSchema: Schema = new Schema({
+    userId: ObjectId, // ID of receiving user
+    authorId: ObjectId, // ID of comment author
+    updateId: ObjectId, // ID of update of comment to generate link and notification message
+    type: reqString, // "comment" | "reply"
+    read: {type: Boolean, required: true},
+}, {
+    timestamps: true,
+});
+
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
 export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
 export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);
+export const notificationModel = mongoose.models.notification || mongoose.model('notification', notificationSchema);
