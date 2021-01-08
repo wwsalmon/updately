@@ -44,7 +44,7 @@ export default function Navbar() {
                                         )}
                                     </button>
                                 )}
-                                <div className="relative up-hover-button">
+                                <button className="relative up-hover-button">
                                     <div className="flex items-center">
                                         <FiChevronDown/>
                                         <img
@@ -59,7 +59,7 @@ export default function Navbar() {
                                         )}
                                         <MenuButton text="Sign out" onClick={signOut}/>
                                     </div>
-                                </div>
+                                </button>
                             </>
                         ) : (
                             <button
