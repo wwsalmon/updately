@@ -7,13 +7,14 @@ import useSWR from "swr";
 import MenuLink from "./MenuLink";
 import {useRouter} from "next/router";
 import NavbarItem from "./NavbarItem";
-import {FiChevronDown, FiHome, FiSearch, FiUser} from "react-icons/fi";
+import {FiBell, FiChevronDown, FiHome, FiSearch, FiUser} from "react-icons/fi";
 import {fetcher} from "../utils/utils";
 
 export default function Navbar() {
     const router = useRouter();
     const [session, loading] = useSession();
-    const { data, error } = session ? useSWR("/api/get-curr-user", fetcher) : { data: null, error: null };
+    const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
+    const { data: notificationsData, error: notificationsError } = useSWR(session ? "/api/get-notifications" : null, fetcher) || {data: null, error: null};
 
     return (
         <>
@@ -33,6 +34,16 @@ export default function Navbar() {
                         {session ? (
                             <>
                                 <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
+                                {notificationsData && (
+                                    <button className="mr-4 p-2 relative">
+                                        <FiBell/>
+                                        {notificationsData.notifications.length > 0 && (
+                                            <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
+                                                <span style={{fontSize: 8, top: -9}} className="relative">{notificationsData.notifications.length}</span>
+                                            </div>
+                                        )}
+                                    </button>
+                                )}
                                 <div className="relative up-hover-button">
                                     <div className="flex items-center">
                                         <FiChevronDown/>

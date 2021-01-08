@@ -40,8 +40,9 @@ export interface CommentObj {
 export interface Notification {
     _id: string,
     userId: string,
-    message: string,
-    link: string,
+    authorId: string,
+    updateId: string,
+    type: "comment" | "reply",
     read: boolean,
     createdAt: string, // date string
     updatedAt: string, // date string
