@@ -93,7 +93,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
-                <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-30">
+                <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-20">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
                             <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>

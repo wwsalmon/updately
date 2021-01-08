@@ -50,7 +50,7 @@ export default async function newCommentHandler(req: NextApiRequest, res: NextAp
         if (newComment.isSubComment) {
             const parentComment = await commentModel.findOne({ _id: commentId });
             const subComments = await commentModel.find({ parentCommentId: commentId });
-            const commentUserIds = [parentComment.userId.toString(), ...subComments.map(d => d.userId.toString())]
+            const commentUserIds = [parentComment.authorId.toString(), ...subComments.map(d => d.authorId.toString())]
                 .filter((d, i, a) => a.indexOf(d) === i) // filter out duplicates
                 .filter(d => d !== thisUser._id.toString() && d !== req.body.updateAuthorId); // filter out ID of comment and post author
             for (let userId of commentUserIds) {

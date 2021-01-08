@@ -13,13 +13,15 @@ export default async function getNotificationsHandler(req: NextApiRequest, res: 
     try {
         const thisUser: User = await getCurrUserRequest(session.user.email);
         const notifications: Notification[] = await getNotifications(thisUser._id.toString());
-        if (notifications.length === 0) return res.status(200).json({notifications: [], users: [], updates: []});
+        if (notifications.length === 0) return res.status(200).json({notifications: [], users: [], updates: [], updateUsers: []});
         else {
             const uniqueAuthorIds: string[] = notifications.map(d => d.authorId).filter((d, i, a) => a.indexOf(d) === i);
             const uniqueUpdateIds: string[] = notifications.map(d => d.updateId).filter((d, i, a) => a.indexOf(d) === i);
             const users: User[] = await userModel.find({ "_id": {$in: uniqueAuthorIds}});
             const updates: Update[] = await updateModel.find({ "_id": {$in: uniqueUpdateIds}});
-            return res.status(200).json({notifications: notifications, users: users, updates: updates});
+            const uniqueUpdateUserIds: string[] = updates.map(d => d.userId).filter((d, i, a) => a.indexOf(d) === i);
+            const updateUsers: User[] = await userModel.find({ "_id": {$in: uniqueUpdateUserIds}});
+            return res.status(200).json({notifications: notifications, users: users, updates: updates, updateUsers: updateUsers});
         }
     } catch (e) {
         res.status(500).json({error: e});
