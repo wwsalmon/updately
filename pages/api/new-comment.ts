@@ -36,14 +36,14 @@ export default async function newCommentHandler(req: NextApiRequest, res: NextAp
 
         // if comment author is not update author, create notification for update author
         if (req.body.updateAuthorId !== thisUser._id.toString()) {
-            const newNotification = {
+            const newNotification = new notificationModel({
                 userId: req.body.updateAuthorId,
                 updateId: updateId,
                 authorId: thisUser._id,
                 type: "comment",
                 read: false,
-            }
-            await notificationModel.create(newNotification);
+            });
+            await newNotification.save();
         }
 
         // if comment is subcomment, create notifications for authors of all subcomments of parent comment
@@ -54,14 +54,14 @@ export default async function newCommentHandler(req: NextApiRequest, res: NextAp
                 .filter((d, i, a) => a.indexOf(d) === i) // filter out duplicates
                 .filter(d => d !== thisUser._id.toString() && d !== req.body.updateAuthorId); // filter out ID of comment and post author
             for (let userId of commentUserIds) {
-                const newNotification = {
+                const newNotification = new notificationModel({
                     userId: userId,
                     updateId: updateId,
                     authorId: thisUser._id,
                     type: "reply",
                     read: false,
-                }
-                await notificationModel.create(newNotification);
+                });
+                await newNotification.save();
             }
         }
 

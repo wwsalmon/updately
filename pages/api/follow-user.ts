@@ -38,14 +38,14 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
             followUser.followers.push(session.user.email);
 
             // create follow notification
-            const newNotification = {
+            const newNotification = new notificationModel({
                 userId: req.body.id,
                 updateId: null,
                 authorId: currUser._id.toString(),
                 type: "follow",
                 read: false,
-            }
-            await notificationModel.create(newNotification);
+            });
+            await newNotification.save();
         }
 
         currUser.markModified("following");

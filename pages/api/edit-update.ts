@@ -1,6 +1,6 @@
 import {getSession} from "next-auth/client";
 import {NextApiRequest, NextApiResponse} from "next";
-import mongoose, {ObjectID} from "mongoose";
+import mongoose from "mongoose";
 import {updateModel, userModel} from "../../models/models";
 import short from "short-uuid";
 import {dateOnly} from "../../utils/utils";
