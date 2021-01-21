@@ -9,13 +9,13 @@ import React, {useEffect, useState} from "react";
 import EditUpdate from "../../components/EditUpdate";
 import axios from "axios";
 import {useRouter} from "next/router";
-import Showdown from "showdown";
+import showdown from "showdown";
+import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
-import escape from "escape-html";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -80,10 +80,11 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
         })
     }
 
-    const markdownConverter = new Showdown.Converter({
+    const markdownConverter = new showdown.Converter({
         strikethrough: true,
         tasklists: true,
         tables: true,
+        extensions: [showdownHtmlEscape],
     });
 
     useEffect(() => {
@@ -157,7 +158,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         </div>
                         <hr className="my-8"/>
                         <div className="prose content my-8">
-                            {Parser(markdownConverter.makeHtml(escape(thisUpdate.body)))}
+                            {Parser(markdownConverter.makeHtml(thisUpdate.body))}
                         </div>
                         <hr className="my-8"/>
                         <UpdateComments update={thisUpdate} userData={userData}/>
