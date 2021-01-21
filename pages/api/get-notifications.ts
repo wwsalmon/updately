@@ -12,17 +12,24 @@ export default async function getNotificationsHandler(req: NextApiRequest, res: 
 
     try {
         const thisUser: User = await getCurrUserRequest(session.user.email);
-        const notifications: Notification[] = await getNotifications(thisUser._id.toString());
+        let notifications: Notification[] = await getNotifications(thisUser._id.toString());
         if (notifications.length === 0) return res.status(200).json({notifications: [], users: [], updates: [], updateUsers: []});
-        else {
-            const uniqueAuthorIds: string[] = notifications.map(d => d.authorId).filter((d, i, a) => a.indexOf(d) === i);
-            const uniqueUpdateIds: string[] = notifications.map(d => d.updateId).filter((d, i, a) => a.indexOf(d) === i);
-            const users: User[] = await userModel.find({ "_id": {$in: uniqueAuthorIds}});
-            const updates: Update[] = await updateModel.find({ "_id": {$in: uniqueUpdateIds}});
-            const uniqueUpdateUserIds: string[] = updates.map(d => d.userId).filter((d, i, a) => a.indexOf(d) === i);
-            const updateUsers: User[] = await userModel.find({ "_id": {$in: uniqueUpdateUserIds}});
-            return res.status(200).json({notifications: notifications, users: users, updates: updates, updateUsers: updateUsers});
-        }
+
+        // delete read notifications older than 14 days
+        const oldNotificationIds: string[] = notifications
+            .filter(d => d.read && +new Date() - +new Date(d.createdAt) > (14 * 8.64e7))
+            .map(d => d._id.toString());
+        await notificationModel.deleteMany({"_id": {$in: oldNotificationIds}});
+
+        notifications = notifications.filter(d => !oldNotificationIds.includes(d._id.toString()))
+
+        const uniqueAuthorIds: string[] = notifications.map(d => d.authorId).filter((d, i, a) => a.indexOf(d) === i);
+        const uniqueUpdateIds: string[] = notifications.map(d => d.updateId).filter((d, i, a) => a.indexOf(d) === i);
+        const users: User[] = await userModel.find({ "_id": {$in: uniqueAuthorIds}});
+        const updates: Update[] = await updateModel.find({ "_id": {$in: uniqueUpdateIds}});
+        const uniqueUpdateUserIds: string[] = updates.map(d => d.userId).filter((d, i, a) => a.indexOf(d) === i);
+        const updateUsers: User[] = await userModel.find({ "_id": {$in: uniqueUpdateUserIds}});
+        return res.status(200).json({notifications: notifications, users: users, updates: updates, updateUsers: updateUsers});
     } catch (e) {
         res.status(500).json({error: e});
     }
