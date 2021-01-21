@@ -1,3 +1,5 @@
+import {Document} from "mongoose";
+
 export interface User {
     _id: string,
     createdAt: string, // date string
@@ -37,7 +39,7 @@ export interface CommentObj {
     updatedAt: string, // date string
 }
 
-export interface Notification {
+export interface Notification extends Document {
     _id: string,
     userId: string,
     authorId: string,

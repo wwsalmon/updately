@@ -18,6 +18,8 @@ export default function Navbar() {
     const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
     const { data: notificationsData, error: notificationsError } = useSWR(session ? "/api/get-notifications" : null, fetcher) || {data: null, error: null};
 
+    const numNotifications = notificationsData ? notificationsData.notifications.filter(d => !d.read).length : 0
+
     return (
         <>
             <div className="w-full bg-white sticky mb-8 top-0 z-30">
@@ -41,9 +43,11 @@ export default function Navbar() {
                                         <FiBell/>
                                         {notificationsData.notifications.length > 0 && (
                                             <>
-                                                <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
-                                                    <span style={{fontSize: 8, top: -9}} className="relative">{notificationsData.notifications.length}</span>
-                                                </div>
+                                                {numNotifications > 0 && (
+                                                    <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
+                                                        <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
+                                                    </div>
+                                                )}
                                                 <div className="up-hover-dropdown mt-10 w-64">
                                                     {notificationsData.notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
@@ -53,40 +57,42 @@ export default function Navbar() {
                                                             const thisAuthor: User = notificationsData.users.find(d => d._id === notification.authorId);
 
                                                             return (
-                                                                <MenuLink
-                                                                    text={{
-                                                                        "comment": (
-                                                                            <>
+                                                                <div key={notification._id} className={notification.read ? "opacity-50" : ""}>
+                                                                    <MenuLink
+                                                                        text={{
+                                                                            "comment": (
+                                                                                <>
                                                                             <span>
                                                                                 <b>{thisAuthor.name}</b> commented on your {format(new Date(thisUpdate.date), "M/d/yy")} update
                                                                             </span>
-                                                                                <br/>
-                                                                                <span className="opacity-50">
+                                                                                    <br/>
+                                                                                    <span className="opacity-50">
                                                                                 {formatDistanceToNow(new Date(notification.createdAt))} ago
                                                                             </span>
-                                                                            </>
-                                                                        ), "reply": (
-                                                                            <>
+                                                                                </>
+                                                                            ), "reply": (
+                                                                                <>
                                                                             <span>
                                                                                 <b>{thisAuthor.name}</b> replied to your comment on
                                                                                 {" " + (thisUpdateUser.email === session.user.email ?
-                                                                                    "your" :
-                                                                                    thisUpdateUser._id === thisAuthor._id ?
-                                                                                        "their" :
-                                                                                        thisUpdateUser.name + "'s"
+                                                                                        "your" :
+                                                                                        thisUpdateUser._id === thisAuthor._id ?
+                                                                                            "their" :
+                                                                                            thisUpdateUser.name + "'s"
                                                                                 ) + " "}
                                                                                 {format(new Date(thisUpdate.date), "M/d/yy")} update
                                                                             </span>
-                                                                                <br/>
-                                                                                <span className="opacity-50">
+                                                                                    <br/>
+                                                                                    <span className="opacity-50">
                                                                                 {formatDistanceToNow(new Date(notification.createdAt))} ago
                                                                             </span>
-                                                                            </>
-                                                                        )
-                                                                    }[notification.type]}
-                                                                    href={`/@${thisUpdateUser.urlName}/${thisUpdate.url}`}
-                                                                    nowrap={false}
-                                                                />
+                                                                                </>
+                                                                            )
+                                                                        }[notification.type]}
+                                                                        href={`/@${thisUpdateUser.urlName}/${thisUpdate.url}?notification=${notification._id}`}
+                                                                        nowrap={false}
+                                                                    />
+                                                                </div>
                                                             )
                                                         })
                                                     }

@@ -5,7 +5,7 @@ import {format} from "date-fns";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
 import Link from "next/link";
 import MoreMenu from "../../components/MoreMenu";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import EditUpdate from "../../components/EditUpdate";
 import axios from "axios";
 import {useRouter} from "next/router";
@@ -85,6 +85,18 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
         tasklists: true,
         tables: true,
     });
+
+    useEffect(() => {
+        if (router.query.notification) {
+            axios.post("/api/read-notification", {
+                id: router.query.notification,
+            }).then(res => {
+                console.log(res);
+            }).catch(e => {
+                console.log(e);
+            });
+        }
+    }, []);
 
     return (
         <div className="max-w-7xl relative mx-auto">

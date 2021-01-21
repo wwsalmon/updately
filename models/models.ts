@@ -1,4 +1,5 @@
-import mongoose, { Schema, ObjectId } from "mongoose";
+import mongoose, {Schema, ObjectId, Model} from "mongoose";
+import {Notification} from "../utils/types";
 
 const reqString = {
     type: String,
@@ -78,4 +79,4 @@ const notificationSchema: Schema = new Schema({
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
 export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
 export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);
-export const notificationModel = mongoose.models.notification || mongoose.model('notification', notificationSchema);
+export const notificationModel: Model<Notification> = mongoose.models.notification || mongoose.model('notification', notificationSchema);
