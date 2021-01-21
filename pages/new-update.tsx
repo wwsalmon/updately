@@ -6,11 +6,14 @@ import EditUpdate from "../components/EditUpdate";
 import {NextSeo} from "next-seo";
 import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/client";
+import {getCurrUserRequest} from "../utils/requests";
+import {cleanForJSON} from "../utils/utils";
+import {User} from "../utils/types";
 
-export default function NewUpdate() {
+export default function NewUpdate({userData}: {userData: User}) {
     const router = useRouter();
 
-    const [body, setBody] = useState<string>("");
+    const [body, setBody] = useState<string>(userData.template || "");
     const [title, setTitle] = useState<string>("");
     const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
     const [postLoading, setPostLoading] = useState<boolean>(false);
@@ -66,5 +69,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         return {props: {}};
     }
 
-    return {props: {}};
+    const userData = await getCurrUserRequest(session.user.email);
+
+    return {props: {userData: cleanForJSON(userData)}};
 };

@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import axios from "axios";
-import {User} from "../utils/types";
+import {Update, User} from "../utils/types";
 
-export default function UpdateCommentForm({updateId, userData, parentCommentId = null, callback, onCancel}: {
-    updateId: string,
+export default function UpdateCommentForm({update, userData, parentCommentId = null, callback, onCancel}: {
+    update: Update,
     userData: User,
     parentCommentId?: string,
     callback: () => any,
@@ -18,7 +18,8 @@ export default function UpdateCommentForm({updateId, userData, parentCommentId =
         axios.post("/api/new-comment", {
             commentText: commentText,
             authorId: userData._id,
-            updateId: updateId,
+            updateId: update._id,
+            updateAuthorId: update.userId,
             commentId: parentCommentId,
         }).then(res => {
             setIsLoading(false);

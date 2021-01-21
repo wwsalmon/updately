@@ -1,4 +1,5 @@
-import mongoose, { Schema, ObjectId } from "mongoose";
+import mongoose, {Schema, Model} from "mongoose";
+import {Notification} from "../utils/types";
 
 const reqString = {
     type: String,
@@ -22,11 +23,11 @@ const authorObj = {
 };
 
 const commentSchema: Schema = new Schema({
-    authorId: ObjectId,
-    updateId: ObjectId,
+    authorId: mongoose.Schema.Types.ObjectId,
+    updateId: mongoose.Schema.Types.ObjectId,
     body: reqString,
     isSubComment: {type: Boolean, required: true},
-    parentCommentId: ObjectId,
+    parentCommentId: mongoose.Schema.Types.ObjectId,
 }, {
     timestamps: true,
 });
@@ -36,18 +37,18 @@ const updateSchema: Schema = new Schema({
     url: reqString,
     title: unreqString,
     date: Date,
-    readBy: [ObjectId],
+    readBy:  [mongoose.Schema.Types.ObjectId],
 }, {
     timestamps: true,
 });
 
 const updateV2Schema: Schema = new Schema({
-    userId: ObjectId,
+    userId: mongoose.Schema.Types.ObjectId,
     body: reqString,
     url: reqString,
     title: unreqString,
     date: Date,
-    readBy: [ObjectId],
+    readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],
 }, {
     timestamps: true,
@@ -57,10 +58,21 @@ const userSchema: Schema = new Schema({
     ...authorObj,
     private: {type: Boolean, required: true},
     updates: [updateSchema],
-    following: [ObjectId],
+    following:  [mongoose.Schema.Types.ObjectId],
     followers: [reqString], // emails of followers
     requests: [reqString], // emails of users requesting follows
-    requesting: [ObjectId],
+    requesting:  [mongoose.Schema.Types.ObjectId],
+    template: unreqString,
+}, {
+    timestamps: true,
+});
+
+const notificationSchema: Schema = new Schema({
+    userId: mongoose.Schema.Types.ObjectId, // ID of receiving user
+    authorId: mongoose.Schema.Types.ObjectId, // ID of comment author
+    updateId: mongoose.Schema.Types.ObjectId, // ID of update of comment to generate link and notification message
+    type: reqString, // "comment" | "reply"
+    read: {type: Boolean, required: true},
 }, {
     timestamps: true,
 });
@@ -68,3 +80,4 @@ const userSchema: Schema = new Schema({
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
 export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
 export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);
+export const notificationModel: Model<Notification> = mongoose.models.notification || mongoose.model('notification', notificationSchema);

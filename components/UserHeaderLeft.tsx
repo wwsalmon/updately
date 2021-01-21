@@ -1,7 +1,7 @@
 import React from 'react';
 import {User} from "../utils/types";
 
-export default function UserHeaderLeft({pageUser, userData}: { pageUser: User, userData: User }) {
+export default function UserHeaderLeft({pageUser, userData = null}: { pageUser: User, userData?: User }) {
     return (
         <div className="flex items-center">
             <div className="w-16 mr-8">

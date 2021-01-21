@@ -6,18 +6,33 @@ import wordsCount from "words-count";
 import Link from "next/link";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
 import {getCurrUserRequest, getProfilesByEmails, getProfilesByIds} from "../../utils/requests";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 import UserPfpList from "../../components/UserPfpList";
 import UserHeaderLeft from "../../components/UserHeaderLeft";
+import {useRouter} from "next/router";
+import axios from "axios";
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[] }) {
+    const router = useRouter();
     const [session, loading] = useSession();
     const isOwner = !loading && session && (props.data.user.email === session.user.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
+
+    useEffect(() => {
+        if (router.query.notification) {
+            axios.post("/api/read-notification", {
+                id: router.query.notification,
+            }).then(res => {
+                console.log(res);
+            }).catch(e => {
+                console.log(e);
+            });
+        }
+    }, [router.query.notification]);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
@@ -36,6 +51,27 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 </div>
             </div>
 
+            {(isOwner || data.user.bio) && (
+                <div className="mb-12">
+                    {data.user.bio && (
+                        <p className="content mt-2">{data.user.bio}</p>
+                    )}
+                    <div className="flex items-center">
+                        {!data.user.bio && (
+                            <div>
+                                <p className="up-ui-title">Bio</p>
+                                <p className="opacity-50">Add a short bio to let others know who you are.</p>
+                            </div>
+                        )}
+                        {(isOwner) && (
+                            <Link href={`@${data.user.urlName}/edit-bio`}>
+                                <a className="up-button text small ml-auto">Edit bio</a>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <Link href={`@${data.user.urlName}/following`}>
                 <a className="up-ui-title mb-4 block">
                     Following ({props.following.length})
@@ -53,17 +89,28 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
             </div>
             <UserPfpList userList={props.followers} pageUser={data.user} isFollowers={true}/>
 
+            <div className="mt-12">
+                <p className="opacity-50">{data.user.name} joined Updately on {format(new Date(data.user.createdAt), "MMMM d, yyyy")}</p>
+            </div>
+
             <hr className="my-8"/>
 
             {data.user.private ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
-                    <div className="flex items-center">
+                    <div className="sm:flex items-center">
                         <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
 
                         {isOwner && (
-                            <Link href="/new-update"><a className="up-button primary my-4 ml-auto">Post new update</a></Link>
+                            <div className="flex ml-auto mt-4 mb-12 sm:mb-4">
+                                <Link href="/edit-template">
+                                    <a className="up-button text small ml-auto mr-4">Edit template</a>
+                                </Link>
+                                <Link href="/new-update">
+                                    <a className="up-button primary small">Post new update</a>
+                                </Link>
+                            </div>
                         )}
                     </div>
 

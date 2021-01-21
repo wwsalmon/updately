@@ -1,3 +1,5 @@
+import {Document} from "mongoose";
+
 export interface User {
     _id: string,
     createdAt: string, // date string
@@ -11,6 +13,8 @@ export interface User {
     requests: [],
     updatedAt: string, // date string,
     urlName: string,
+    bio: string,
+    template: string,
 }
 
 export interface Update {
@@ -33,6 +37,17 @@ export interface CommentObj {
     body: string,
     isSubComment: boolean,
     parentCommentId: string,
+    createdAt: string, // date string
+    updatedAt: string, // date string
+}
+
+export interface Notification extends Document {
+    _id: string,
+    userId: string,
+    authorId: string,
+    updateId: string,
+    type: "comment" | "reply" | "follow",
+    read: boolean,
     createdAt: string, // date string
     updatedAt: string, // date string
 }

@@ -5,17 +5,17 @@ import {format} from "date-fns";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
 import Link from "next/link";
 import MoreMenu from "../../components/MoreMenu";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import EditUpdate from "../../components/EditUpdate";
 import axios from "axios";
 import {useRouter} from "next/router";
-import Showdown from "showdown";
+import showdown from "showdown";
+import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
-import escape from "escape-html";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -80,11 +80,24 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
         })
     }
 
-    const markdownConverter = new Showdown.Converter({
+    const markdownConverter = new showdown.Converter({
         strikethrough: true,
         tasklists: true,
         tables: true,
+        extensions: [showdownHtmlEscape],
     });
+
+    useEffect(() => {
+        if (router.query.notification) {
+            axios.post("/api/read-notification", {
+                id: router.query.notification,
+            }).then(res => {
+                console.log(res);
+            }).catch(e => {
+                console.log(e);
+            });
+        }
+    }, [router.query.notification]);
 
     return (
         <div className="max-w-7xl relative mx-auto">
@@ -93,7 +106,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
-                <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-30">
+                <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-20">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
                             <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
@@ -145,10 +158,10 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         </div>
                         <hr className="my-8"/>
                         <div className="prose content my-8">
-                            {Parser(markdownConverter.makeHtml(escape(thisUpdate.body)))}
+                            {Parser(markdownConverter.makeHtml(thisUpdate.body))}
                         </div>
                         <hr className="my-8"/>
-                        <UpdateComments updateId={thisUpdate._id} userData={userData}/>
+                        <UpdateComments update={thisUpdate} userData={userData}/>
                     </>
                 )}
             </div>
