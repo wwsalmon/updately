@@ -13,6 +13,7 @@ export interface User {
     requests: [],
     updatedAt: string, // date string,
     urlName: string,
+    bio: string,
 }
 
 export interface Update {

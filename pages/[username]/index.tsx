@@ -51,6 +51,27 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 </div>
             </div>
 
+            {(isOwner || data.user.bio) && (
+                <div className="mb-12">
+                    {data.user.bio && (
+                        <p className="content mt-2">{data.user.bio}</p>
+                    )}
+                    <div className="flex items-center">
+                        {!data.user.bio && (
+                            <div>
+                                <p className="up-ui-title">Bio</p>
+                                <p className="opacity-50">Add a short bio to let others know who you are.</p>
+                            </div>
+                        )}
+                        {(isOwner) && (
+                            <Link href={`@${data.user.urlName}/edit-bio`}>
+                                <a className="up-button text small ml-auto">Edit bio</a>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <Link href={`@${data.user.urlName}/following`}>
                 <a className="up-ui-title mb-4 block">
                     Following ({props.following.length})
@@ -67,6 +88,10 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
             </div>
             <UserPfpList userList={props.followers} pageUser={data.user} isFollowers={true}/>
+
+            <div className="mt-12">
+                <p className="opacity-50">{data.user.name} joined Updately on {format(new Date(data.user.createdAt), "MMMM d, yyyy")}</p>
+            </div>
 
             <hr className="my-8"/>
 
