@@ -14,6 +14,7 @@ export interface User {
     updatedAt: string, // date string,
     urlName: string,
     bio: string,
+    template: string,
 }
 
 export interface Update {

@@ -99,11 +99,18 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
-                    <div className="flex items-center">
+                    <div className="sm:flex items-center">
                         <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
 
                         {isOwner && (
-                            <Link href="/new-update"><a className="up-button primary my-4 ml-auto">Post new update</a></Link>
+                            <div className="flex ml-auto mt-4 mb-12 sm:mb-4">
+                                <Link href="/edit-template">
+                                    <a className="up-button text small ml-auto mr-4">Edit template</a>
+                                </Link>
+                                <Link href="/new-update">
+                                    <a className="up-button primary small">Post new update</a>
+                                </Link>
+                            </div>
                         )}
                     </div>
 

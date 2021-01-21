@@ -62,6 +62,7 @@ const userSchema: Schema = new Schema({
     followers: [reqString], // emails of followers
     requests: [reqString], // emails of users requesting follows
     requesting: [ObjectId],
+    template: unreqString,
 }, {
     timestamps: true,
 });
