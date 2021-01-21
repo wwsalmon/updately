@@ -6,18 +6,33 @@ import wordsCount from "words-count";
 import Link from "next/link";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
 import {getCurrUserRequest, getProfilesByEmails, getProfilesByIds} from "../../utils/requests";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 import UserPfpList from "../../components/UserPfpList";
 import UserHeaderLeft from "../../components/UserHeaderLeft";
+import {useRouter} from "next/router";
+import axios from "axios";
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[] }) {
+    const router = useRouter();
     const [session, loading] = useSession();
     const isOwner = !loading && session && (props.data.user.email === session.user.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
+
+    useEffect(() => {
+        if (router.query.notification) {
+            axios.post("/api/read-notification", {
+                id: router.query.notification,
+            }).then(res => {
+                console.log(res);
+            }).catch(e => {
+                console.log(e);
+            });
+        }
+    }, [router.query.notification]);
 
     return (
         <div className="max-w-4xl mx-auto px-4">

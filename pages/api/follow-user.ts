@@ -1,7 +1,7 @@
 import {getSession} from "next-auth/client";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
-import {userModel} from "../../models/models";
+import {notificationModel, userModel} from "../../models/models";
 
 export default async function newUpdateHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") return res.status(405);
@@ -36,6 +36,16 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
             // otherwise, follow
             currUser.following.push(req.body.id);
             followUser.followers.push(session.user.email);
+
+            // create follow notification
+            const newNotification = {
+                userId: req.body.id,
+                updateId: null,
+                authorId: currUser._id.toString(),
+                type: "follow",
+                read: false,
+            }
+            await notificationModel.create(newNotification);
         }
 
         currUser.markModified("following");

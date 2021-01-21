@@ -52,26 +52,30 @@ export default function Navbar() {
                                                     {notificationsData.notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: Notification) => {
-                                                            const thisUpdate: Update = notificationsData.updates.find(d => d._id === notification.updateId);
-                                                            const thisUpdateUser: User = notificationsData.updateUsers.find(d => d._id === thisUpdate.userId);
+                                                            const thisUpdate: Update = notification.type === "follow" ? null : notificationsData.updates.find(d => d._id === notification.updateId);
+                                                            const thisUpdateUser: User = notification.type === "follow" ? null : notificationsData.updateUsers.find(d => d._id === thisUpdate.userId);
                                                             const thisAuthor: User = notificationsData.users.find(d => d._id === notification.authorId);
 
                                                             return (
                                                                 <div key={notification._id} className={notification.read ? "opacity-50" : ""}>
                                                                     <MenuLink
-                                                                        text={{
-                                                                            "comment": (
-                                                                                <>
+                                                                        text={function(){
+                                                                            if (notification.type === "comment") {
+                                                                                return (
+                                                                                    <>
                                                                             <span>
                                                                                 <b>{thisAuthor.name}</b> commented on your {format(new Date(thisUpdate.date), "M/d/yy")} update
                                                                             </span>
-                                                                                    <br/>
-                                                                                    <span className="opacity-50">
+                                                                                        <br/>
+                                                                                        <span className="opacity-50">
                                                                                 {formatDistanceToNow(new Date(notification.createdAt))} ago
                                                                             </span>
-                                                                                </>
-                                                                            ), "reply": (
-                                                                                <>
+                                                                                    </>
+                                                                                )
+                                                                            }
+                                                                            if (notification.type === "reply") {
+                                                                                return (
+                                                                                    <>
                                                                             <span>
                                                                                 <b>{thisAuthor.name}</b> replied to your comment on
                                                                                 {" " + (thisUpdateUser.email === session.user.email ?
@@ -87,9 +91,25 @@ export default function Navbar() {
                                                                                 {formatDistanceToNow(new Date(notification.createdAt))} ago
                                                                             </span>
                                                                                 </>
-                                                                            )
-                                                                        }[notification.type]}
-                                                                        href={`/@${thisUpdateUser.urlName}/${thisUpdate.url}?notification=${notification._id}`}
+                                                                                )
+                                                                            }
+                                                                            if (notification.type === "follow") {
+                                                                                return (
+                                                                                    <>
+                                                                                        <span><b>{thisAuthor.name}</b> followed you</span>
+                                                                                        <br/>
+                                                                                        <span className="opacity-50">
+                                                                                            {formatDistanceToNow(new Date(notification.createdAt))} ago
+                                                                                        </span>
+                                                                                    </>
+                                                                                )
+                                                                            }
+                                                                        }()}
+                                                                        href={notification.type === "follow" ?
+                                                                            `/@${thisAuthor.urlName}?notification=${notification._id}`
+                                                                            :
+                                                                            `/@${thisUpdateUser.urlName}/${thisUpdate.url}?notification=${notification._id}`
+                                                                        }
                                                                         nowrap={false}
                                                                     />
                                                                 </div>
