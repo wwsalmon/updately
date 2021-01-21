@@ -29,8 +29,8 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
                             </Link>
                             <p>Ask friends to share their Updately profiles with you, <Link href="/explore"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
-                        <UserPfpList isFollowers={false} userList={feedData.users} pageUser={userData}/>
-                        <UpdateFeed updates={feedData.updates} users={feedData.users} count={20}/>
+                        <UserPfpList isFollowers={false} userList={feedData.users || []} pageUser={userData}/>
+                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} count={20}/>
                     </>
                 ) : (
                     <>
@@ -46,7 +46,7 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
                             </ol>
                             <p>Check out some (real!) examples:</p>
                         </div>
-                        <UpdateFeed updates={feedData.updates} users={feedData.users} count={10}/>
+                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} count={10}/>
                         <hr className="my-12"/>
                         <div className="prose content my-6">
                             <p>So what are you waiting for? <b>Hit that blue button on the navbar to sign up now!</b></p>
