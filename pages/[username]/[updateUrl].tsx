@@ -96,7 +96,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                 console.log(e);
             });
         }
-    }, []);
+    }, [router.query.notification]);
 
     return (
         <div className="max-w-7xl relative mx-auto">
