@@ -18,7 +18,8 @@ export default function Navbar() {
     const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
     const { data: notificationsData, error: notificationsError } = useSWR(session ? "/api/get-notifications" : null, fetcher) || {data: null, error: null};
 
-    const numNotifications = notificationsData ? notificationsData.notifications.filter(d => !d.read).length : 0
+    console.log(notificationsData, data)
+    const numNotifications = (notificationsData && notificationsData.notifications) ? notificationsData.notifications.filter(d => !d.read).length : 0
 
     return (
         <>
@@ -30,7 +31,7 @@ export default function Navbar() {
                             <NavbarItem icon={<FiHome/>} text="Feed" href="/" selected={router.route === "/"}/>
                         )}
                         <NavbarItem icon={<FiSearch/>} text="Explore" href="/explore" selected={router.route === "/explore"}/>
-                        {data && (
+                        {data && data.data && (
                             <NavbarItem icon={<FiUser/>} text="Profile" href={`/@${data.data.urlName}`} selected={router.asPath === `/@${data.data.urlName}`}/>
                         )}
                     </div>
@@ -38,7 +39,7 @@ export default function Navbar() {
                         {session ? (
                             <>
                                 <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
-                                {notificationsData && (
+                                {notificationsData && notificationsData.notifications && (
                                     <button className="mr-4 px-2 h-10 relative up-hover-button">
                                         <FiBell/>
                                         {notificationsData.notifications.length > 0 && (
@@ -131,7 +132,7 @@ export default function Navbar() {
                                         />
                                     </div>
                                     <div className="up-hover-dropdown mt-10">
-                                        {data && (
+                                        {data && data.data && (
                                             <MenuLink text="Profile" href={`/@${data.data.urlName}`}/>
                                         )}
                                         <MenuButton text="Sign out" onClick={signOut}/>
