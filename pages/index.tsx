@@ -8,9 +8,12 @@ import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
 import {Update, User} from "../utils/types";
 import UserPfpList from "../components/UserPfpList";
+import {fetcher} from "../utils/utils";
+import useSWR from "swr";
 
-export default function Home({userData, feedData}: {userData: User, feedData: {users: User[], updates: Update[]}}) {
-
+export default function Home({userData}: {userData: User}) {
+    const {data: feedDataObj, error: feedError} = useSWR("/api/get-curr-user-feed", fetcher);
+    const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
     return (
         <>
             <NextSeo
