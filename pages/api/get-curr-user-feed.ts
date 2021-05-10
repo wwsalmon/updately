@@ -5,13 +5,13 @@ import {getCurrUserFeedRequest, getDemoFeedRequest} from "../../utils/requests";
 export default async function getCurrUserFeedHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405);
 
-    const session = await getSession({ req }); // this thing gets whether sesison exists based on our request
+    const session = await getSession({ req });
 
     let userData, feedData;
 
     try {
-        if (session) {
-            const userFeedObj = await getCurrUserFeedRequest(session.user, req); // get the current user feed based on the session's user
+        if (session && !req.query.explore) {
+            const userFeedObj = await getCurrUserFeedRequest(session.user, req);
             userData = userFeedObj.userData;
             feedData = userFeedObj.feedData;
         } else {
