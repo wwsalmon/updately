@@ -10,10 +10,14 @@ import {Update, User} from "../utils/types";
 import UserPfpList from "../components/UserPfpList";
 import {fetcher} from "../utils/utils";
 import useSWR from "swr";
+import PaginationBanner from '../components/PaginationBanner';
+import {useState} from 'react'
 
 export default function Home({userData}: {userData: User}) {
-    const {data: feedDataObj, error: feedError} = useSWR("/api/get-curr-user-feed", fetcher);
+    const {data: feedDataObj, error: feedError} = useSWR("/api/get-curr-user-feed?publicFeed=true&page=${page}", fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
+    const [page, setPage] = useState<number>(1);
+
     return (
         <>
             <NextSeo
@@ -49,6 +53,7 @@ export default function Home({userData}: {userData: User}) {
                             </ol>
                             <p>Check out some (real!) examples:</p>
                         </div>
+                        <PaginationBanner page={page} setPage={setPage} label="updates"/>
                         <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} count={10}/>
                         <hr className="my-12"/>
                         <div className="prose content my-6">
