@@ -30,7 +30,9 @@ export async function getUpdatesRequest({req}) {
     
     let user = await userModel.findOne({ "urlName": req.query.urlName });
     if (user === null) return null;
-    const updates = await updateModel.find({ "userId": user._id }).sort('-date').skip((+req.query.page - 1) * 10).limit(10);    
+    let updates;
+
+    req.query.updatePage ? updates = await updateModel.find({ "userId": user._id }).sort('-date').limit(10*req.query.page) : updates = await updateModel.find({ "userId": user._id }).sort('-date').skip((+req.query.page - 1) * 10).limit(10);  
 
     return {
         user: user,

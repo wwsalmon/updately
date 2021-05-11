@@ -16,8 +16,11 @@ import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
 import {Update, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
+import {fetcher} from "../../utils/utils";
+import useSWR from "swr";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
+    const [page, setPage] = useState<number>(1);
     const router = useRouter();
     const [session, loading] = useSession();
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
@@ -31,6 +34,10 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     const [title, setTitle] = useState<string>(thisUpdate.title);
     const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
+    const updates = feedDataObj ? feedDataObj.updates : {updates: []};
+    console.log(feedDataObj);
 
     function onEdit() {
         setIsLoading(true);
@@ -168,7 +175,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
             <div className="xl:absolute xl:left-4 xl:top-8 xl:h-full max-w-3xl mx-auto px-4 xl:mx-0 xl:px-0">
                 <hr className="my-8 xl:hidden"/>
                 <div className="xl:sticky xl:top-24">
-                    {data.updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
+                    {updates && updates.length > 0 && updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
                         <div
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition"}`}
                             key={update._id}
@@ -181,6 +188,11 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             </Link>
                         </div>
                     ))}
+                    <button 
+                    className="opacity-50 hover:opacity-100 transition mb-8"
+                    onClick={() => setPage(page + 1)}
+                    disabled={page === Math.floor(data.updates.length / 10)}
+                    >View more</button>
                 </div>
             </div>
         </div>
