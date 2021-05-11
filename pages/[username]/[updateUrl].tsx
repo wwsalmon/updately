@@ -20,7 +20,6 @@ import {fetcher} from "../../utils/utils";
 import useSWR from "swr";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
-    const [page, setPage] = useState<number>(1);
     const router = useRouter();
     const [session, loading] = useSession();
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
@@ -35,7 +34,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
+    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
     const updates = feedDataObj ? feedDataObj.updates : {updates: []};
     console.log(feedDataObj);
 
@@ -188,11 +187,9 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             </Link>
                         </div>
                     ))}
-                    <button 
+                    <p 
                     className="opacity-50 hover:opacity-100 transition mb-8"
-                    onClick={() => setPage(page + 1)}
-                    disabled={page === Math.floor(data.updates.length / 10)}
-                    >View more</button>
+                    ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>
                 </div>
             </div>
         </div>
