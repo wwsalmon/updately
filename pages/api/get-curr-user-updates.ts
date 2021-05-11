@@ -10,14 +10,9 @@ export default async function getCurrUserUpdatesHandler(req: NextApiRequest, res
     let updates;
 
     try {
-        if (session) {
-            const userFeedObj = await getUpdatesRequest({req});
-            updates = userFeedObj.updates;
-        } else { 
-            updates = null;
-        }
-        
-    res.status(200).json({updates: updates}); 
+        const userFeedObj = await getUpdatesRequest({req});
+        updates = userFeedObj.updates;
+        res.status(200).json({updates: updates}); 
     } catch (e) {
         res.status(500).json({error: e}); 
     }
