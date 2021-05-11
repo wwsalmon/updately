@@ -8,12 +8,12 @@ export default function PaginationBar({page, count, label, setPage}: {
 }) {
     return (
         <>
-            <p className="up-ui-item-subtitle mt-16">
+            <p className="opacity-50 mt-16">
                 Showing {label} {(page - 1) * 10 + 1}
                 -{(page < Math.floor(count / 10)) ? page * 10 : count} of {count}
             </p>
             {count > 10 && (
-                <div className="mt-4">
+                <div className="opacity-50 mt-4">
                     {Array.from({length: Math.ceil(count / 10)}, (x, i) => i + 1).map(d => (
                         <button
                             className={"py-2 px-4 rounded-md mr-2 " + (d === page ? "opacity-50 cursor-not-allowed bg-gray-100" : "")}
