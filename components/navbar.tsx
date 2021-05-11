@@ -48,7 +48,7 @@ export default function Navbar() {
                                                         <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
                                                     </div>
                                                 )}
-                                                <div className="up-hover-dropdown mt-10 w-64">
+                                                <div className="up-hover-dropdown mt-10 w-64 overflow-y-scroll max-h-96">
                                                     {notificationsData.notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: Notification) => {
