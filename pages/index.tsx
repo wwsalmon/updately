@@ -16,6 +16,7 @@ export default function Home({userData}: {userData: User}) {
     const [page, setPage] = useState<number>(1);
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
+    console.log(feedDataObj);
 
     return (
         <>

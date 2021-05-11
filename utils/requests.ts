@@ -21,6 +21,23 @@ export async function getUpdateRequest(username: string, url: string) {
     };
 }
 
+export async function getUpdatesRequest({req}) {
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+    
+    let user = await userModel.findOne({ "urlName": req.query.urlName });
+    if (user === null) return null;
+    const updates = await updateModel.find({ "userId": user._id }).sort('-date').skip((+req.query.page - 1) * 10).limit(10);    
+
+    return {
+        user: user,
+        updates: updates,
+    };
+}
+
 export async function getCurrUserRequest(email: string) {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
