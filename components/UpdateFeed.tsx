@@ -10,8 +10,8 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
 
     return (
         <>
-            <PaginationBanner page={page} setPage={setPage} label="updates" className="my-12"/>
             <hr className="my-8"/>
+            <PaginationBanner page={page} setPage={setPage} label="updates" className="my-12"/>
             {updates.length > 0 ? updates.map((update, i) => (
                 <div key={update._id}>
                     {(i === 0 || update.date !== updates[i - 1].date) && (

@@ -36,7 +36,6 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
 
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
     const updates = feedDataObj ? feedDataObj.updates : {updates: []};
-    console.log(feedDataObj);
 
     function onEdit() {
         setIsLoading(true);
@@ -187,9 +186,9 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             </Link>
                         </div>
                     ))}
-                    <p 
+                    {updates && data.updates.length > 10 && <p 
                     className="opacity-50 hover:opacity-100 transition mb-8"
-                    ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>
+                    ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>}
                 </div>
             </div>
         </div>
