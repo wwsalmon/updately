@@ -4,16 +4,18 @@ import Link from "next/link";
 import React from "react";
 import wordsCount from "words-count";
 import {Update, User} from "../utils/types";
+import PaginationBanner from '../components/PaginationBanner';
 
-export default function UpdateFeed({updates, users, count}: {updates: Update[], users: User[], count: number}) {
+export default function UpdateFeed({updates, users, page, setPage, count}: {updates: Update[], users: User[], page: number, setPage: any, count: number}) {
 
     return (
         <>
+            <hr className="my-8"/>
+            <PaginationBanner page={page} setPage={setPage} label="updates" className="my-12"/>
             {updates.length > 0 ? updates.map((update, i) => (
                 <div key={update._id}>
                     {(i === 0 || update.date !== updates[i - 1].date) && (
                         <>
-                            <hr className="my-8"/>
                             <h3 className="up-ui-title mt-12 mb-6">{format(dateOnly(update.date), "EEEE, MMMM d, yyyy")}</h3>
                         </>
                     )}
@@ -40,10 +42,33 @@ export default function UpdateFeed({updates, users, count}: {updates: Update[], 
                             </div>
                         </a>
                     </Link>
+                    {(i === updates.length - 1 || update.date !== updates[i + 1].date) && (
+                        <>
+                            <hr className="my-8"/>
+                        </>
+                    )}
                 </div>
             )) : (
                 <div className="prose content my-6">
                     <p>Looks like the users you're following haven't posted anything yet. Follow more people or remind your friends to write their updates!</p>
+                </div>
+            )}
+            {updates && users && (
+                <div className="flex my-12">
+                    <button
+                        className="text small up-button"
+                        onClick={() => setPage(page - 1)}
+                        disabled={page === 1}
+                    >
+                        Back
+                    </button>
+                    <button
+                        className="ml-auto text small up-button"
+                        onClick={() => setPage(page + 1)}
+                        disabled={page === Math.floor(count / 10)}
+                    >
+                        Next
+                    </button>
                 </div>
             )}
         </>

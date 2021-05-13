@@ -8,8 +8,15 @@ import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
 import {Update, User} from "../utils/types";
 import UserPfpList from "../components/UserPfpList";
+import {fetcher} from "../utils/utils";
+import useSWR from "swr";
+import {useState} from 'react'
 
-export default function Home({userData, feedData}: {userData: User, feedData: {users: User[], updates: Update[]}}) {
+export default function Home({userData}: {userData: User}) {
+    const [page, setPage] = useState<number>(1);
+    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
+    const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
+    console.log(feedDataObj);
 
     return (
         <>
@@ -30,7 +37,7 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
                             <p>Ask friends to share their Updately profiles with you, <Link href="/explore"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
                         <UserPfpList isFollowers={false} userList={feedData.users || []} pageUser={userData}/>
-                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} count={20}/>
+                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
                     </>
                 ) : (
                     <>
@@ -46,8 +53,7 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
                             </ol>
                             <p>Check out some (real!) examples:</p>
                         </div>
-                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} count={10}/>
-                        <hr className="my-12"/>
+                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
                         <div className="prose content my-6">
                             <p>So what are you waiting for? <b>Hit that blue button on the navbar to sign up now!</b></p>
                         </div>
@@ -58,14 +64,3 @@ export default function Home({userData, feedData}: {userData: User, feedData: {u
     )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const session = await getSession(context);
-
-    if (!session) {
-        const feedData = await getDemoFeedRequest();
-        return {props: {userData: null, feedData: cleanForJSON(feedData)}}
-    }
-
-    let {userData, feedData} = await getCurrUserFeedRequest(session.user);
-    return {props: {userData: cleanForJSON(userData), feedData: cleanForJSON(feedData || [])}};
-};

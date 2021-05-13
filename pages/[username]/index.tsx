@@ -14,13 +14,20 @@ import UserPfpList from "../../components/UserPfpList";
 import UserHeaderLeft from "../../components/UserHeaderLeft";
 import {useRouter} from "next/router";
 import axios from "axios";
+import PaginationBar from "../../components/PaginationBar";
+import {fetcher} from "../../utils/utils";
+import useSWR from "swr";
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[] }) {
+    const [page, setPage] = useState<number>(1);
     const router = useRouter();
     const [session, loading] = useSession();
     const isOwner = !loading && session && (props.data.user.email === session.user.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
+
+    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}`, fetcher);
+    const updates = feedDataObj ? feedDataObj.updates : {updates: []};
 
     useEffect(() => {
         if (router.query.notification) {
@@ -114,7 +121,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                         )}
                     </div>
 
-                    {data.updates.length > 0 ? data.updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map(update => (
+                    {updates && updates.length > 0 ? updates.map(update => (
                         <a key={update._id} className="block my-8" href={`/@${data.user.urlName}/${update.url}`}>
                             <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
                             <p className="up-ui-item-subtitle">
@@ -125,6 +132,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                     )) : (
                         <p className="up-ui-item-subtitle">No updates yet.</p>
                     )}
+                    {updates && updates.length > 0 && <PaginationBar page={page} count={data.updates.length} label={"updates"} setPage={setPage}/>}
                 </>
             )}
 

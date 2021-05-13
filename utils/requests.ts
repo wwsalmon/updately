@@ -21,6 +21,25 @@ export async function getUpdateRequest(username: string, url: string) {
     };
 }
 
+export async function getUpdatesRequest({req}) {
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+    
+    let user = await userModel.findOne({ "urlName": req.query.urlName });
+    if (user === null) return null;
+    let updates;
+
+    req.query.updatePage ? updates = await updateModel.find({ "userId": user._id }).sort('-date').limit(10*req.query.page) : updates = await updateModel.find({ "userId": user._id }).sort('-date').skip((+req.query.page - 1) * 10).limit(10);  
+
+    return {
+        user: user,
+        updates: updates,
+    };
+}
+
 export async function getCurrUserRequest(email: string) {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
@@ -31,7 +50,7 @@ export async function getCurrUserRequest(email: string) {
     return userModel.findOne({ email: email });
 }
 
-export async function getCurrUserFeedRequest(user) {
+export async function getCurrUserFeedRequest(user, req) {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -45,21 +64,21 @@ export async function getCurrUserFeedRequest(user) {
     if (userData.following.length === 0) return {userData: userData, feedData: null};
 
     const users = await userModel.find({ "_id": { $in: userData.following}});
-    const updates = await updateModel.find({ "userId": { $in: userData.following }}).sort("-date").limit(20);
+    const updates = await updateModel.find({ "userId": { $in: userData.following }}).sort('-date').skip((+req.query.page - 1) * 10).limit(10); 
     return {userData: userData, feedData: {
         users: users,
         updates: updates,
     }};
 }
 
-export async function getDemoFeedRequest() {
+export async function getDemoFeedRequest({ req }) {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
     });
 
-    const updates = await updateModel.find().sort('-date').limit(20);
+    const updates = await updateModel.find().sort('-date').skip((+req.query.page - 1) * 10).limit(10); 
 
     let userIds = [];
     for (let update of updates) {
