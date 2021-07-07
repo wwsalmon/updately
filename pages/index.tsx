@@ -1,6 +1,6 @@
 import {getSession, useSession} from 'next-auth/client';
 import {GetServerSideProps} from "next";
-import {getCurrUserFeedRequest, getDemoFeedRequest} from "../utils/requests";
+import {getCurrUserFeedRequest, getCurrUserRequest, getDemoFeedRequest} from "../utils/requests";
 import React from "react";
 import Link from "next/link";
 import UpdateFeed from "../components/UpdateFeed";
@@ -12,10 +12,11 @@ import {fetcher} from "../utils/utils";
 import useSWR from "swr";
 import {useState} from 'react'
 
-export default function Home({userData}: {userData: User}) {
+export default function Home(props: {userData: User}) {
     const [page, setPage] = useState<number>(1);
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
+    const userData = props.userData;
 
     return (
         <>
@@ -63,3 +64,9 @@ export default function Home({userData}: {userData: User}) {
     )
 }
 
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const session = await getSession(context);
+    const userData = session ? await getCurrUserRequest(session.user.email) : null;
+
+    return {props: {userData: cleanForJSON(userData)}};
+};
