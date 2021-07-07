@@ -71,8 +71,8 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                             </div>
                         )}
                         {(isOwner) && (
-                            <Link href={`@${data.user.urlName}/edit-bio`}>
-                                <a className="up-button text small ml-auto">Edit bio</a>
+                            <Link href={`@${data.user.urlName}/edit-profile`}>
+                                <a className="up-button text small ml-auto">Edit profile</a>
                             </Link>
                         )}
                     </div>

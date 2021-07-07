@@ -24,6 +24,7 @@ export default async function editBioHandler(req: NextApiRequest, res: NextApiRe
         if (user.email !== session.user.email) return res.status(403).json({message: "You do not have permission to edit this user profile"});
 
         user["bio"] = req.body.bio || "";
+        user["private"] = req.body.private || false;
         await user.save();
 
         res.status(200).json({message: "success", userData: user});

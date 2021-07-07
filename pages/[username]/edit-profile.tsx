@@ -14,13 +14,15 @@ export default function EditBioPage(props: { userData: User }) {
     const router = useRouter();
     const [userData, setUserData] = useState<User>(props.userData);
     const [bio, setBio] = useState<string>(props.userData.bio || "");
+    const [isPrivate, setIsPrivate] = useState<boolean>(props.userData.private || false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     function saveBio() {
         setIsLoading(true);
-        axios.post("/api/edit-bio", {
+        axios.post("/api/edit-profile", {
             id: userData._id,
             bio: bio,
+            private: isPrivate,
         }).then(res => {
             setUserData(res.data.userData);
             router.push(`/@${userData.urlName}`);
@@ -33,7 +35,7 @@ export default function EditBioPage(props: { userData: User }) {
     return (
         <div className="max-w-4xl mx-auto px-4">
             <NextSeo
-                title="Edit bio | Updately"
+                title="Edit profile | Updately"
             />
             <div className="mt-16 mb-8">
                 <UserHeaderLeft pageUser={userData}/>
@@ -46,6 +48,15 @@ export default function EditBioPage(props: { userData: User }) {
                 onChange={e => setBio(e.target.value)}
                 className="w-full border p-4 rounded-md text-xl"
                 placeholder="Write a bio..."
+            />
+            <h2 className="up-ui-title mb-4">
+                Private account?
+            </h2>
+            <p>If you set your account to private, only your followers and people you send your update links to can see your updates. Your updates will not appear in the global explore feed.</p>
+            <input 
+                type="checkbox"
+                checked={isPrivate}
+                onChange={() => setIsPrivate(!isPrivate)}
             />
             <div className="flex mt-2">
                 <div className="ml-auto relative">
