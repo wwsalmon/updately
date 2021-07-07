@@ -16,7 +16,6 @@ export default function Home({userData}: {userData: User}) {
     const [page, setPage] = useState<number>(1);
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
-    console.log(feedDataObj);
 
     return (
         <>
@@ -41,8 +40,8 @@ export default function Home({userData}: {userData: User}) {
                     </>
                 ) : (
                     <>
-                        <h1 className="up-h1 mt-16">Welcome to Updately!</h1>
-                        <div className="prose content my-6">
+                        <h1 className="up-h1 mt-16 dark:text-gray-300">Welcome to Updately!</h1>
+                        <div className="prose content my-6 dark:text-gray-400">
                             <p>Updately is a <b>social platform for daily updates</b> (or weekly or hourly, whatever works for you).</p>
                             <p>How it works is pretty straightforward:</p>
                             <ol>
@@ -54,7 +53,7 @@ export default function Home({userData}: {userData: User}) {
                             <p>Check out some (real!) examples:</p>
                         </div>
                         <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
-                        <div className="prose content my-6">
+                        <div className="prose content my-6 dark:text-gray-400">
                             <p>So what are you waiting for? <b>Hit that blue button on the navbar to sign up now!</b></p>
                         </div>
                     </>

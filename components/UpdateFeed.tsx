@@ -16,7 +16,7 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
                 <div key={update._id}>
                     {(i === 0 || update.date !== updates[i - 1].date) && (
                         <>
-                            <h3 className="up-ui-title mt-12 mb-6">{format(dateOnly(update.date), "EEEE, MMMM d, yyyy")}</h3>
+                            <h3 className="up-ui-title mt-12 mb-6 dark:text-gray-300">{format(dateOnly(update.date), "EEEE, MMMM d, yyyy")}</h3>
                         </>
                     )}
                     <Link href={"/@" + users.find(d => d._id === update.userId).urlName + "/" + update.url}>
@@ -28,7 +28,7 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
                                         alt={`Profile picture of ${users.find(d => d._id === update.userId).name}`}
                                         className="w-16 h-16 rounded-full mr-4"
                                     />
-                                    <div className="my-6 leading-snug mr-4">
+                                    <div className="my-6 leading-snug mr-4 dark:text-gray-300">
                                         <div className="up-ui-item-title"><span>{users.find(d => d._id === update.userId).name}</span></div>
                                         <p className="up-ui-item-subtitle">
                                             {update.title && (<span className="mr-2">{update.title}</span>)}
@@ -37,7 +37,7 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
                                     </div>
                                 </div>
                                 <div className="ml-auto flex-shrink-0 mb-4 sm:mb-0">
-                                    <p className="opacity-50">{formatDistanceToNow(new Date(update.createdAt))} ago</p>
+                                    <p className="opacity-50 dark:text-gray-300">{formatDistanceToNow(new Date(update.createdAt))} ago</p>
                                 </div>
                             </div>
                         </a>

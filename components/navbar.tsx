@@ -1,5 +1,5 @@
 import React, {ReactNode} from 'react';
-import {FaGoogle} from "react-icons/fa";
+import {FaGoogle, FaMoon} from "react-icons/fa";
 import {signIn, signOut, useSession} from "next-auth/client";
 import Link from "next/link";
 import MenuButton from "./MenuButton";
@@ -12,20 +12,24 @@ import {fetcher} from "../utils/utils";
 import {Update, User, Notification} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
 
+import {useTheme} from 'next-themes'
+
 export default function Navbar() {
     const router = useRouter();
     const [session, loading] = useSession();
     const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
     const { data: notificationsData, error: notificationsError } = useSWR(session ? "/api/get-notifications" : null, fetcher) || {data: null, error: null};
-
     const numNotifications = (notificationsData && notificationsData.notifications) ? notificationsData.notifications.filter(d => !d.read).length : 0
+
+    
+    const {theme, setTheme} = useTheme();
 
     return (
         <>
-            <div className="w-full bg-white sticky mb-8 top-0 z-30">
+            <div className="w-full bg-white sticky mb-8 top-0 z-30 dark:bg-black">
                 <div className="max-w-7xl mx-auto h-16 flex items-center px-4">
                     <Link href="/"><a><img src="/logo.svg" className="h-12"/></a></Link>
-                    <div className="flex h-16 bg-white fixed bottom-0 left-0 w-full sm:ml-8 sm:w-auto sm:relative sm:h-full">
+                    <div className="flex h-16 bg-white fixed bottom-0 left-0 w-full sm:ml-8 sm:w-auto sm:relative sm:h-full dark:bg-black">
                         {session && (
                             <NavbarItem icon={<FiHome/>} text="Feed" href="/" selected={router.route === "/"}/>
                         )}
@@ -35,6 +39,14 @@ export default function Navbar() {
                         )}
                     </div>
                     <div className="ml-auto flex items-center">
+                        <button
+                            className="up-button text small ml-2"
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        >
+                            <div className="flex items-center">
+                                <FaMoon/>
+                            </div>
+                        </button>
                         {session ? (
                             <>
                                 <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
