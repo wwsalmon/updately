@@ -6,7 +6,12 @@ module.exports = {
     theme: {
         extend: {},
     },
-    variants: {},
+    variants: {
+        extend: {
+            borderColor: ['focus-visible'],
+            borderWidth: ['focus-visible'],
+        },   
+    },
     plugins: [
         require('@tailwindcss/typography'),
     ],

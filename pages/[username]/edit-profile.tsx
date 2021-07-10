@@ -9,6 +9,7 @@ import UserHeaderLeft from "../../components/UserHeaderLeft";
 import Link from "next/link";
 import axios from "axios";
 import {useRouter} from "next/router";
+import {FaUnlock, FaLock} from "react-icons/fa"
 
 export default function EditBioPage(props: { userData: User }) {
     const router = useRouter();
@@ -46,19 +47,27 @@ export default function EditBioPage(props: { userData: User }) {
             <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
-                className="w-full border p-4 rounded-md text-xl"
+                className="w-full border p-4 rounded-md text-xl focus:outline-none focus:ring focus:border-blue-300 "
                 placeholder="Write a bio..."
             />
-            <h2 className="up-ui-title mb-4">
-                Private account?
-            </h2>
-            <p>If you set your account to private, only your followers and people you send your update links to can see your updates. Your updates will not appear in the global explore feed.</p>
-            <input 
-                type="checkbox"
-                checked={isPrivate}
-                onChange={() => setIsPrivate(!isPrivate)}
-            />
-            <div className="flex mt-2">
+
+            <div className="mt-8">
+                <div className="flex flex-row">
+                    <h2 className="up-ui-title mb-4">
+                        Private account?
+                    </h2>
+                    <button 
+                        onClick={() => setIsPrivate(!isPrivate)}
+                        className="h-11 ml-auto md:ml-4 -mt-3 rounded-md px-3 py-2.5 focus:outline-none focus:ring focus:border-blue-300 flex flex-row "
+                    >
+                        {isPrivate ? <><FaLock className="text-2xl mr-2"/><span>Private</span></> : <><FaUnlock className="text-2xl mr-2"/><span>Public</span></>}
+                    </button>
+                </div>
+                <p className="text-sm opacity-50">If you set your account to private, your updates will only be visible to your followers and people you send your update links to. Your updates will not appear in the global explore feed.</p>
+                
+            </div>
+
+            <div className="flex mt-8">
                 <div className="ml-auto relative">
                     <Link href={`/@${userData.urlName}`}>
                         <a className={`up-button text small ml-auto mr-4 ${isLoading ? "cursor-not-allowed" : ""}`}>
