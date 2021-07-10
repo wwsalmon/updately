@@ -7,7 +7,6 @@ import {Update, User} from "../utils/types";
 import PaginationBanner from '../components/PaginationBanner';
 
 export default function UpdateFeed({updates, users, page, setPage, count}: {updates: Update[], users: User[], page: number, setPage: any, count: number}) {
-    console.log(updates, count)
     return (
         <>
             <hr className="my-8"/>

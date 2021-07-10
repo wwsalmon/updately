@@ -1,4 +1,3 @@
-import React, {ReactNode} from 'react';
 import {FaGoogle, FaMoon} from "react-icons/fa";
 import {signIn, signOut, useSession} from "next-auth/client";
 import Link from "next/link";
@@ -11,18 +10,31 @@ import {FiBell, FiChevronDown, FiHome, FiSearch, FiUser} from "react-icons/fi";
 import {fetcher} from "../utils/utils";
 import {Update, User, Notification} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
-
 import {useTheme} from 'next-themes'
+import Axios from "axios";
 
 export default function Navbar() {
     const router = useRouter();
     const [session, loading] = useSession();
-    const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
+    const { data, error } = useSWR(session ? "/api/get-curr-user-with-follower-ids" : null, fetcher) || {data: null, error: null};
     const { data: notificationsData, error: notificationsError } = useSWR(session ? "/api/get-notifications" : null, fetcher) || {data: null, error: null};
     const numNotifications = (notificationsData && notificationsData.notifications) ? notificationsData.notifications.filter(d => !d.read).length : 0
 
-    
     const {theme, setTheme} = useTheme();
+
+    const acceptRequest = (authorId, userId) => {
+        // setIsLoading(true);
+        Axios.post("/api/accept-request", {
+            requesterId: authorId,
+            receivingUserId: userId,
+        }).then(res => {
+            // setUserData(res.data.userData);
+            // router.push(`/@${userData.urlName}`);
+        }).catch(e => {
+            console.log(e);
+            // setIsLoading(false);
+        })
+    }
 
     return (
         <>
@@ -60,16 +72,16 @@ export default function Navbar() {
                                                         <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
                                                     </div>
                                                 )}
-                                                <div className="up-hover-dropdown mt-10 w-64 overflow-y-scroll max-h-96">
+                                                <div className="up-hover-dropdown mt-10 w-64 md:w-96 overflow-y-scroll max-h-96">
                                                     {notificationsData.notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: Notification) => {
-                                                            const thisUpdate: Update = notification.type === "follow" ? null : notificationsData.updates.find(d => d._id === notification.updateId);
-                                                            const thisUpdateUser: User = notification.type === "follow" ? null : notificationsData.updateUsers.find(d => d._id === thisUpdate.userId);
+                                                            const thisUpdate: Update = (notification.type === "follow" || notification.type === "request") ? null : notificationsData.updates.find(d => d._id === notification.updateId);
+                                                            const thisUpdateUser: User = (notification.type === "follow" || notification.type === "request" ) ? null : notificationsData.updateUsers.find(d => d._id === thisUpdate.userId);
                                                             const thisAuthor: User = notificationsData.users.find(d => d._id === notification.authorId);
 
                                                             return (
-                                                                <div key={notification._id} className={notification.read ? "opacity-50" : ""}>
+                                                                <div key={notification._id} className={(notification.read && notification.type !== "request") ? "opacity-50" : ""}>
                                                                     <MenuLink
                                                                         text={function(){
                                                                             if (notification.type === "comment") {
@@ -116,8 +128,27 @@ export default function Navbar() {
                                                                                     </>
                                                                                 )
                                                                             }
+                                                                            if (notification.type === "request") {
+                                                                                const isAccepted: boolean = data.data.followerIds.includes(notification.authorId);
+                                                                                return (
+                                                                                    <>
+                                                                                        <div className="flex flex-row gap-4">
+                                                                                            <div>
+                                                                                                
+                                                                                                <span><b>{thisAuthor.name}</b> requested to follow you</span>
+                                                                                                <br/>
+                                                                                                <span className="opacity-50">
+                                                                                                    {formatDistanceToNow(new Date(notification.createdAt))} ago
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            {isAccepted ? <span>Accepted</span> : <button className="up-button small primary" onClick={() => acceptRequest(notification.authorId, notification.userId)}>Accept</button>}
+
+                                                                                        </div>
+                                                                                    </>
+                                                                                )
+                                                                            }
                                                                         }()}
-                                                                        href={notification.type === "follow" ?
+                                                                        href={(notification.type === "follow" || notification.type === "request") ?
                                                                             `/@${thisAuthor.urlName}?notification=${notification._id}`
                                                                             :
                                                                             `/@${thisUpdateUser.urlName}/${thisUpdate.url}?notification=${notification._id}`

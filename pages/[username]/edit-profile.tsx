@@ -69,7 +69,7 @@ export default function EditBioPage(props: { userData: User }) {
                 <div className="relative">
                     <button
                         className="up-button primary small"
-                        disabled={(userData.bio ? userData.bio === bio : bio === "") || isLoading}
+                        disabled={((userData.bio ? userData.bio === bio : bio === "") && (userData.private === isPrivate)) || isLoading}
                         onClick={saveBio}
                     >
                         Save

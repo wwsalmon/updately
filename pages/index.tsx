@@ -1,4 +1,4 @@
-import {getSession, useSession} from 'next-auth/client';
+import {getSession, useSession} from "next-auth/client";
 import {GetServerSideProps} from "next";
 import {getCurrUserFeedRequest, getCurrUserRequest, getDemoFeedRequest} from "../utils/requests";
 import React from "react";
@@ -17,7 +17,6 @@ export default function Home(props: {userData: User}) {
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
     const userData = props.userData;
-    console.log(feedData.count)
 
     return (
         <>
