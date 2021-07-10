@@ -65,9 +65,11 @@ export async function getCurrUserFeedRequest(user, req) {
 
     const users = await userModel.find({ "_id": { $in: userData.following}});
     const updates = await updateModel.find({ "userId": { $in: userData.following }}).sort('-date').skip((+req.query.page - 1) * 10).limit(10); 
+    const count = await updateModel.count({ "userId": { $in: userData.following }})
     return {userData: userData, feedData: {
         users: users,
         updates: updates,
+        count: count
     }};
 }
 
@@ -78,8 +80,20 @@ export async function getDemoFeedRequest({ req }) {
         useFindAndModify: false,
     });
 
-    const updates = await updateModel.find().sort('-date').skip((+req.query.page - 1) * 10).limit(10); 
-
+    // Only get the updates where their corresponding user has a public account.
+    const publicUsers = await userModel.find({ private: false});
+    let publicUserIds = [];
+    for (let user of publicUsers) {
+        publicUserIds.push(user._id)
+    }
+    const updates = await updateModel.aggregate([
+        {$match: {"userId": { $in: publicUserIds }}},
+        {$sort: {date: -1}},
+        {$skip: (+req.query.page - 1) * 10},
+        {$limit: 10}
+    ])
+    const count = await updateModel.count({"userId": { $in: publicUserIds }})
+    
     let userIds = [];
     for (let update of updates) {
         if (!userIds.includes(update.userId)) userIds.push(update.userId);
@@ -90,6 +104,7 @@ export async function getDemoFeedRequest({ req }) {
     return {
         updates: updates,
         users: users,
+        count: count,
     };
 }
 
@@ -120,15 +135,15 @@ export async function getProfilesByIds(idList: string[]){
 }
 
 export async function createAccount(user) {
-    await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
-        email: user.email,
-        name: user.name,
-    }, {
-        headers: {
-            "X-MailerLite-ApiKey": process.env.MAILERLITE_KEY,
-            "Content-Type": "application/json",
-        }
-    });
+    // await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
+    //     email: user.email,
+    //     name: user.name,
+    // }, {
+    //     headers: {
+    //         "X-MailerLite-ApiKey": process.env.MAILERLITE_KEY,
+    //         "Content-Type": "application/json",
+    //     }
+    // });
 
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,

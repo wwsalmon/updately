@@ -7,7 +7,7 @@ import {Update, User} from "../utils/types";
 import PaginationBanner from '../components/PaginationBanner';
 
 export default function UpdateFeed({updates, users, page, setPage, count}: {updates: Update[], users: User[], page: number, setPage: any, count: number}) {
-
+    console.log(updates, count)
     return (
         <>
             <hr className="my-8"/>
@@ -53,7 +53,7 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
                     <p>Looks like the users you're following haven't posted anything yet. Follow more people or remind your friends to write their updates!</p>
                 </div>
             )}
-            {updates && users && (
+            {updates && users && count > 10 && (
                 <div className="flex my-12">
                     <button
                         className="text small up-button"

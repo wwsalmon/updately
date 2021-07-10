@@ -17,6 +17,7 @@ export default function Home(props: {userData: User}) {
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
     const userData = props.userData;
+    console.log(feedData.count)
 
     return (
         <>
@@ -36,8 +37,8 @@ export default function Home(props: {userData: User}) {
                             </Link>
                             <p>Ask friends to share their Updately profiles with you, <Link href="/explore"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
-                        <UserPfpList isFollowers={false} userList={feedData.users || []} pageUser={userData}/>
-                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
+                        <UserPfpList isFollowers={false} userList={feedData ? feedData.users : []} pageUser={userData}/>
+                        <UpdateFeed updates={feedData ? feedData.updates : []} users={feedData ? feedData.users : []} page={page} setPage={setPage} count={feedData ? feedData.count : 0}/>
                     </>
                 ) : (
                     <>
