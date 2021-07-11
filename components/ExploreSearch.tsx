@@ -7,6 +7,7 @@ import UserListItem from "./UserListItem";
 export default function ExploreSearch(props: { userData: User }) {
     const [query, setQuery] = useState<string>("");
     const [userData, setUserData] = useState<User>(props.userData);
+    console.log(userData)
     const [userList, setUserList] = useState<User[]>([]);
 
     useEffect(() => {

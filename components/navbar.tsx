@@ -1,4 +1,4 @@
-import {FaGoogle, FaMoon} from "react-icons/fa";
+import {FaGoogle} from "react-icons/fa";
 import {signIn, signOut, useSession} from "next-auth/client";
 import Link from "next/link";
 import MenuButton from "./MenuButton";
@@ -7,13 +7,14 @@ import useSWR from "swr";
 import MenuLink from "./MenuLink";
 import {useRouter} from "next/router";
 import NavbarItem from "./NavbarItem";
-import {FiBell, FiChevronDown, FiHome, FiSearch, FiUser} from "react-icons/fi";
+import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-icons/fi";
 import {fetcher} from "../utils/utils";
 import {Update, User, Notification} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
 import {useTheme} from 'next-themes'
 import Axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import {IoMdExit} from "react-icons/io";
 
 export default function Navbar() {
     const router = useRouter();
@@ -55,32 +56,26 @@ export default function Navbar() {
                         )}
                     </div>
                     <div className="ml-auto flex items-center">
-                        <button
-                            className="up-button text small ml-2"
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                        >
-                            <div className="flex items-center">
-                                <FaMoon/>
-                            </div>
-                        </button>
                         {session ? (
                             <>
                                 <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
                                 {notificationsData && notificationsData.notifications && (
                                     <>
                                     <MoreMenu
-                                        buttonText = {<><FiBell/>
-                                    
+                                        buttonText = {
+                                            <>
+                                            <FiBell/>
                                             {notificationsData.notifications.length > 0 && (
                                                 <>
                                                     {numNotifications > 0 && (
-                                                        <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
+                                                        <div className="rounded-full w-3 h-3 bg-red-500 top-2 right-2 absolute text-white font-bold">
                                                             <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
                                                         </div>
                                                     )}
                                                 </>
                                             )}
                                             </>}
+                                        className = "my-4 relative"
                                         isOpen1={notificationsIsOpen}
                                     >                             
                                         {notificationsData.notifications.length > 0 && (
@@ -152,9 +147,8 @@ export default function Navbar() {
                                                                                 const isAccepted: boolean = data.data.followerIds.includes(notification.authorId);
                                                                                 return (
                                                                                     <>
-                                                                                        <div className="flex flex-row gap-4">
+                                                                                        <div className="flex flex-row items-center gap-4">
                                                                                             <div>
-                                                                                                
                                                                                                 <span><b><Link href={href}><a>{thisAuthor.name}</a></Link></b> requested to follow you</span>
                                                                                                 <br/>
                                                                                                 <span className="opacity-50">
@@ -180,7 +174,7 @@ export default function Navbar() {
                                     </MoreMenu>
                                     </>
                                 )}
-                                <button className="relative up-hover-button">
+                                <button className="relative up-hover-button ml-4">
                                     <div className="flex items-center">
                                         <FiChevronDown/>
                                         <img
@@ -190,11 +184,11 @@ export default function Navbar() {
                                         />
                                     </div>
                                     <div className="up-hover-dropdown mt-10">
-                                        <MenuButton text={`Theme: ${theme}`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}/>
+                                        <MenuButton icon={<FiMoon/>} text={`Theme: ${theme}`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}/>
                                         {data && data.data && (
-                                            <MenuLink text="Profile" href={`/@${data.data.urlName}`}/>
+                                            <MenuLink icon={<FiUser />} text="Profile" href={`/@${data.data.urlName}`}/>
                                         )}
-                                        <MenuButton text="Sign out" onClick={signOut}/>
+                                        <MenuButton icon={<IoMdExit />} text="Sign out" onClick={signOut}/>
                                     </div>
                                 </button>
                             </>

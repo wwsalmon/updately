@@ -48,7 +48,7 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
                     )}
                 </div>
             )) : (
-                <div className="prose content my-6">
+                <div className="prose content my-6 dark:opacity-70">
                     <p>Looks like the users you're following haven't posted anything yet. Follow more people or remind your friends to write their updates!</p>
                 </div>
             )}

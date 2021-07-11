@@ -30,6 +30,7 @@ body {
 
 .content {
     font-size: 20px;
+    @apply dark:text-white
 }
 
 .up-h1 {
@@ -86,7 +87,7 @@ a.up-button.small {
 }
 
 .up-button:not(.text):not(.primary) {
-    @apply border-2 border-black;
+    @apply border-2 border-black dark:border-white;
 }
 
 .up-button:not(.text):not(:disabled):hover {

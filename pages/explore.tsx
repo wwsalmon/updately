@@ -15,7 +15,6 @@ export default function Explore() {
     const [page, setPage] = useState<number>(1);
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}&explore=${true}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
-    console.log(feedData);
     return (
         <>
             <NextSeo
