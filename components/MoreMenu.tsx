@@ -4,13 +4,15 @@ import short from "short-uuid";
 import MenuButton from "./MenuButton";
 import MenuLink from "./MenuLink";
 
-export default function MoreMenu({items, buttonText = <FaEllipsisV/>, buttonClassName, className} : {
-    items: {label: string, href?: string, onClick?: () => any}[],
+export default function MoreMenu({items, buttonText = <FaEllipsisV/>, buttonClassName, className, children, isOpen1 = false} : {
+    items?: {label: string, href?: string, onClick?: () => any}[],
     buttonText?: string | ReactNode,
     buttonClassName?: string,
     className?: string,
+    children?: ReactNode,
+    isOpen1?: boolean,
 }) {
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isOpen, setIsOpen] = useState<boolean>(isOpen1);
     const thisButton = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
@@ -39,13 +41,14 @@ export default function MoreMenu({items, buttonText = <FaEllipsisV/>, buttonClas
                 ref={thisButton}
             >{buttonText}</button>
             {isOpen && (
-                <div className="absolute top-0 mt-16 shadow-lg rounded-md z-10 bg-white">
+                items ? <div className={`absolute top-0 mt-16 shadow-lg rounded-md z-10 bg-white dark:bg-black`}>
                     {items.map((item, i) => item.href ? (
                         <MenuLink text={item.label} href={item.href} key={i}/>
                     ) : (item.onClick && (
                         <MenuButton text={item.label} onClick={item.onClick} key={i}/>
                     )))}
-                </div>
+                </div> : 
+                <>{children}</>
             )}
         </div>
     )

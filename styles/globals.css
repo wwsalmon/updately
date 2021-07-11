@@ -94,7 +94,7 @@ a.up-button.small {
 }
 
 .up-button.text:not(:disabled):hover{
-    @apply bg-gray-100;
+    @apply bg-gray-100 dark:bg-opacity-20;
 }
 
 .up-spinner {
@@ -121,7 +121,7 @@ a.up-button.small {
 
 .up-hover-dropdown {
     display: none;
-    @apply absolute top-0 right-0 z-40 shadow-lg rounded-md bg-white;
+    @apply absolute top-0 right-0 z-40 shadow-lg rounded-md bg-white dark:bg-black;
 }
 
 .up-hover-button:hover > .up-hover-dropdown, .up-hover-button:focus > .up-hover-dropdown {

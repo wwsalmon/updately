@@ -2,6 +2,7 @@ import {FaGoogle, FaMoon} from "react-icons/fa";
 import {signIn, signOut, useSession} from "next-auth/client";
 import Link from "next/link";
 import MenuButton from "./MenuButton";
+import MoreMenu from "./MoreMenu";
 import useSWR from "swr";
 import MenuLink from "./MenuLink";
 import {useRouter} from "next/router";
@@ -12,24 +13,27 @@ import {Update, User, Notification} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
 import {useTheme} from 'next-themes'
 import Axios from "axios";
+import { useEffect, useRef, useState } from "react";
 
 export default function Navbar() {
     const router = useRouter();
     const [session, loading] = useSession();
+    const [iter, setIter] = useState<number>(0);
     const { data, error } = useSWR(session ? "/api/get-curr-user-with-follower-ids" : null, fetcher) || {data: null, error: null};
-    const { data: notificationsData, error: notificationsError } = useSWR(session ? "/api/get-notifications" : null, fetcher) || {data: null, error: null};
+    const { data: notificationsData, error: notificationsError } = useSWR(session ? `/api/get-notifications?iter=${iter}` : null, fetcher) || {data: null, error: null};
     const numNotifications = (notificationsData && notificationsData.notifications) ? notificationsData.notifications.filter(d => !d.read).length : 0
+    const [notificationsIsOpen, setNotificationsIsOpen] = useState<boolean>(false); 
 
     const {theme, setTheme} = useTheme();
 
-    const acceptRequest = (authorId, userId) => {
+    const acceptRequest = (notificationId) => {
         // setIsLoading(true);
         Axios.post("/api/accept-request", {
-            requesterId: authorId,
-            receivingUserId: userId,
+            notificationId: notificationId
         }).then(res => {
-            // setUserData(res.data.userData);
-            // router.push(`/@${userData.urlName}`);
+            setIter(iter + 1);
+            setNotificationsIsOpen(true);
+            // setNotificationsData(res.data.notificationData);
         }).catch(e => {
             console.log(e);
             // setIsLoading(false);
@@ -63,22 +67,38 @@ export default function Navbar() {
                             <>
                                 <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
                                 {notificationsData && notificationsData.notifications && (
-                                    <button className="mr-4 px-2 h-10 relative up-hover-button">
-                                        <FiBell/>
+                                    <>
+                                    <MoreMenu
+                                        buttonText = {<><FiBell/>
+                                    
+                                            {notificationsData.notifications.length > 0 && (
+                                                <>
+                                                    {numNotifications > 0 && (
+                                                        <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
+                                                            <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                            </>}
+                                        isOpen1={notificationsIsOpen}
+                                    >                             
                                         {notificationsData.notifications.length > 0 && (
                                             <>
-                                                {numNotifications > 0 && (
-                                                    <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
-                                                        <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
-                                                    </div>
-                                                )}
-                                                <div className="up-hover-dropdown mt-10 w-64 md:w-96 overflow-y-scroll max-h-96">
+                                                <div className="absolute top-0 mt-10 right-0 z-40 shadow-lg rounded-md bg-white dark:bg-black w-64 md:w-96 overflow-y-auto max-h-96">
                                                     {notificationsData.notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: Notification) => {
                                                             const thisUpdate: Update = (notification.type === "follow" || notification.type === "request") ? null : notificationsData.updates.find(d => d._id === notification.updateId);
                                                             const thisUpdateUser: User = (notification.type === "follow" || notification.type === "request" ) ? null : notificationsData.updateUsers.find(d => d._id === thisUpdate.userId);
                                                             const thisAuthor: User = notificationsData.users.find(d => d._id === notification.authorId);
+                                                            
+                                                            const href: string = (notification.type === "follow" || notification.type === "request") 
+                                                                ? 
+                                                                `/@${thisAuthor.urlName}?notification=${notification._id}`
+                                                                : 
+                                                                `/@${thisUpdateUser.urlName}/${thisUpdate.url}?notification=${notification._id}`;
+                                                            
 
                                                             return (
                                                                 <div key={notification._id} className={(notification.read && notification.type !== "request") ? "opacity-50" : ""}>
@@ -88,7 +108,7 @@ export default function Navbar() {
                                                                                 return (
                                                                                     <>
                                                                             <span>
-                                                                                <b>{thisAuthor.name}</b> commented on your {format(new Date(thisUpdate.date), "M/d/yy")} update
+                                                                                <Link href={href}><a><b>{thisAuthor.name}</b> commented on your {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
                                                                             </span>
                                                                                         <br/>
                                                                                         <span className="opacity-50">
@@ -101,14 +121,14 @@ export default function Navbar() {
                                                                                 return (
                                                                                     <>
                                                                             <span>
-                                                                                <b>{thisAuthor.name}</b> replied to your comment on
+                                                                                <Link href={href}><a><b>{thisAuthor.name}</b> replied to your comment on
                                                                                 {" " + (thisUpdateUser.email === session.user.email ?
                                                                                         "your" :
                                                                                         thisUpdateUser._id === thisAuthor._id ?
                                                                                             "their" :
                                                                                             thisUpdateUser.name + "'s"
                                                                                 ) + " "}
-                                                                                {format(new Date(thisUpdate.date), "M/d/yy")} update
+                                                                                {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
                                                                             </span>
                                                                                     <br/>
                                                                                     <span className="opacity-50">
@@ -120,10 +140,10 @@ export default function Navbar() {
                                                                             if (notification.type === "follow") {
                                                                                 return (
                                                                                     <>
-                                                                                        <span><b>{thisAuthor.name}</b> followed you</span>
+                                                                                        <span><b><Link href={href}><a>{thisAuthor.name}</a></Link></b> followed you</span>
                                                                                         <br/>
                                                                                         <span className="opacity-50">
-                                                                                            {formatDistanceToNow(new Date(notification.createdAt))} ago
+                                                                                            {formatDistanceToNow(new Date(notification.updatedAt))} ago
                                                                                         </span>
                                                                                     </>
                                                                                 )
@@ -135,24 +155,19 @@ export default function Navbar() {
                                                                                         <div className="flex flex-row gap-4">
                                                                                             <div>
                                                                                                 
-                                                                                                <span><b>{thisAuthor.name}</b> requested to follow you</span>
+                                                                                                <span><b><Link href={href}><a>{thisAuthor.name}</a></Link></b> requested to follow you</span>
                                                                                                 <br/>
                                                                                                 <span className="opacity-50">
                                                                                                     {formatDistanceToNow(new Date(notification.createdAt))} ago
                                                                                                 </span>
                                                                                             </div>
-                                                                                            {isAccepted ? <span>Accepted</span> : <button className="up-button small primary" onClick={() => acceptRequest(notification.authorId, notification.userId)}>Accept</button>}
+                                                                                            {isAccepted ? <span>Accepted</span> : <button className="up-button small primary" onClick={() => acceptRequest(notification._id)}>Accept</button>}
 
                                                                                         </div>
                                                                                     </>
                                                                                 )
                                                                             }
                                                                         }()}
-                                                                        href={(notification.type === "follow" || notification.type === "request") ?
-                                                                            `/@${thisAuthor.urlName}?notification=${notification._id}`
-                                                                            :
-                                                                            `/@${thisUpdateUser.urlName}/${thisUpdate.url}?notification=${notification._id}`
-                                                                        }
                                                                         nowrap={false}
                                                                     />
                                                                 </div>
@@ -162,7 +177,8 @@ export default function Navbar() {
                                                 </div>
                                             </>
                                         )}
-                                    </button>
+                                    </MoreMenu>
+                                    </>
                                 )}
                                 <button className="relative up-hover-button">
                                     <div className="flex items-center">
@@ -174,6 +190,7 @@ export default function Navbar() {
                                         />
                                     </div>
                                     <div className="up-hover-dropdown mt-10">
+                                        <MenuButton text={`Theme: ${theme}`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}/>
                                         {data && data.data && (
                                             <MenuLink text="Profile" href={`/@${data.data.urlName}`}/>
                                         )}
