@@ -23,7 +23,7 @@ const options = {
 
             if (foundItem) return true;
 
-            await createAccount(user); // this should be done in the account endpoint
+            await createAccount(user);
 
             return true;
         }
