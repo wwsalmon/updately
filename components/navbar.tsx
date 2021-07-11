@@ -15,6 +15,7 @@ import {useTheme} from 'next-themes'
 import Axios from "axios";
 import { useState } from "react";
 import {IoMdExit} from "react-icons/io";
+import MenuItem from "./MenuItem";
 
 export default function Navbar() {
     const router = useRouter();
@@ -97,7 +98,7 @@ export default function Navbar() {
 
                                                             return (
                                                                 <div key={notification._id} className={(notification.read && notification.type !== "request") ? "opacity-50" : ""}>
-                                                                    <MenuLink
+                                                                    <MenuItem
                                                                         text={function(){
                                                                             if (notification.type === "comment") {
                                                                                 return (
