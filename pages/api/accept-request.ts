@@ -28,16 +28,16 @@ export default async function editBioHandler(req: NextApiRequest, res: NextApiRe
         if (!receivingUser) return res.status(500).json({message: "No user found for given ID"});
         if (receivingUser.email !== session.user.email) return res.status(403).json({message: "You do not have permission to accept this follow request."});
 
+        requester.following.push(notification.userId);
+        requester.requesting = requester.requesting.filter(d => !d.equals(notification.userId));
+        requester.markModified("requesting", "following");
+
+        receivingUser.followers.push(requester.email);
+        receivingUser.requests = receivingUser.requests.filter(d => d !== requester.email);
+        receivingUser.markModified("requests", "followers");
+
         notification.type = "follow";
         notification.read = true;
-
-        requester.following.push(notification.userId);
-        receivingUser.followers.push(requester.email);
-        requester.requesting = requester.requesting.filter(d => !d.equals(notification.authorId));
-        receivingUser.requests = receivingUser.requests.filter(d => d !== requester.email);
-
-        requester.markModified("requesting", "following");
-        receivingUser.markModified("requests", "followers");
 
         await requester.save();
         await receivingUser.save();

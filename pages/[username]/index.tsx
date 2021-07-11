@@ -25,8 +25,6 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
     const isOwner = !loading && session && (props.data.user.email === session.user.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
-    console.log(userData)
-    console.log(data)
 
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}`, fetcher);
     const updates = feedDataObj ? feedDataObj.updates : {updates: []};
