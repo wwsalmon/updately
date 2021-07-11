@@ -28,6 +28,10 @@ body {
     display: none;
 }
 
+.prose h3, .prose h2, .prose h1, .prose a, .prose strong, .prose em{
+    @apply dark:text-white
+}
+
 .content {
     font-size: 20px;
     @apply dark:text-white
