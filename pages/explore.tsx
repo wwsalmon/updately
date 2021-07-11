@@ -16,7 +16,6 @@ export default function Explore(props: {userData: User}) {
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}&explore=${true}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
     const userData = props.userData;
-    console.log(feedData)
 
     return (
         <>

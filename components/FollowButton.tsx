@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function FollowButton({isFollowing, isRequesting, isLoading, isLoggedIn, onClick, primary = false}: {
     isFollowing: boolean,
-    isRequesting?: boolean,
+    isRequesting: boolean,
     isLoading: boolean,
     isLoggedIn: boolean,
     onClick: () => any,

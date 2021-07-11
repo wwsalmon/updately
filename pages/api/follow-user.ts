@@ -41,6 +41,9 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
             followUser.requests = followUser.requests.filter(d => d !== session.user.email);
             currUser.markModified("requesting");
             followUser.markModified("requests");
+
+            // Delete the request notification
+            await notificationModel.deleteMany({"authorId": currUser._id, "userId": followUser._id, "type": "request"});
         } else {
             // otherwise, follow or request to follow
             if (followUser.private) {

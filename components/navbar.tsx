@@ -20,7 +20,7 @@ export default function Navbar() {
     const router = useRouter();
     const [session, loading] = useSession();
     const [iter, setIter] = useState<number>(0);
-    const { data, error } = useSWR(session ? "/api/get-curr-user-with-follower-ids" : null, fetcher) || {data: null, error: null};
+    const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
     const { data: notificationsData, error: notificationsError } = useSWR(session ? `/api/get-notifications?iter=${iter}` : null, fetcher) || {data: null, error: null};
     const numNotifications = (notificationsData && notificationsData.notifications) ? notificationsData.notifications.filter(d => !d.read).length : 0
     const [notificationsIsOpen, setNotificationsIsOpen] = useState<boolean>(false); 
@@ -144,7 +144,6 @@ export default function Navbar() {
                                                                                 )
                                                                             }
                                                                             if (notification.type === "request") {
-                                                                                const isAccepted: boolean = data.data.followerIds.includes(notification.authorId);
                                                                                 return (
                                                                                     <>
                                                                                         <div className="flex flex-row items-center gap-4">
@@ -155,8 +154,7 @@ export default function Navbar() {
                                                                                                     {formatDistanceToNow(new Date(notification.createdAt))} ago
                                                                                                 </span>
                                                                                             </div>
-                                                                                            {isAccepted ? <span>Accepted</span> : <button className="up-button small primary" onClick={() => acceptRequest(notification._id)}>Accept</button>}
-
+                                                                                            <button className="up-button small primary" onClick={() => acceptRequest(notification._id)}>Accept</button>
                                                                                         </div>
                                                                                     </>
                                                                                 )
