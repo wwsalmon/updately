@@ -135,15 +135,15 @@ export async function getProfilesByIds(idList: string[]){
 }
 
 export async function createAccount(user) {
-    // await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
-    //     email: user.email,
-    //     name: user.name,
-    // }, {
-    //     headers: {
-    //         "X-MailerLite-ApiKey": process.env.MAILERLITE_KEY,
-    //         "Content-Type": "application/json",
-    //     }
-    // });
+    await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
+        email: user.email,
+        name: user.name,
+    }, {
+        headers: {
+            "X-MailerLite-ApiKey": process.env.MAILERLITE_KEY,
+            "Content-Type": "application/json",
+        }
+    });
 
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
