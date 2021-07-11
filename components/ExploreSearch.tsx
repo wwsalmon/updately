@@ -4,10 +4,9 @@ import axios from "axios";
 import {FiX} from "react-icons/fi";
 import UserListItem from "./UserListItem";
 
-export default function ExploreSearch(props: { userData: User }) {
+export default function ExploreSearch(props: { userData: User }) { // Userdata is the session's user
     const [query, setQuery] = useState<string>("");
     const [userData, setUserData] = useState<User>(props.userData);
-    console.log(userData)
     const [userList, setUserList] = useState<User[]>([]);
 
     useEffect(() => {
@@ -31,7 +30,7 @@ export default function ExploreSearch(props: { userData: User }) {
                     type="text"
                     value={query}
                     onChange={e => setQuery(e.target.value)}
-                    className="w-full border px-4 h-12 rounded-md text-xl"
+                    className="w-full border px-4 h-12 rounded-md text-xl dark:bg-gray-900"
                     placeholder="Search for Updately user"
                 />
                 <button

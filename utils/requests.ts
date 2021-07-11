@@ -94,12 +94,12 @@ export async function getDemoFeedRequest({ req }) {
     ])
     const count = await updateModel.count({"userId": { $in: publicUserIds }})
     
-    let userIds = [];
-    for (let update of updates) {
-        if (!userIds.includes(update.userId)) userIds.push(update.userId);
-    }
+    // let userIds = [];
+    // for (let update of updates) {
+    //     if (!userIds.includes(update.userId)) userIds.push(update.userId);
+    // }
 
-    const users = await userModel.find({"_id": { $in: userIds }});
+    const users = await userModel.find();
 
     return {
         updates: updates,
