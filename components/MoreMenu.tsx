@@ -4,15 +4,15 @@ import short from "short-uuid";
 import MenuButton from "./MenuButton";
 import MenuLink from "./MenuLink";
 
-export default function MoreMenu({items, buttonText = <FaEllipsisV/>, buttonClassName, className, children, isOpen1 = false} : {
+export default function MoreMenu({items, buttonText = <FaEllipsisV/>, buttonClassName, className, children, isOpenProp = false} : {
     items?: {label: string, href?: string, onClick?: () => any}[],
     buttonText?: string | ReactNode,
     buttonClassName?: string,
     className?: string,
     children?: ReactNode,
-    isOpen1?: boolean,
+    isOpenProp?: boolean,
 }) {
-    const [isOpen, setIsOpen] = useState<boolean>(isOpen1);
+    const [isOpen, setIsOpen] = useState<boolean>(isOpenProp);
     const thisButton = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {

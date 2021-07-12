@@ -44,10 +44,10 @@ export default function Navbar() {
 
     return (
         <>
-            <div className="w-full bg-white sticky mb-8 top-0 z-30 dark:bg-black">
+            <div className="w-full sticky mb-8 top-0 z-30 bg-white dark:bg-gray-900">
                 <div className="max-w-7xl mx-auto h-16 flex items-center px-4">
                     <Link href="/"><a><img src="/logo.svg" className="h-12"/></a></Link>
-                    <div className="flex h-16 bg-white fixed bottom-0 left-0 w-full sm:ml-8 sm:w-auto sm:relative sm:h-full dark:bg-black">
+                    <div className="flex h-16 bg-white dark:bg-gray-900 fixed bottom-0 left-0 w-full sm:ml-8 sm:w-auto sm:relative sm:h-full">
                         {session && (
                             <NavbarItem icon={<FiHome/>} text="Feed" href="/" selected={router.route === "/"}/>
                         )}
@@ -60,24 +60,28 @@ export default function Navbar() {
                         {session ? (
                             <>
                                 <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
+                                <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="up-button text">
+                                    <FiMoon/>
+                                </button>
                                 {notificationsData && notificationsData.notifications && (
                                     <>
                                     <MoreMenu
                                         buttonText = {
                                             <>
-                                            <FiBell/>
-                                            {notificationsData.notifications.length > 0 && (
-                                                <>
-                                                    {numNotifications > 0 && (
-                                                        <div className="rounded-full w-3 h-3 bg-red-500 top-2 right-2 absolute text-white font-bold">
-                                                            <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-                                            </>}
+                                                <FiBell/>
+                                                {notificationsData.notifications.length > 0 && (
+                                                    <>
+                                                        {numNotifications > 0 && (
+                                                            <div className="rounded-full w-3 h-3 bg-red-500 top-2 right-2 absolute text-white font-bold">
+                                                                <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </>
+                                        }
                                         className = "my-4 relative"
-                                        isOpen1={notificationsIsOpen}
+                                        isOpenProp={notificationsIsOpen}
                                     >                             
                                         {notificationsData.notifications.length > 0 && (
                                             <>
@@ -183,7 +187,6 @@ export default function Navbar() {
                                         />
                                     </div>
                                     <div className="up-hover-dropdown mt-10">
-                                        <MenuButton icon={<FiMoon/>} text={`Theme: ${theme}`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}/>
                                         {data && data.data && (
                                             <MenuLink icon={<FiUser />} text="Profile" href={`/@${data.data.urlName}`}/>
                                         )}

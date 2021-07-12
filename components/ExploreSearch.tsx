@@ -30,7 +30,7 @@ export default function ExploreSearch(props: { userData: User }) { // Userdata i
                     type="text"
                     value={query}
                     onChange={e => setQuery(e.target.value)}
-                    className="w-full border px-4 h-12 rounded-md text-xl dark:bg-gray-900"
+                    className="w-full border px-4 h-12 rounded-md text-xl bg-transparent"
                     placeholder="Search for Updately user"
                 />
                 <button

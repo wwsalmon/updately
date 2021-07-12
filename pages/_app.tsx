@@ -13,7 +13,7 @@ Router.events.on("routeChangeError", () => NProgress.done());
 
 export default function App({Component, pageProps}) {
     return (
-        <ThemeProvider attribute="class">
+        <ThemeProvider attribute="class" defaultTheme="light">
             <Provider session={pageProps.session}>
                 <Navbar/>
                 <Component {...pageProps} />

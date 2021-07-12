@@ -34,7 +34,19 @@ body {
 
 .content {
     font-size: 20px;
-    @apply dark:text-white
+    @apply dark:text-white;
+}
+
+hr {
+    opacity: 0.1;
+}
+
+input, textarea {
+    border-color: #e5e7eb;
+}
+
+.dark input, .dark textarea {
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .up-h1 {
