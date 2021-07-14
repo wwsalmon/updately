@@ -12,30 +12,32 @@ import {fetcher} from "../utils/utils";
 import {Update, User, Notification} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
 import {useTheme} from 'next-themes'
-import Axios from "axios";
+import axios from "axios";
 import { useState } from "react";
 import {IoMdExit} from "react-icons/io";
 import MenuItem from "./MenuItem";
+import { useEffect } from "react";
 
 export default function Navbar() {
     const router = useRouter();
     const [session, loading] = useSession();
-    const [iter, setIter] = useState<number>(0);
     const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
-    const { data: notificationsData, error: notificationsError } = useSWR(session ? `/api/get-notifications?iter=${iter}` : null, fetcher) || {data: null, error: null};
-    const numNotifications = (notificationsData && notificationsData.notifications) ? notificationsData.notifications.filter(d => !d.read).length : 0
-    const [notificationsIsOpen, setNotificationsIsOpen] = useState<boolean>(false); 
-
+    const { data: notificationData, error: notificationsError } = useSWR(session ? `/api/get-notifications` : null, fetcher) || {data: null, error: null};
+    const numNotifications = (notificationData && notificationData.notifications) ? notificationData.notifications.filter(d => !d.read).length : 0
+    const [ notifications, setNotifications ] = useState<Notification[]>([]);
+    useEffect(() => {
+        setNotifications(notificationData ? notificationData.notifications : [])
+    }, [notificationData])
     const {theme, setTheme} = useTheme();
 
     const acceptRequest = (notificationId) => {
         // setIsLoading(true);
-        Axios.post("/api/accept-request", {
+        axios.post("/api/accept-request", {
             notificationId: notificationId
         }).then(res => {
-            setIter(iter + 1);
-            setNotificationsIsOpen(true);
-            // setNotificationsData(res.data.notificationData);
+            setNotifications(notifications.map(n => (
+                n._id == res.data.notificationData._id ? res.data.notificationData : n
+            )));
         }).catch(e => {
             console.log(e);
             // setIsLoading(false);
@@ -63,35 +65,28 @@ export default function Navbar() {
                                 <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="up-button text">
                                     <FiMoon/>
                                 </button>
-                                {notificationsData && notificationsData.notifications && (
+                                {notificationData && notificationData.notifications && (
                                     <>
-                                    <MoreMenu
-                                        buttonText = {
+                                    <button className="mr-4 px-2 h-10 mx-4 relative up-hover-button">
+                                        <FiBell/>
+                                        {notificationData.notifications.length > 0 && (
                                             <>
-                                                <FiBell/>
-                                                {notificationsData.notifications.length > 0 && (
-                                                    <>
-                                                        {numNotifications > 0 && (
-                                                            <div className="rounded-full w-3 h-3 bg-red-500 top-2 right-2 absolute text-white font-bold">
-                                                                <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
-                                                            </div>
-                                                        )}
-                                                    </>
+                                                {numNotifications > 0 && (
+                                                    <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
+                                                        <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
+                                                    </div>
                                                 )}
                                             </>
-                                        }
-                                        className = "my-4 relative"
-                                        isOpenProp={notificationsIsOpen}
-                                    >                             
-                                        {notificationsData.notifications.length > 0 && (
+                                        )}
+                                        {notificationData.notifications.length > 0 && (
                                             <>
-                                                <div className="absolute top-0 mt-10 right-0 z-40 shadow-lg rounded-md bg-white dark:bg-black w-64 md:w-96 overflow-y-auto max-h-96">
-                                                    {notificationsData.notifications
+                                                 <div className="up-hover-dropdown cursor-default mt-10 w-64 md:w-96 overflow-y-auto max-h-96">
+                                                    {notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: Notification) => {
-                                                            const thisUpdate: Update = (notification.type === "follow" || notification.type === "request") ? null : notificationsData.updates.find(d => d._id === notification.updateId);
-                                                            const thisUpdateUser: User = (notification.type === "follow" || notification.type === "request" ) ? null : notificationsData.updateUsers.find(d => d._id === thisUpdate.userId);
-                                                            const thisAuthor: User = notificationsData.users.find(d => d._id === notification.authorId);
+                                                            const thisUpdate: Update = (notification.type === "follow" || notification.type === "request") ? null : notificationData.updates.find(d => d._id === notification.updateId);
+                                                            const thisUpdateUser: User = (notification.type === "follow" || notification.type === "request" ) ? null : notificationData.updateUsers.find(d => d._id === thisUpdate.userId);
+                                                            const thisAuthor: User = notificationData.users.find(d => d._id === notification.authorId);
                                                             
                                                             const href: string = (notification.type === "follow" || notification.type === "request") 
                                                                 ? 
@@ -174,7 +169,7 @@ export default function Navbar() {
                                                 </div>
                                             </>
                                         )}
-                                    </MoreMenu>
+                                    </button>
                                     </>
                                 )}
                                 <button className="relative up-hover-button ml-4">
