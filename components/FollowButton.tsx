@@ -1,8 +1,9 @@
 import React from 'react';
 import Link from "next/link";
 
-export default function FollowButton({isFollowing, isLoading, isLoggedIn, onClick, primary = false}: {
+export default function FollowButton({isFollowing, isRequesting, isLoading, isLoggedIn, onClick, primary = false}: {
     isFollowing: boolean,
+    isRequesting: boolean,
     isLoading: boolean,
     isLoggedIn: boolean,
     onClick: () => any,
@@ -12,9 +13,9 @@ export default function FollowButton({isFollowing, isLoading, isLoggedIn, onClic
         <>
             {isLoggedIn ? (
                 <div className="relative">
-                    {isFollowing ? (
+                    {(isFollowing || isRequesting) ? (
                         <button className="up-button text" onClick={onClick}>
-                            <span className={isLoading ? "invisible" : ""}>Following</span>
+                            <span className={isLoading ? "invisible" : ""}>{isFollowing ? "Following" : "Requested"}</span>
                         </button>
                     ) : (
                         <button className={`up-button small ${primary ? "primary" : ""}`} onClick={onClick}>

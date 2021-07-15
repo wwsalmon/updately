@@ -27,29 +27,48 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
         const followUser = await userModel.findOne({ _id: req.body.id });
 
         if (!followUser) return res.status(500).json({message: "No user exists with the given ID."});
-
+        
         if (currUser.following.some(d => d.equals(req.body.id))) {
             // if already following, unfollow
             currUser.following = currUser.following.slice(0).filter(d => !d.equals(req.body.id));
             followUser.followers = followUser.followers.slice(0).filter(d => d !== session.user.email);
-        } else {
-            // otherwise, follow
-            currUser.following.push(req.body.id);
-            followUser.followers.push(session.user.email);
+            currUser.markModified("following");
+            followUser.markModified("followers");
+        } else if (currUser.requesting.some(d => d.equals(req.body.id))) {
 
+            // if already requesting, unrequest
+            currUser.requesting = currUser.requesting.filter(d => !d.equals(req.body.id));
+            followUser.requests = followUser.requests.filter(d => d !== session.user.email);
+            currUser.markModified("requesting");
+            followUser.markModified("requests");
+
+            // Delete the request notification
+            await notificationModel.deleteOne({"authorId": currUser._id, "userId": followUser._id, "type": "request"});
+        } else {
+            // otherwise, follow or request to follow
+            if (followUser.private) {
+                currUser.requesting.push(req.body.id);
+                followUser.requests.push(session.user.email);
+
+                currUser.markModified("requesting");
+                followUser.markModified("requests");
+            } else {
+                currUser.following.push(req.body.id);
+                followUser.followers.push(session.user.email);
+                currUser.markModified("following");
+                followUser.markModified("followers");
+            }
+            
             // create follow notification
             const newNotification = new notificationModel({
                 userId: req.body.id,
                 updateId: null,
                 authorId: currUser._id.toString(),
-                type: "follow",
+                type: followUser.private ? "request" : "follow",
                 read: false,
             });
             await newNotification.save();
         }
-
-        currUser.markModified("following");
-        followUser.markModified("followers");
 
         await currUser.save();
         await followUser.save();

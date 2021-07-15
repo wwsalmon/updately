@@ -31,6 +31,7 @@ export default function ReducedProfileFollowButton({data, setData, userData, set
         <>
             <FollowButton
                 isFollowing={userData && userData.following.includes(data._id)}
+                isRequesting={userData && userData.requesting.includes(data._id)}
                 isLoading={isLoading}
                 isLoggedIn={!!userData}
                 onClick={onFollow}

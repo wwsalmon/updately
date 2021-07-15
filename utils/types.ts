@@ -46,7 +46,7 @@ export interface Notification extends Document {
     userId: string,
     authorId: string,
     updateId: string,
-    type: "comment" | "reply" | "follow",
+    type: "comment" | "reply" | "follow" | "request",
     read: boolean,
     createdAt: string, // date string
     updatedAt: string, // date string

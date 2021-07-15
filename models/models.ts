@@ -71,7 +71,7 @@ const notificationSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId, // ID of receiving user
     authorId: mongoose.Schema.Types.ObjectId, // ID of comment author
     updateId: mongoose.Schema.Types.ObjectId, // ID of update of comment to generate link and notification message
-    type: reqString, // "comment" | "reply"
+    type: reqString, // "comment" | "reply" | "follow" | "request"
     read: {type: Boolean, required: true},
 }, {
     timestamps: true,

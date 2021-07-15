@@ -71,8 +71,8 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                             </div>
                         )}
                         {(isOwner) && (
-                            <Link href={`@${data.user.urlName}/edit-bio`}>
-                                <a className="up-button text small ml-auto">Edit bio</a>
+                            <Link href={`@${data.user.urlName}/edit-profile`}>
+                                <a className="up-button text small ml-auto">Edit profile</a>
                             </Link>
                         )}
                     </div>
@@ -102,7 +102,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
 
             <hr className="my-8"/>
 
-            {data.user.private ? (
+            {data.user.private && (!session || !data.user.followers.includes(session.user.email) && !isOwner) ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>

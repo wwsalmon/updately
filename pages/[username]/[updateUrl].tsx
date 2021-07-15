@@ -9,7 +9,7 @@ import React, {useEffect, useState} from "react";
 import EditUpdate from "../../components/EditUpdate";
 import axios from "axios";
 import {useRouter} from "next/router";
-import showdown from "showdown";
+import  showdown from "showdown";
 import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
@@ -111,7 +111,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
-                <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-20">
+                <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-20 dark:bg-gray-900">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
                             <img src={data.user.image} alt={`Profile picture of ${data.user.name}`} className="w-10 h-10 rounded-full mr-4"/>
@@ -143,9 +143,9 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                     <>
                         <div className="flex">
                             <div className="mr-4">
-                                <h1 className="up-h1 mb-4">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
-                                <h2 className="up-h2">{thisUpdate.title}</h2>
-                                <div className="mt-8 md:flex opacity-50">
+                                <h1 className="up-h1 mb-4 dark:text-gray-300">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
+                                <h2 className="up-h2 dark:text-gray-300">{thisUpdate.title}</h2>
+                                <div className="mt-8 md:flex opacity-50 dark:text-gray-300 dark:opacity-75">
                                     <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d 'at' h:mm a")}</p>
                                     <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
                                 </div>
@@ -162,7 +162,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             )}
                         </div>
                         <hr className="my-8"/>
-                        <div className="prose content my-8">
+                        <div className="prose content my-8 dark:text-gray-300">
                             {Parser(markdownConverter.makeHtml(thisUpdate.body))}
                         </div>
                         <hr className="my-8"/>
@@ -172,10 +172,10 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
             </div>
             <div className="xl:absolute xl:left-4 xl:top-8 xl:h-full max-w-3xl mx-auto px-4 xl:mx-0 xl:px-0">
                 <hr className="my-8 xl:hidden"/>
-                <div className="xl:sticky xl:top-24">
+                <div className="xl:sticky xl:top-24 dark:text-gray-300">
                     {updates && updates.length > 0 && updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
                         <div
-                            className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition"}`}
+                            className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition dark:opacity-75"}`}
                             key={update._id}
                         >
                             <Link href={`/@${data.user.urlName}/${update.url}`} shallow={false}>
@@ -187,7 +187,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         </div>
                     ))}
                     {updates && data.updates.length > 10 && <p 
-                    className="opacity-50 hover:opacity-100 transition mb-8"
+                    className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
                     ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>}
                 </div>
             </div>

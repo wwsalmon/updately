@@ -7,5 +7,5 @@ export default function PaginationBanner({page, label, setPage, className}: { pa
             <span>Showing <b>page {page}</b> of {label}</span>
             <button className="up-button text small ml-auto" onClick={() => setPage(1)}>Back to recent</button>
         </UpBanner>
-    ) : <></>;
+    ) : <></>
 }

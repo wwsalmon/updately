@@ -4,10 +4,16 @@ module.exports = {
         './**/*.tsx',
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {    
+                gray: {
+                    900: '#121212',
+                }
+            },
+        }  
     },
-    variants: {},
     plugins: [
         require('@tailwindcss/typography'),
     ],
+    darkMode: 'class',
 }

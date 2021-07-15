@@ -45,6 +45,7 @@ export default function UserListItem({itemUserId, userList, setUserList, userDat
                     <div className="ml-auto">
                         <FollowButton
                             isFollowing={userData && (userData.following.includes(thisUser._id))}
+                            isRequesting={userData && (userData.requesting.includes(thisUser._id))}
                             isLoading={isLoading}
                             isLoggedIn={!!userData}
                             onClick={onFollow}

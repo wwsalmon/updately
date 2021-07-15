@@ -1,6 +1,6 @@
-import {getSession, useSession} from 'next-auth/client';
+import {getSession, useSession} from "next-auth/client";
 import {GetServerSideProps} from "next";
-import {getCurrUserFeedRequest, getDemoFeedRequest} from "../utils/requests";
+import {getCurrUserFeedRequest, getCurrUserRequest, getDemoFeedRequest} from "../utils/requests";
 import React from "react";
 import Link from "next/link";
 import UpdateFeed from "../components/UpdateFeed";
@@ -12,11 +12,11 @@ import {fetcher} from "../utils/utils";
 import useSWR from "swr";
 import {useState} from 'react'
 
-export default function Home({userData}: {userData: User}) {
+export default function Home(props: {userData: User}) {
     const [page, setPage] = useState<number>(1);
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
     const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
-    console.log(feedDataObj);
+    const userData = props.userData;
 
     return (
         <>
@@ -36,13 +36,13 @@ export default function Home({userData}: {userData: User}) {
                             </Link>
                             <p>Ask friends to share their Updately profiles with you, <Link href="/explore"><a className="underline">or search for them by name</a></Link>!</p>
                         </div>
-                        <UserPfpList isFollowers={false} userList={feedData.users || []} pageUser={userData}/>
-                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
+                        <UserPfpList isFollowers={false} userList={feedData ? feedData.users : []} pageUser={userData}/>
+                        <UpdateFeed updates={feedData ? feedData.updates : []} users={feedData ? feedData.users : []} page={page} setPage={setPage} count={feedData ? feedData.count : 0}/>
                     </>
                 ) : (
                     <>
-                        <h1 className="up-h1 mt-16">Welcome to Updately!</h1>
-                        <div className="prose content my-6">
+                        <h1 className="up-h1 mt-16 dark:text-gray-300">Welcome to Updately!</h1>
+                        <div className="prose content my-6 dark:text-gray-400">
                             <p>Updately is a <b>social platform for daily updates</b> (or weekly or hourly, whatever works for you).</p>
                             <p>How it works is pretty straightforward:</p>
                             <ol>
@@ -54,7 +54,7 @@ export default function Home({userData}: {userData: User}) {
                             <p>Check out some (real!) examples:</p>
                         </div>
                         <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
-                        <div className="prose content my-6">
+                        <div className="prose content my-6 dark:text-gray-400">
                             <p>So what are you waiting for? <b>Hit that blue button on the navbar to sign up now!</b></p>
                         </div>
                     </>
@@ -64,3 +64,9 @@ export default function Home({userData}: {userData: User}) {
     )
 }
 
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const session = await getSession(context);
+    const userData = session ? await getCurrUserRequest(session.user.email) : null;
+
+    return {props: {userData: cleanForJSON(userData)}};
+};

@@ -11,7 +11,7 @@ export default function UpdateComments({update, userData}: { update: Update, use
 
     return (
         <>
-            <div className="up-ui-title mb-4"><span>Comments {data ? `(${data.comments.length})` : ""}</span></div>
+            <div className="up-ui-title mb-4 dark:text-gray-300"><span>Comments {data ? `(${data.comments.length})` : ""}</span></div>
             <div className="my-4">
                 <UpdateCommentForm
                     update={update}
