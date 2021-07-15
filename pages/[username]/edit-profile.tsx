@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, Component} from 'react';
 import {GetServerSideProps} from "next";
 import {getProfileReducedRequest} from "../api/get-profile";
 import {getSession} from "next-auth/client";
@@ -9,7 +9,9 @@ import UserHeaderLeft from "../../components/UserHeaderLeft";
 import Link from "next/link";
 import axios from "axios";
 import {useRouter} from "next/router";
-import {FaUnlock, FaLock} from "react-icons/fa"
+import {FaUnlock, FaLock} from "react-icons/fa";
+import Select from "react-select";
+
 
 export default function EditBioPage(props: { userData: User }) {
     const router = useRouter();
@@ -17,7 +19,7 @@ export default function EditBioPage(props: { userData: User }) {
     const [bio, setBio] = useState<string>(props.userData.bio || "");
     const [isPrivate, setIsPrivate] = useState<boolean>(props.userData.private || false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
+      
     function saveBio() {
         setIsLoading(true);
         axios.post("/api/edit-profile", {
@@ -31,6 +33,38 @@ export default function EditBioPage(props: { userData: User }) {
             console.log(e);
             setIsLoading(false);
         })
+    }
+
+    const options = [
+        { value: false, label: "Show" },
+        { value: true, label: "Hide" },
+    ]
+    
+    const customStyles = {
+        option: (provided) => ({
+            ...provided,
+            padding: 8,
+            paddingRight: 16,
+            paddingLeft: 16,
+        }),
+
+        valueContainer: (provided) => ({
+            ...provided,
+            padding: 8,
+            paddingRight: 16,
+            paddingLeft: 16,
+        }),
+
+        control: (provided) => ({
+            ...provided,
+            borderColor: "#e5e7eb",
+        }),
+
+        container: (provided) => ({
+            ...provided,
+            marginBottom: 8,
+        }),
+        
     }
 
     return (
@@ -47,27 +81,28 @@ export default function EditBioPage(props: { userData: User }) {
             <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
-                className="w-full border p-4 rounded-md text-xl focus:outline-none focus:ring focus:border-blue-300 "
+                className="w-full border p-4 rounded-md text-xl"
                 placeholder="Write a bio..."
             />
 
             <div className="mt-8">
-                <div className="flex flex-row">
+                <div className="">
                     <h2 className="up-ui-title mb-4">
-                        Private account?
+                        Hide posts from global feed?
                     </h2>
-                    <button 
-                        onClick={() => setIsPrivate(!isPrivate)}
-                        className="h-11 ml-auto md:ml-4 -mt-3 rounded-md px-3 py-2.5 focus:outline-none focus:ring focus:border-blue-300 flex flex-row "
-                    >
-                        {isPrivate ? <><FaLock className="text-2xl mr-2"/><span>Private</span></> : <><FaUnlock className="text-2xl mr-2"/><span>Public</span></>}
-                    </button>
+                    <Select 
+                        options={options}
+                        defaultValue={options.filter(o => o.value === isPrivate)}
+                        onChange={option => setIsPrivate(option.value)}
+                        isSearchable={false}
+                        className="rounded-md text-xl"
+                        isDisabled={isLoading}
+                        styles={customStyles}
+                    />
                 </div>
-                <p className="text-sm opacity-50">If you set your account to private, your updates will only be visible to your followers and people you send your update links to. Your updates will not appear in the global explore feed.</p>
-                
             </div>
 
-            <div className="flex mt-8">
+            <div className="flex mt-10">
                 <div className="ml-auto relative">
                     <Link href={`/@${userData.urlName}`}>
                         <a className={`up-button text small ml-auto mr-4 ${isLoading ? "cursor-not-allowed" : ""}`}>

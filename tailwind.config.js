@@ -10,13 +10,7 @@ module.exports = {
                     900: '#121212',
                 }
             },
-        },
-        variants: {
-            extend: {
-                borderColor: ['focus-visible'],
-                borderWidth: ['focus-visible'],
-            },
-        },   
+        }  
     },
     plugins: [
         require('@tailwindcss/typography'),

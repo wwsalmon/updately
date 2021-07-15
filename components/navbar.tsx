@@ -2,7 +2,6 @@ import {FaGoogle} from "react-icons/fa";
 import {signIn, signOut, useSession} from "next-auth/client";
 import Link from "next/link";
 import MenuButton from "./MenuButton";
-import MoreMenu from "./MoreMenu";
 import useSWR from "swr";
 import MenuLink from "./MenuLink";
 import {useRouter} from "next/router";
