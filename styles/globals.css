@@ -37,7 +37,7 @@ body {
     @apply dark:text-white;
 }
 
-hr {
+.dark hr {
     opacity: 0.1;
 }
 
