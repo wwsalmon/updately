@@ -27,7 +27,7 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
                                         alt={`Profile picture of ${users.find(d => d._id === update.userId).name}`}
                                         className="w-16 h-16 rounded-full mr-4"
                                     />
-                                    <div className="my-6 leading-snug mr-4 dark:text-gray-300">
+                                    <div className="my-6 leading-snug mr-4 dark:text-gray-300 break-words overflow-hidden">
                                         <div className="up-ui-item-title"><span>{users.find(d => d._id === update.userId).name}</span></div>
                                         <p className="up-ui-item-subtitle">
                                             {update.title && (<span className="mr-2">{update.title}</span>)}
