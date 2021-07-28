@@ -95,7 +95,7 @@ export default function EditBioPage(props: { userData: User }) {
                         defaultValue={options.filter(o => o.value === isPrivate)}
                         onChange={option => setIsPrivate(option.value)}
                         isSearchable={false}
-                        className="rounded-md text-xl"
+                        className="rounded-md text-xl dark:text-white dark:bg-gray-900"
                         isDisabled={isLoading}
                         styles={customStyles}
                     />

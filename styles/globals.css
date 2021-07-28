@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html.dark {
+    @apply text-white bg-gray-900
+}
+
 body {
     font-family: "IBM Plex Sans", sans-serif;
 }
@@ -47,6 +51,7 @@ input, textarea {
 
 .dark input, .dark textarea {
     border-color: rgba(255, 255, 255, 0.1);
+    @apply bg-gray-900;
 }
 
 .up-h1 {

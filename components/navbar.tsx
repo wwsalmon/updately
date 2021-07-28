@@ -57,17 +57,17 @@ export default function Navbar() {
                             <NavbarItem icon={<FiUser/>} text="Profile" href={`/@${data.data.urlName}`} selected={router.asPath === `/@${data.data.urlName}`}/>
                         )}
                     </div>
-                    <div className="ml-auto flex items-center">
-                        
-                        {session && <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>}
-                        <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="up-button text">
+                    
+                    <div className="ml-auto flex items-center gap-x-4">                        
+                        {session && <Link href="/new-update"><a className="up-button small primary hidden sm:block">Post new update</a></Link>}
+                        <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="up-button text">
                             <FiMoon/>
                         </button>
                         {session ? (
                             <>
                                 {notificationData && notificationData.notifications && (
                                     <>
-                                    <button className="mr-4 px-2 h-10 mx-4 relative up-hover-button">
+                                    <button className="mr-4 px-2 h-10 relative up-hover-button">
                                         <FiBell/>
                                         {notificationData.notifications.length > 0 && (
                                             <>
@@ -172,7 +172,7 @@ export default function Navbar() {
                                     </button>
                                     </>
                                 )}
-                                <button className="relative up-hover-button ml-4">
+                                <button className="relative up-hover-button">
                                     <div className="flex items-center">
                                         <FiChevronDown/>
                                         <img
