@@ -10,7 +10,7 @@ import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-ico
 import {fetcher} from "../utils/utils";
 import {Update, User, Notification} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
-import {useTheme} from 'next-themes'
+import {useTheme} from "next-themes";
 import axios from "axios";
 import { useState } from "react";
 import {IoMdExit} from "react-icons/io";
