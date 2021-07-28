@@ -58,12 +58,13 @@ export default function Navbar() {
                         )}
                     </div>
                     <div className="ml-auto flex items-center">
+                        
+                        {session && <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>}
+                        <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="up-button text">
+                            <FiMoon/>
+                        </button>
                         {session ? (
                             <>
-                                <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
-                                <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="up-button text">
-                                    <FiMoon/>
-                                </button>
                                 {notificationData && notificationData.notifications && (
                                     <>
                                     <button className="mr-4 px-2 h-10 mx-4 relative up-hover-button">
