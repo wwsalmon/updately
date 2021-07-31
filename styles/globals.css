@@ -10,7 +10,7 @@ body {
     font-family: "IBM Plex Sans", sans-serif;
 }
 
-hr {
+.dark hr {
     opacity: 0.1;
 }
 
@@ -37,18 +37,6 @@ input, textarea {
 }
 
 /* Updately theme */
-.dark hr {
-    opacity: 0.1;
-}
-
-input, textarea {
-    border-color: #e5e7eb;
-}
-
-.dark input, .dark textarea {
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
 .up-h1 {
     font-size: 36px;
     font-family: "Alegreya", serif;
