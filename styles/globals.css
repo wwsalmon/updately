@@ -164,7 +164,7 @@ a.up-button.small {
 .dark .CodeMirror-line::selection,
 .dark .CodeMirror-line > span::selection,
 .dark .CodeMirror-line > span > span::selection {
-    background-color: rgba(229, 231, 235, 0.2) !important;
+    background-color: rgba(229, 231, 235, 0.2) !important; /* Tailwind gray 100 */
 }
 
 .dark .CodeMirror-line::-moz-selection,

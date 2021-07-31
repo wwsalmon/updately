@@ -51,7 +51,7 @@ export default function UpdateCommentItem({comment, update, users, userData, ref
                     />
                 </a>
             </Link>
-            <div className="ml-2 w-full">
+            <div className="ml-2 w-full break-words overflow-hidden">
                 <p>
                     <Link href={`/@${users.find(d => d._id === comment.authorId).urlName}`}>
                         <a>
