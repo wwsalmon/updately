@@ -68,7 +68,7 @@ export default function EditBioPage(props: { userData: User }) {
         control: (provided) => ({
             ...provided,
             borderColor: "#e5e7eb",
-            backgroundColor: theme === "dark" ? "#000" : "#FFF",
+            backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0)" : "#FFF",
         }),
 
         container: (provided) => ({
