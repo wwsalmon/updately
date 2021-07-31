@@ -20,7 +20,7 @@ export default function UpdateFeed({updates, users, page, setPage, count}: {upda
                     )}
                     <Link href={"/@" + users.find(d => d._id === update.userId).urlName + "/" + update.url}>
                         <a>
-                            <div className="sm:flex items-center">
+                            <div className="sm:flex items-center break-words overflow-hidden">
                                 <div className="flex items-center">
                                     <img
                                         src={users.find(d => d._id === update.userId).image}
