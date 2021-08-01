@@ -108,9 +108,12 @@ export default function EditBioPage(props: { userData: User }) {
 
             <div className="mt-8">
                 <div className="">
-                    <h2 className="up-ui-title mb-4">
-                        Hide posts from public feeds?
-                    </h2>
+                    <div className="mb-4">
+                        <h2 className="up-ui-title mb-2">
+                            Hide posts from public feeds?
+                        </h2>
+                        <p className="text-sm opacity-50">This will hide your updates from non-followers, including from the global explore feed.</p>
+                    </div>
                     <Select 
                         options={options}
                         defaultValue={options.filter(o => o.value === isPrivate)}
