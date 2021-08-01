@@ -1,16 +1,16 @@
-import {getSession, useSession} from "next-auth/client";
+import {getSession} from "next-auth/client";
 import {GetServerSideProps} from "next";
-import {getCurrUserFeedRequest, getCurrUserRequest, getDemoFeedRequest} from "../utils/requests";
+import {getCurrUserRequest} from "../utils/requests";
 import React from "react";
 import Link from "next/link";
 import UpdateFeed from "../components/UpdateFeed";
 import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
-import {Update, User} from "../utils/types";
+import {User} from "../utils/types";
 import UserPfpList from "../components/UserPfpList";
 import {fetcher} from "../utils/utils";
 import useSWR from "swr";
-import {useState} from 'react'
+import {useState} from "react";
 
 export default function Home(props: {userData: User}) {
     const [page, setPage] = useState<number>(1);

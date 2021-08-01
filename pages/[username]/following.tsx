@@ -2,7 +2,7 @@ import React from 'react';
 import {GetServerSideProps} from "next";
 import {getProfileReducedRequest} from "../api/get-profile";
 import {getSession} from "next-auth/client";
-import {getCurrUserRequest, getProfilesByEmails, getProfilesByIds} from "../../utils/requests";
+import {getCurrUserRequest, getProfilesByIds} from "../../utils/requests";
 import {cleanForJSON} from "../../utils/utils";
 import {User} from "../../utils/types";
 import UserFollowListPage from "../../components/UserFollowListPage";

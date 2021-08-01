@@ -9,7 +9,7 @@ import React, {useEffect, useState} from "react";
 import EditUpdate from "../../components/EditUpdate";
 import axios from "axios";
 import {useRouter} from "next/router";
-import  showdown from "showdown";
+import showdown from "showdown";
 import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";

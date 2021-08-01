@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {GetServerSideProps} from "next";
 import {getProfileReducedRequest} from "../api/get-profile";
 import {getSession} from "next-auth/client";
