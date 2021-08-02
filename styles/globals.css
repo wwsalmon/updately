@@ -2,39 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+html.dark {
+    @apply text-white bg-gray-900
+}
+
 body {
     font-family: "IBM Plex Sans", sans-serif;
-}
-
-.EasyMDEContainer .editor-toolbar{
-    font-size: 1rem;
-    border: 0;
-    padding-left: 0;
-    padding-right: 0;
-    position: sticky;
-    top: 4rem;
-    z-index: 5;
-    background-color: white;
-}
-
-.EasyMDEContainer div.CodeMirror{
-    border: 0;
-    padding-top: 2rem;
-    padding-left: 0;
-    padding-right: 0;
-}
-
-.prose .task-list-item:before{
-    display: none;
-}
-
-.prose h3, .prose h2, .prose h1, .prose a, .prose strong, .prose em{
-    @apply dark:text-white
-}
-
-.content {
-    font-size: 20px;
-    @apply dark:text-white;
 }
 
 .dark hr {
@@ -47,8 +20,23 @@ input, textarea {
 
 .dark input, .dark textarea {
     border-color: rgba(255, 255, 255, 0.1);
+    @apply bg-gray-900;
 }
 
+.prose .task-list-item:before {
+    display: none;
+}
+
+.prose h3, .prose h2, .prose h1, .prose a, .prose strong, .prose em {
+    @apply dark:text-white
+}
+
+.content {
+    font-size: 20px;
+    @apply dark:text-white;
+}
+
+/* Updately theme */
 .up-h1 {
     font-size: 36px;
     font-family: "Alegreya", serif;
@@ -143,4 +131,52 @@ a.up-button.small {
 
 .up-hover-button:hover > .up-hover-dropdown, .up-hover-button:focus > .up-hover-dropdown {
     display: block;
+}
+
+
+/* Markdown editor */
+.EasyMDEContainer .editor-toolbar {
+    font-size: 1rem;
+    border: 0;
+    padding-left: 0;
+    padding-right: 0;
+    position: sticky;
+    top: 4rem;
+    z-index: 5;
+    background-color: white;
+}
+
+.EasyMDEContainer div.CodeMirror {
+    border: 0;
+    padding-top: 2rem;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.dark .CodeMirror, .dark .EasyMDEContainer .editor-toolbar {
+    @apply bg-gray-900 text-white;
+}
+
+.dark .editor-toolbar button.active, .dark .editor-toolbar button:hover {
+    @apply bg-gray-100 bg-opacity-20 /* Just like moremenu on hover */
+}
+
+.dark .CodeMirror-line::selection,
+.dark .CodeMirror-line > span::selection,
+.dark .CodeMirror-line > span > span::selection {
+    background-color: rgba(229, 231, 235, 0.2) !important; /* Tailwind gray 100 */
+}
+
+.dark .CodeMirror-line::-moz-selection,
+.dark .CodeMirror-line > span::-moz-selection,
+.dark .CodeMirror-line > span > span::-moz-selection {
+    background-color: rgba(229, 231, 235, 0.2) !important;
+}
+
+.dark .CodeMirror-selected {
+    background-color: rgba(229, 231, 235, 0.2) !important;
+}
+
+.dark .CodeMirror-focused .CodeMirror-selected {
+    background-color: rgba(229, 231, 235, 0.2) !important;
 }

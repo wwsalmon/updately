@@ -10,7 +10,7 @@ import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-ico
 import {fetcher} from "../utils/utils";
 import {Update, User, Notification} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
-import {useTheme} from 'next-themes'
+import {useTheme} from "next-themes";
 import axios from "axios";
 import { useState } from "react";
 import {IoMdExit} from "react-icons/io";
@@ -57,16 +57,17 @@ export default function Navbar() {
                             <NavbarItem icon={<FiUser/>} text="Profile" href={`/@${data.data.urlName}`} selected={router.asPath === `/@${data.data.urlName}`}/>
                         )}
                     </div>
-                    <div className="ml-auto flex items-center">
+                    
+                    <div className="ml-auto flex items-center gap-x-4">                        
+                        {session && <Link href="/new-update"><a className="up-button small primary hidden sm:block">Post new update</a></Link>}
+                        <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="up-button text">
+                            <FiMoon/>
+                        </button>
                         {session ? (
                             <>
-                                <Link href="/new-update"><a className="up-button small primary mr-4 hidden sm:block">Post new update</a></Link>
-                                <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="up-button text">
-                                    <FiMoon/>
-                                </button>
                                 {notificationData && notificationData.notifications && (
                                     <>
-                                    <button className="mr-4 px-2 h-10 mx-4 relative up-hover-button">
+                                    <button className="mr-4 px-2 h-10 relative up-hover-button">
                                         <FiBell/>
                                         {notificationData.notifications.length > 0 && (
                                             <>
@@ -171,7 +172,7 @@ export default function Navbar() {
                                     </button>
                                     </>
                                 )}
-                                <button className="relative up-hover-button ml-4">
+                                <button className="relative up-hover-button">
                                     <div className="flex items-center">
                                         <FiChevronDown/>
                                         <img

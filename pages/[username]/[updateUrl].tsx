@@ -9,7 +9,7 @@ import React, {useEffect, useState} from "react";
 import EditUpdate from "../../components/EditUpdate";
 import axios from "axios";
 import {useRouter} from "next/router";
-import  showdown from "showdown";
+import showdown from "showdown";
 import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
@@ -142,7 +142,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                 ) : (
                     <>
                         <div className="flex">
-                            <div className="mr-4">
+                            <div className="mr-4 break-words overflow-hidden">
                                 <h1 className="up-h1 mb-4 dark:text-gray-300">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
                                 <h2 className="up-h2 dark:text-gray-300">{thisUpdate.title}</h2>
                                 <div className="mt-8 md:flex opacity-50 dark:text-gray-300 dark:opacity-75">
@@ -162,7 +162,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             )}
                         </div>
                         <hr className="my-8"/>
-                        <div className="prose content my-8 dark:text-gray-300">
+                        <div className="prose content my-8 dark:text-gray-300 break-words overflow-hidden">
                             {Parser(markdownConverter.makeHtml(thisUpdate.body))}
                         </div>
                         <hr className="my-8"/>

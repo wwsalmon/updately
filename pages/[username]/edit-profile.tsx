@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react';
+import React, {useState} from 'react';
 import {GetServerSideProps} from "next";
 import {getProfileReducedRequest} from "../api/get-profile";
 import {getSession} from "next-auth/client";
@@ -9,8 +9,8 @@ import UserHeaderLeft from "../../components/UserHeaderLeft";
 import Link from "next/link";
 import axios from "axios";
 import {useRouter} from "next/router";
-import {FaUnlock, FaLock} from "react-icons/fa";
 import Select from "react-select";
+import {useTheme} from "next-themes";
 
 
 export default function EditBioPage(props: { userData: User }) {
@@ -19,8 +19,9 @@ export default function EditBioPage(props: { userData: User }) {
     const [bio, setBio] = useState<string>(props.userData.bio || "");
     const [isPrivate, setIsPrivate] = useState<boolean>(props.userData.private || false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const {theme, setTheme} = useTheme();
       
-    function saveBio() {
+    function saveProfile() {
         setIsLoading(true);
         axios.post("/api/edit-profile", {
             id: userData._id,
@@ -41,12 +42,21 @@ export default function EditBioPage(props: { userData: User }) {
     ]
     
     const customStyles = {
-        option: (provided) => ({
-            ...provided,
-            padding: 8,
-            paddingRight: 16,
-            paddingLeft: 16,
-        }),
+        option: (provided, state) => {
+            const optionBackgroundColor = state.isSelected ? "rgb(38, 132, 255)" /* default */ : (theme === "dark" ? "#000" : "#FFF")
+
+            return ({
+                ...provided,
+                padding: 8,
+                paddingRight: 16,
+                paddingLeft: 16,
+                backgroundColor: optionBackgroundColor,
+
+                ":hover": {
+                    backgroundColor: state.isSelected ? optionBackgroundColor : theme === "dark" ? "rgba(243, 244, 246, 0.2)" : "rgba(243, 244, 246, 1)", // tailwind gray 100, just like moremenu on hover
+                },
+            })
+        },
 
         valueContainer: (provided) => ({
             ...provided,
@@ -58,11 +68,22 @@ export default function EditBioPage(props: { userData: User }) {
         control: (provided) => ({
             ...provided,
             borderColor: "#e5e7eb",
+            backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0)" : "#FFF",
         }),
 
         container: (provided) => ({
             ...provided,
             marginBottom: 8,
+        }),
+
+        menu: (provided) => ({
+            ...provided,
+            backgroundColor: theme === "dark" ? "#000" : "#FFF",
+        }),
+
+        singleValue: (provided) => ({
+            ...provided,
+            color: theme === "dark" ? "#FFF" : "#000",
         }),
         
     }
@@ -87,9 +108,12 @@ export default function EditBioPage(props: { userData: User }) {
 
             <div className="mt-8">
                 <div className="">
-                    <h2 className="up-ui-title mb-4">
-                        Hide posts from global feed?
-                    </h2>
+                    <div className="mb-4">
+                        <h2 className="up-ui-title mb-2">
+                            Hide posts from public feeds?
+                        </h2>
+                        <p className="text-sm opacity-50">This will hide your updates from non-followers, including from the global explore feed.</p>
+                    </div>
                     <Select 
                         options={options}
                         defaultValue={options.filter(o => o.value === isPrivate)}
@@ -114,7 +138,7 @@ export default function EditBioPage(props: { userData: User }) {
                     <button
                         className="up-button primary small"
                         disabled={((userData.bio ? userData.bio === bio : bio === "") && (userData.private === isPrivate)) || isLoading}
-                        onClick={saveBio}
+                        onClick={saveProfile}
                     >
                         Save
                     </button>

@@ -41,7 +41,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
             <textarea
                 value={commentText}
                 onChange={e => setCommentText(e.target.value)}
-                className="w-full border p-4 rounded-md text-xl dark:bg-gray-900"
+                className="w-full border p-4 rounded-md text-xl"
                 placeholder="Write a comment..."
             />
             <div className="flex mt-2">
