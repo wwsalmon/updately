@@ -122,15 +122,13 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                     </div>
 
                     {updates && updates.length > 0 ? updates.map(update => (
-                        <div className="break-words overflow-hidden">
-                        <a key={update._id} className="block my-8" href={`/@${data.user.urlName}/${update.url}`}>
+                        <a key={update._id} className="block my-8 break-words overflow-hidden" href={`/@${data.user.urlName}/${update.url}`}>
                             <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
                             <p className="up-ui-item-subtitle">
                                 {update.title && (<span className="mr-2">{update.title}</span>)}
                                 <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
                             </p>
                         </a>
-                        </div>
                     )) : (
                         <p className="up-ui-item-subtitle">No updates yet.</p>
                     )}

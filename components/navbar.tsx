@@ -48,7 +48,7 @@ export default function Navbar() {
             <div className="w-full sticky mb-8 top-0 z-30 bg-white dark:bg-gray-900">
                 <div className="max-w-7xl mx-auto h-16 flex items-center px-4">
                     <Link href="/"><a><img src="/logo.svg" className="h-12"/></a></Link>
-                    <div className="flex h-16 bg-white dark:bg-gray-900 fixed bottom-0 left-0 w-full sm:ml-8 sm:w-auto sm:relative sm:h-full">
+                    <div className="flex h-16 bg-white dark:bg-gray-900 fixed bottom-0 left-0 w-full sm:ml-8 sm:w-auto sm:relative sm:h-full justify-center">
                         {session && (
                             <NavbarItem icon={<FiHome/>} text="Feed" href="/" selected={router.route === "/"}/>
                         )}
