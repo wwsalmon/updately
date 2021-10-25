@@ -57,7 +57,6 @@ export default function EditTemplate(props: {userData: User}) {
                         onChange={setTemplate}
                         value={template}
                         options={{
-                            spellChecker: false,
                             placeholder: "Write your update here...",
                             toolbar: ["bold", "italic", "strikethrough", "|", "heading-1", "heading-2", "heading-3", "|", "link", "quote", "unordered-list", "ordered-list", "|", "guide"]
                         }}

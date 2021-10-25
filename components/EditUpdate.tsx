@@ -49,7 +49,6 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
                         onChange={setBody}
                         value={body}
                         options={{
-                            spellChecker: false,
                             placeholder: "Write your update here...",
                             toolbar: ["bold", "italic", "strikethrough", "|", "heading-1", "heading-2", "heading-3", "|", "link", "quote", "unordered-list", "ordered-list", "|", "guide"]
                         }}
