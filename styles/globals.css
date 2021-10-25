@@ -157,6 +157,10 @@ a.up-button.small {
     @apply bg-gray-900 text-white;
 }
 
+.dark .CodeMirror-cursor {
+    border-color: #fff;
+}
+
 .dark .editor-toolbar button.active, .dark .editor-toolbar button:hover {
     @apply bg-gray-100 bg-opacity-20 /* Just like moremenu on hover */
 }
