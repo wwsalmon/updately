@@ -184,3 +184,7 @@ a.up-button.small {
 .dark .CodeMirror-focused .CodeMirror-selected {
     background-color: rgba(229, 231, 235, 0.2) !important;
 }
+
+.dark .prose blockquote {
+    color: #fff;
+}
