@@ -85,8 +85,10 @@ export default function Navbar() {
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: Notification) => {
                                                             const thisUpdate: Update = (notification.type === "follow" || notification.type === "request") ? null : notificationData.updates.find(d => d._id === notification.updateId);
-                                                            const thisUpdateUser: User = (notification.type === "follow" || notification.type === "request" ) ? null : notificationData.updateUsers.find(d => d._id === thisUpdate.userId);
+                                                            const thisUpdateUser: User = thisUpdate ? notificationData.updateUsers.find(d => d._id === thisUpdate.userId) : null;
                                                             const thisAuthor: User = notificationData.users.find(d => d._id === notification.authorId);
+
+                                                            if (!(thisUpdate && thisUpdateUser) && !thisAuthor) return <></>;
                                                             
                                                             const href: string = (notification.type === "follow" || notification.type === "request") 
                                                                 ? 
