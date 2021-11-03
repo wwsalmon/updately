@@ -19,6 +19,7 @@ import UpdateComments from "../../components/UpdateComments";
 import {fetcher} from "../../utils/utils";
 import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
+import {notificationModel} from "../../models/models";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -114,18 +115,6 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
         tables: true,
         extensions: [showdownHtmlEscape],
     });
-
-    useEffect(() => {
-        if (router.query.notification) {
-            axios.post("/api/read-notification", {
-                id: router.query.notification,
-            }).then(res => {
-                console.log(res);
-            }).catch(e => {
-                console.log(e);
-            });
-        }
-    }, [router.query.notification]);
 
     return (
         <div className="max-w-7xl relative mx-auto">
@@ -260,6 +249,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const data = await getUpdateRequest(username, updateUrl);
     const session = await getSession(context);
     const userData = session ? await getCurrUserRequest(session.user.email) : null;
+
+    await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
 
     if (!data) return { notFound: true };
 
