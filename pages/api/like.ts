@@ -5,7 +5,6 @@ import {likeModel, notificationModel, updateModel, userModel} from "../../models
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const session = await getSession({ req });
-    if (!session) return res.status(403).json({message: "You must be signed in to like an update."});
 
     try {
         await mongoose.connect(process.env.MONGODB_URL, {
@@ -33,6 +32,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             return res.status(200).json({likes: likes});
         }
+
+        if (!session) return res.status(403).json({message: "You must be signed in to like an update."});
 
         const {updateId} = req.body;
 

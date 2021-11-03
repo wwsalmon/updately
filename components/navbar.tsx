@@ -34,8 +34,6 @@ export default function Navbar() {
         setNotifications(notificationData ? notificationData.notifications : [])
     }, [notificationData]);
 
-    console.log(notificationData);
-
     const {theme, setTheme} = useTheme();
 
     const acceptRequest = (notificationId) => {

@@ -40,7 +40,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     const {data: likesData, error: likesError}: responseInterface<{ likes: (LikeObj & {userArr: User[]})[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
     const updates = feedDataObj ? feedDataObj.updates : {updates: []};
 
-    const isLike = likesData && likesData.likes && !!likesData.likes.find(d => d.userId === userData._id);
+    const isLike = likesData && likesData.likes && userData && !!likesData.likes.find(d => d.userId === userData._id);
 
     function onEdit() {
         setIsLoading(true);
