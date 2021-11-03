@@ -1,5 +1,11 @@
 import {Document} from "mongoose";
 
+export type DatedObj<T extends {}> = T & {
+    _id: string,
+    createdAt: string, // ISO date
+    updatedAt: string, // ISO date
+}
+
 export interface User {
     _id: string,
     createdAt: string, // date string

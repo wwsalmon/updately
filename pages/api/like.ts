@@ -52,8 +52,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 });
 
                 await notificationModel.create({
-                    userId: thisUser._id,
-                    authorId: thisUpdate.userId,
+                    userId: thisUpdate.userId,
+                    authorId: thisUser._id,
                     updateId: updateId,
                     type: "like",
                     read: false,
