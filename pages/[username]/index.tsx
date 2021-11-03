@@ -17,6 +17,7 @@ import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
 import {fetcher} from "../../utils/utils";
 import useSWR from "swr";
+import {notificationModel} from "../../models/models";
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[] }) {
     const [page, setPage] = useState<number>(1);
@@ -149,6 +150,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const session = await getSession(context);
     const userData = session ? (session.user.email === data.user.email ? data.user : await getCurrUserRequest(session.user.email)) : null;
+
+    if (userData) await notificationModel.updateMany({userId: userData._id, type: "follow", authorId: data.user._id}, {read: true});
 
     let followers = await getProfilesByEmails(data.user.followers);
     let following = await getProfilesByIds(data.user.following);
