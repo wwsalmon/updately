@@ -249,7 +249,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const session = await getSession(context);
     const userData = session ? await getCurrUserRequest(session.user.email) : null;
 
-    await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
+    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
 
     if (!data) return { notFound: true };
 
