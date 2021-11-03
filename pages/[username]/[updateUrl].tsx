@@ -14,10 +14,11 @@ import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {Update, User} from "../../utils/types";
+import {LikeObj, Update, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
 import {fetcher} from "../../utils/utils";
-import useSWR from "swr";
+import useSWR, {responseInterface} from "swr";
+import {FiHeart} from "react-icons/fi";
 
 export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -33,9 +34,13 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     const [title, setTitle] = useState<string>(thisUpdate.title);
     const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [likesIter, setLikesIter] = useState<number>(0);
 
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
+    const {data: likesData, error: likesError}: responseInterface<{ likes: (LikeObj & {userArr: User[]})[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
     const updates = feedDataObj ? feedDataObj.updates : {updates: []};
+
+    const isLike = !!likesData.likes.find(d => d.userId === userData._id);
 
     function onEdit() {
         setIsLoading(true);
@@ -83,6 +88,24 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
             console.log(e);
             setIsLoading(false);
         })
+    }
+
+    function onPressLike() {
+        if (!session) return router.push("/sign-in");
+
+        if (!(likesData && likesData.likes)) return;
+
+        const isLike = !!likesData.likes.find(d => d.userId === userData._id);
+
+        if (isLike) {
+            axios
+                .delete("/api/like", {data: {updateId: thisUpdate._id}})
+                .then(() => setLikesIter(likesIter + 1));
+        } else {
+            axios
+                .post("/api/like", {updateId: thisUpdate._id})
+                .then(() => setLikesIter(likesIter + 1));
+        }
     }
 
     const markdownConverter = new showdown.Converter({
@@ -148,6 +171,41 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                                 <div className="mt-8 md:flex opacity-50 dark:text-gray-300 dark:opacity-75">
                                     <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d 'at' h:mm a")}</p>
                                     <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
+                                </div>
+                                <div className="flex mt-6 items-center">
+                                    <button className="up-button text small flex items-center mr-6" onClick={onPressLike}>
+                                        {isLike ? (
+                                            <FiHeart color="red"/>
+                                        ) : (
+                                            <FiHeart/>
+                                        )}
+                                        <span className="ml-4">{(likesData && likesData.likes) ? likesData.likes.length : "Loading..."}</span>
+                                    </button>
+                                    {likesData && likesData.likes && (
+                                        <>
+                                            {likesData.likes.map((like, i) => (
+                                                <Link href={"/@" + like.userArr[0].urlName} key={like.userArr[0].urlName}>
+                                                    <a className={i > 4 ? "hidden sm:block" : ""}>
+                                                        <img src={like.userArr[0].image} className="w-8 h-8 rounded-full mr-3" alt={like.userArr[0].name}/>
+                                                    </a>
+                                                </Link>
+                                            ))}
+                                            {likesData.likes.length > 12 && (
+                                                <Link href={`/@${props.data.user.urlName}/${thisUpdate.url}/likes`}>
+                                                    <a className="w-8 h-8 rounded-full bg-black text-white items-center hidden sm:inline-flex justify-center">
+                                                        +{likesData.likes.length - 12}
+                                                    </a>
+                                                </Link>
+                                            )}
+                                            {likesData.likes.length > 5 && (
+                                                <Link href={`/@${props.data.user.urlName}/${thisUpdate.url}/likes`}>
+                                                    <a className="w-8 h-8 rounded-full bg-black text-white items-center sm:hidden inline-flex justify-center">
+                                                        +{likesData.likes.length - 5}
+                                                    </a>
+                                                </Link>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             </div>
                             {isOwner && (

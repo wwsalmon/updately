@@ -42,12 +42,14 @@ export interface CommentObj {
 }
 
 export interface Notification extends Document {
-    _id: string,
     userId: string,
     authorId: string,
     updateId: string,
-    type: "comment" | "reply" | "follow" | "request",
+    type: "comment" | "reply" | "follow" | "request" | "like",
     read: boolean,
-    createdAt: string, // date string
-    updatedAt: string, // date string
+}
+
+export interface LikeObj extends Document {
+    userId: string,
+    updateId: string,
 }

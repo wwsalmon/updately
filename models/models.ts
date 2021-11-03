@@ -1,5 +1,5 @@
 import mongoose, {Schema, Model} from "mongoose";
-import {Notification} from "../utils/types";
+import {LikeObj, Notification} from "../utils/types";
 
 const reqString = {
     type: String,
@@ -77,7 +77,13 @@ const notificationSchema: Schema = new Schema({
     timestamps: true,
 });
 
+const likeSchema: Schema = new Schema({
+    userId: mongoose.Schema.Types.ObjectId, // ID of giving user
+    updateId: mongoose.Schema.Types.ObjectId, // ID of update 
+});
+
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
 export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
 export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);
 export const notificationModel: Model<Notification> = mongoose.models.notification || mongoose.model('notification', notificationSchema);
+export const likeModel: Model<LikeObj> = mongoose.models.like || mongoose.model('like', likeSchema);
