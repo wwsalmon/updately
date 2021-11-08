@@ -17,6 +17,7 @@
     "axios": "^0.21.0",
     "date-fns": "^2.16.1",
     "html-react-parser": "^0.14.2",
+    "mongodb-client-encryption": "^1.2.7",
     "mongoose": "^5.10.16",
     "next": "^10.2.3",
     "next-auth": "^3.1.0",
