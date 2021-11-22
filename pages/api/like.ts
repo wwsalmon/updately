@@ -47,6 +47,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 if (!thisUser || !thisUpdate) throw new Error("No user or update found for given parameters");
 
+                const existingLike = await likeModel.findOne({userId: thisUser._id, updateId: thisUpdate._id});
+
+                if (existingLike) return res.status(200).send("User already liked this update");
+
                 await likeModel.create({
                     userId: thisUser._id,
                     updateId: thisUpdate._id,
