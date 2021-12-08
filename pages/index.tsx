@@ -43,11 +43,11 @@ export default function Home(props: {userData: User}) {
                     <div className="w-full -mt-6 px-4 sm:px-8 text-white" style={{backgroundColor: "#222"}}>
                         <div className="max-w-6xl mx-auto py-20 md:flex items-center">
                             <div className="md:mr-16">
-                                <h1 className="text-4xl lg:text-5xl up-font-serif" style={{lineHeight: 1.25}}>
-                                    Live a more <b>intentional</b> and <b>productive</b> life by <b>sharing daily updates</b> with friends<span className="opacity-75">*</span>
+                                <h1 className="text-4xl lg:text-6xl up-font-serif font-medium" style={{lineHeight: 1.25}}>
+                                    Share daily updates with friends<span className="opacity-75">*</span>
                                 </h1>
                                 <p className="opacity-50 mt-6">*or weekly updates with teammates, or sporadic updates with besties.</p>
-                                <p className="opacity-75 text-xl leading-normal mt-6">Updately is a social platform that makes it easy for you to stay in sync, with yourself and others.</p>
+                                <p className="opacity-75 text-xl leading-normal mt-6">Updately is a social platform that makes it easy for you to <b>stay in sync,</b> with yourself and others, to live a more <b>intentional and productive</b> life.</p>
                                 <div className="flex items-center mt-8">
                                     <button onClick={() => signIn("google")} className="up-button primary mr-4">Get started</button>
                                 </div>
