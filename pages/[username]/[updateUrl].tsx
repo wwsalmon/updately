@@ -232,7 +232,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             </Link>
                         </div>
                     ))}
-                    {updates && data.updates.length > 10 && <p 
+                    {updates && data.updates.length > 20 && <p
                     className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
                     ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>}
                 </div>
