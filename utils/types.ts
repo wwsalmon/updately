@@ -36,6 +36,14 @@ export interface Update {
     updatedAt: string, // date string
 }
 
+export interface PrivateAggregation {
+    private: true,
+    date: string, // date string
+    count: number,
+}
+
+export type FeedItem = ((DatedObj<Update> & {userArr: DatedObj<User>[]}) | PrivateAggregation);
+
 export interface CommentObj {
     _id: string,
     authorId: string,

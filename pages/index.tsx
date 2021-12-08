@@ -6,16 +6,23 @@ import Link from "next/link";
 import UpdateFeed from "../components/UpdateFeed";
 import { NextSeo } from 'next-seo';
 import {cleanForJSON} from "../utils/utils";
-import {User} from "../utils/types";
+import {DatedObj, FeedItem, User} from "../utils/types";
 import UserPfpList from "../components/UserPfpList";
 import {fetcher} from "../utils/utils";
-import useSWR from "swr";
+import useSWR, {responseInterface} from "swr";
 import {useState} from "react";
 
 export default function Home(props: {userData: User}) {
     const [page, setPage] = useState<number>(1);
-    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
-    const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
+
+    const {
+        data: feedDataObj,
+        error: feedError
+    }: responseInterface<{
+        userData: DatedObj<User>,
+        feedData: {count: number, updates: FeedItem[]}
+    }, any> = useSWR(`/api/get-curr-user-feed?page=${page}`, fetcher);
+    const feedData = feedDataObj ? feedDataObj.feedData : {count: 0, updates: []};
     const userData = props.userData;
 
     return (
@@ -35,8 +42,8 @@ export default function Home(props: {userData: User}) {
                         </Link>
                         <p>Ask friends to share their Updately profiles with you, <Link href="/explore"><a className="underline">or search for them by name</a></Link>!</p>
                     </div>
-                    <UserPfpList isFollowers={false} userList={feedData ? feedData.users : []} pageUser={userData}/>
-                    <UpdateFeed updates={feedData ? feedData.updates : []} users={feedData ? feedData.users : []} page={page} setPage={setPage} count={feedData ? feedData.count : 0}/>
+                    {/*<UserPfpList isFollowers={false} userList={feedData ? feedData.users : []} pageUser={userData}/>*/}
+                    <UpdateFeed updates={feedData ? feedData.updates : []} page={page} setPage={setPage} count={feedData ? feedData.count : 0}/>
                 </div>
             ) : (
                 <>
@@ -57,7 +64,7 @@ export default function Home(props: {userData: User}) {
                     </div>
                     <div className="max-w-4xl relative mx-auto px-4">
                         <p className="mt-16 text-xl">See what others are posting or <a className="underline" href="/explore">search for a specific user</a></p>
-                        <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
+                        <UpdateFeed updates={feedData.updates || []} page={page} setPage={setPage} count={feedData.count}/>
                     </div>
                 </>
             )}

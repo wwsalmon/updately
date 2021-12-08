@@ -4,17 +4,25 @@ import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/client";
 import {getCurrUserRequest} from "../utils/requests";
 import {cleanForJSON} from "../utils/utils";
-import {User} from "../utils/types";
+import {DatedObj, FeedItem, PrivateAggregation, Update, User} from "../utils/types";
 import UpdateFeed from "../components/UpdateFeed";
 import ExploreSearch from "../components/ExploreSearch";
 import {useState} from "react";
 import {fetcher} from "../utils/utils";
-import useSWR from "swr";
+import useSWR, {responseInterface} from "swr";
 
 export default function Explore(props: {userData: User}) {
     const [page, setPage] = useState<number>(1);
-    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-feed?page=${page}&explore=${true}`, fetcher);
-    const feedData = feedDataObj ? feedDataObj.feedData : {users: [], updates: []};
+
+    const {
+        data: feedDataObj,
+        error: feedError
+    }: responseInterface<{
+        userData: DatedObj<User>,
+        feedData: {count: number, updates: FeedItem[]}
+    }, any> = useSWR(`/api/get-curr-user-feed?page=${page}&explore=${true}`, fetcher);
+
+    const feedData = feedDataObj ? feedDataObj.feedData : {count: 0, updates: []};
     const userData = props.userData;
 
     return (
@@ -28,7 +36,7 @@ export default function Explore(props: {userData: User}) {
                 <p className="my-6">See the latest updates from all public Updately users, or search for a specific user.</p>
                 <hr className="my-8"/>
                 <ExploreSearch userData={userData}/>
-                <UpdateFeed updates={feedData.updates || []} users={feedData.users || []} page={page} setPage={setPage} count={feedData.count}/>
+                <UpdateFeed updates={feedData.updates || []} page={page} setPage={setPage} count={feedData.count}/>
             </div>
         </>
     );

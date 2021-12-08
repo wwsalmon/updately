@@ -63,11 +63,17 @@ export async function getCurrUserFeedRequest(user, req) {
 
     if (userData.following.length === 0) return {userData: userData, feedData: null};
 
-    const users = await userModel.find({ "_id": { $in: userData.following}});
-    const updates = await updateModel.find({ "userId": { $in: userData.following }}).sort('-date').skip((+req.query.page - 1) * 20).limit(20);
+    const updates = await updateModel.aggregate([
+        {$match: {userId: {$in: userData.following.map(d => mongoose.Types.ObjectId(d))}}},
+        {$sort: {date: -1}},
+        {$skip: (+req.query.page - 1) * 20},
+        {$limit: 20},
+        {$lookup: {from: "users", foreignField: "_id", localField: "userId", as: "userArr"}},
+    ]);
+
     const count = await updateModel.count({ "userId": { $in: userData.following }})
+
     return {userData: userData, feedData: {
-        users: users,
         updates: updates,
         count: count
     }};
@@ -81,29 +87,34 @@ export async function getDemoFeedRequest({ req }) {
     });
 
     // Only get the updates where their corresponding user has a public account.
-    const publicUsers = await userModel.find({ private: false});
-    let publicUserIds = [];
-    for (let user of publicUsers) {
-        publicUserIds.push(user._id)
-    }
-    const updates = await updateModel.aggregate([
-        {$match: {"userId": { $in: publicUserIds }}},
+    let updates = await updateModel.aggregate([
+        {$match: {}},
         {$sort: {date: -1}},
         {$skip: (+req.query.page - 1) * 20},
-        {$limit: 20}
-    ])
-    const count = await updateModel.count({"userId": { $in: publicUserIds }})
-    
-    let userIds = [];
-    for (let update of updates) {
-        if (!userIds.includes(update.userId)) userIds.push(update.userId.toString());
-    }
+        {$limit: 20},
+        {$lookup: {from: "users", foreignField: "_id", localField: "userId", as: "userArr"}},
+    ]);
 
-    const users = publicUsers.filter(user => userIds.includes(user._id.toString()))
+    const count = await updateModel.count({});
+
+    updates = updates.reduce((a, b) => {
+        if (a.length === 0) return [b];
+        if (b.userArr[0].private) {
+            const matchingPrivateIndex = a.findIndex(d => d.private && (d.date.toString() === b.date.toString()));
+            if (matchingPrivateIndex > -1) {
+                let newArr = [...a];
+                newArr[matchingPrivateIndex] = {private: true, count: a[matchingPrivateIndex].count + 1, date: a[matchingPrivateIndex].date};
+                return newArr;
+            } else {
+                const newArr = [...a, {private: true, count: 1, date: b.date}];
+                return newArr;
+            }
+        }
+        return [...a, b];
+    }, []);
 
     return {
         updates: updates,
-        users: users,
         count: count,
     };
 }
