@@ -14,7 +14,7 @@ import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {LikeObj, Update, User} from "../../utils/types";
+import {LikeItem, Update, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
 import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
@@ -37,7 +37,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     const [likesIter, setLikesIter] = useState<number>(0);
 
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
-    const {data: likesData, error: likesError}: responseInterface<{ likes: (LikeObj & {userArr: User[]})[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
+    const {data: likesData, error: likesError}: responseInterface<{ likes: LikeItem[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
     const updates = feedDataObj ? feedDataObj.updates : {updates: []};
 
     const isLike = likesData && likesData.likes && userData && !!likesData.likes.find(d => d.userId === userData._id);
@@ -161,7 +161,11 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                                     <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
                                 </div>
                                 <div className="flex mt-6 items-center">
-                                    <button className="up-button text small flex items-center mr-6" onClick={onPressLike}>
+                                    <button
+                                        className="up-button text small flex items-center mr-6"
+                                        onClick={onPressLike}
+                                        disabled={!(likesData && likesData.likes)}
+                                    >
                                         {isLike ? (
                                             <FiHeart color="red"/>
                                         ) : (

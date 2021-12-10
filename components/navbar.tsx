@@ -20,6 +20,7 @@ import { useEffect } from "react";
 type RichNotif = DatedObj<Notification> & {
     authorArr: User[],
     updateArr: (Update & {userArr: User[]})[],
+    commentArr: (Comment & {updateArr: (Update & {userArr: User[]})[]})[],
 };
 
 export default function Navbar() {
@@ -96,13 +97,17 @@ export default function Navbar() {
                                                                     text={(() => {
                                                                         const thisAuthor = notification.authorArr[0];
                                                                         const thisUpdate = notification.updateArr[0];
+                                                                        const thisComment = notification.commentArr[0];
                                                                         const thisUpdateUser = thisUpdate ? thisUpdate.userArr[0] : null;
+                                                                        const thisCommentUpdate = thisComment ? thisComment.updateArr[0] : null;
+                                                                        const thisCommentUpdateUser = thisCommentUpdate ? thisCommentUpdate.userArr[0] : null;
 
                                                                         const href: string = (notification.type === "follow" || notification.type === "request")
                                                                             ?
                                                                             `/@${thisAuthor.urlName}`
-                                                                            :
-                                                                            `/@${thisUpdateUser.urlName}/${thisUpdate.url}`;
+                                                                            : (notification.type === "likeComment") ?
+                                                                                `/@${thisCommentUpdateUser.urlName}/${thisCommentUpdate.url}`
+                                                                                : `/@${thisUpdateUser.urlName}/${thisUpdate.url}`;
 
                                                                         if (notification.type === "comment") {
                                                                             return (
@@ -172,6 +177,26 @@ export default function Navbar() {
                                                                                             {formatDistanceToNow(new Date(notification.createdAt))} ago
                                                                                         </span>
                                                                                     </div>
+                                                                                </>
+                                                                            )
+                                                                        }
+                                                                        if (notification.type === "likeComment") {
+                                                                            return (
+                                                                                <>
+                                                                                    <span>
+                                                                                        <Link href={href}><a><b>{thisAuthor.name}</b> liked your comment on
+                                                                                            {" " + (thisCommentUpdateUser.email === session.user.email ?
+                                                                                                    "your" :
+                                                                                                    thisCommentUpdateUser._id === thisAuthor._id ?
+                                                                                                        "their" :
+                                                                                                        thisCommentUpdateUser.name + "'s"
+                                                                                            ) + " "}
+                                                                                            {format(new Date(thisCommentUpdate.date), "M/d/yy")} update</a></Link>
+                                                                                    </span>
+                                                                                            <br/>
+                                                                                            <span className="opacity-50">
+                                                                                        {formatDistanceToNow(new Date(notification.createdAt))} ago
+                                                                                    </span>
                                                                                 </>
                                                                             )
                                                                         }

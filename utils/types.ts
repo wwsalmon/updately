@@ -42,7 +42,7 @@ export interface PrivateAggregation {
     count: number,
 }
 
-export type FeedItem = ((DatedObj<Update> & {userArr: DatedObj<User>[]}) | PrivateAggregation);
+export type FeedItem = (DatedObj<Update> & {userArr: DatedObj<User>[]}) | PrivateAggregation;
 
 export interface CommentObj {
     _id: string,
@@ -55,11 +55,26 @@ export interface CommentObj {
     updatedAt: string, // date string
 }
 
+export type CommentItem = CommentObj & {authorArr: DatedObj<User>[]};
+
+export type NotificationTypeOpts = "comment" | "reply" | "follow" | "request" | "like" | "likeComment";
+
 export interface Notification extends Document {
     userId: string,
     authorId: string,
     updateId: string,
-    type: "comment" | "reply" | "follow" | "request" | "like",
+    commentId?: string,
+    type: NotificationTypeOpts,
+    read: boolean,
+}
+
+// this is disgusting but trying it for now
+export interface NotificationObj {
+    userId: string,
+    authorId: string,
+    updateId: string,
+    commentId?: string,
+    type: "comment" | "reply" | "follow" | "request" | "like" | "likeComment",
     read: boolean,
 }
 
@@ -67,3 +82,5 @@ export interface LikeObj extends Document {
     userId: string,
     updateId: string,
 }
+
+export type LikeItem = LikeObj & {userArr: User[]};

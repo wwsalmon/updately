@@ -32,6 +32,7 @@ const commentSchema: Schema = new Schema({
     timestamps: true,
 });
 
+// this is also legacy. TODO: figure out how to remove this
 const updateSchema: Schema = new Schema({
     body: reqString,
     url: reqString,
@@ -57,7 +58,7 @@ const updateV2Schema: Schema = new Schema({
 const userSchema: Schema = new Schema({
     ...authorObj,
     private: {type: Boolean, required: true},
-    updates: [updateSchema],
+    updates: [updateSchema], // legacy, I'm assuming? TODO: fully deprecate and remove this
     following:  [mongoose.Schema.Types.ObjectId],
     followers: [reqString], // emails of followers
     requests: [reqString], // emails of users requesting follows
@@ -71,6 +72,7 @@ const notificationSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId, // ID of receiving user
     authorId: mongoose.Schema.Types.ObjectId, // ID of comment author
     updateId: mongoose.Schema.Types.ObjectId, // ID of update of comment to generate link and notification message
+    commentId: {type: mongoose.Schema.Types.ObjectId, required: false}, // ID of the comment for likeComment
     type: reqString, // "comment" | "reply" | "follow" | "request"
     read: {type: Boolean, required: true},
 }, {
@@ -79,7 +81,7 @@ const notificationSchema: Schema = new Schema({
 
 const likeSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId, // ID of giving user
-    updateId: mongoose.Schema.Types.ObjectId, // ID of update 
+    updateId: mongoose.Schema.Types.ObjectId, // ID of update or comment. TODO: change this name eventually
 });
 
 export const userModel = mongoose.models.user || mongoose.model('user', userSchema);

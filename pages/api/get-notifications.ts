@@ -41,6 +41,27 @@ export default async function getNotificationsHandler(req: NextApiRequest, res: 
                     as: "updateArr",
                 },
             },
+            {
+                $lookup: {
+                    from: "comments",
+                    let: {"commentId": "$commentId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$_id", "$$commentId"]}}},
+                        {
+                            $lookup: {
+                                from: "updates",
+                                let: {"updateId": "$updateId"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$_id", "$$updateId"]}}},
+                                    {$lookup: {from: "users", foreignField: "_id", localField: "userId", as: "userArr"}},
+                                ],
+                                as: "updateArr",
+                            }
+                        }
+                    ],
+                    as: "commentArr",
+                }
+            }
         ]);
 
 
