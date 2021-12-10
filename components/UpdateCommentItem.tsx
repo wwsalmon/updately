@@ -45,8 +45,10 @@ export default function UpdateCommentItem({comment, update, userData, refreshIte
     }, [confirmDeleteRef]);
 
     function onDelete() {
-        axios.post("/api/delete-comment", {
-            commentId: comment._id,
+        axios.delete("/api/comment", {
+            data: {
+                commentId: comment._id,
+            }
         }).then(() => {
             setRefreshIteration(refreshIteration + 1);
         }).catch(e => {
@@ -104,7 +106,7 @@ export default function UpdateCommentItem({comment, update, userData, refreshIte
                         <FiCornerUpRight/>
                         <span className="ml-2">{replyOpen ? "Replying" : "Reply"}</span>
                     </button>
-                    {confirmDelete ? (
+                    {(commentAuthor._id === userData._id || update.userId === userData._id) && (confirmDelete ? (
                         <button
                             className="opacity-75 inline-flex items-center hover:opacity-100 ml-8 text-red-400"
                             ref={confirmDeleteRef}
@@ -121,7 +123,7 @@ export default function UpdateCommentItem({comment, update, userData, refreshIte
                             <FiTrash/>
                             <span className="ml-2">Delete</span>
                         </button>
-                    )}
+                    ))}
                     <button
                         className="opacity-25 inline-flex items-center hover:opacity-75 ml-8"
                         onClick={onPressLike}

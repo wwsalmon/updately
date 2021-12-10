@@ -15,7 +15,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
     function postComment() {
         setIsLoading(true);
 
-        axios.post("/api/new-comment", {
+        axios.post("/api/comment", {
             commentText: commentText,
             authorId: userData._id,
             updateId: update._id,
