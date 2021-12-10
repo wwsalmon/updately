@@ -59,7 +59,7 @@ export type CommentItem = CommentObj & {authorArr: DatedObj<User>[]};
 
 export type NotificationTypeOpts = "comment" | "reply" | "follow" | "request" | "like" | "likeComment";
 
-export interface Notification extends Document {
+export interface NotificationObj {
     userId: string,
     authorId: string,
     updateId: string,
@@ -68,15 +68,7 @@ export interface Notification extends Document {
     read: boolean,
 }
 
-// this is disgusting but trying it for now
-export interface NotificationObj {
-    userId: string,
-    authorId: string,
-    updateId: string,
-    commentId?: string,
-    type: "comment" | "reply" | "follow" | "request" | "like" | "likeComment",
-    read: boolean,
-}
+export type Notification = NotificationObj & Document;
 
 export interface LikeObj extends Document {
     userId: string,
