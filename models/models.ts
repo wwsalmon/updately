@@ -1,5 +1,5 @@
-import mongoose, {Schema, Model} from "mongoose";
-import {LikeObj, Notification} from "../utils/types";
+import mongoose, {Model, Schema} from "mongoose";
+import {LikeDoc, MentionDoc, NotificationDoc} from "../utils/types";
 
 const reqString = {
     type: String,
@@ -81,11 +81,17 @@ const notificationSchema: Schema = new Schema({
 
 const likeSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId, // ID of giving user
-    updateId: mongoose.Schema.Types.ObjectId, // ID of update or comment. TODO: change this name eventually
+    updateId: mongoose.Schema.Types.ObjectId, // ID of update or comment. TODO: change this to 'nodeId' eventually
 });
 
-export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
-export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
-export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);
-export const notificationModel: Model<Notification> = mongoose.models.notification || mongoose.model('notification', notificationSchema);
-export const likeModel: Model<LikeObj> = mongoose.models.like || mongoose.model('like', likeSchema);
+const mentionSchema: Schema = new Schema({
+    userId: mongoose.Schema.Types.ObjectId, // ID of giving user
+    nodeId: mongoose.Schema.Types.ObjectId, // ID of update or comment
+})
+
+export const userModel = mongoose.models.user || mongoose.model("user", userSchema);
+export const updateModel = mongoose.models.update || mongoose.model("update", updateV2Schema);
+export const commentModel = mongoose.models.comment || mongoose.model("comment", commentSchema);
+export const notificationModel: Model<NotificationDoc> = mongoose.models.notification || mongoose.model("notification", notificationSchema);
+export const likeModel: Model<LikeDoc> = mongoose.models.like || mongoose.model("like", likeSchema);
+export const mentionModel: Model<MentionDoc> = mongoose.models.mention || mongoose.model("mention", mentionSchema);

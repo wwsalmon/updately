@@ -68,11 +68,20 @@ export interface NotificationObj {
     read: boolean,
 }
 
-export type Notification = NotificationObj & Document;
+export type NotificationDoc = NotificationObj & Document;
 
-export interface LikeObj extends Document {
+export interface LikeObj {
     userId: string,
     updateId: string,
 }
+
+export type LikeDoc = LikeObj & Document;
+
+export interface MentionObj {
+    userId: string,
+    updateId: string,
+}
+
+export type MentionDoc = MentionObj & Document;
 
 export type LikeItem = LikeObj & {userArr: User[]};

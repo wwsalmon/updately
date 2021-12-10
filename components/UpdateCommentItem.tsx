@@ -1,5 +1,5 @@
-import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
-import {CommentItem, CommentObj, DatedObj, LikeItem, LikeObj, Update, User} from "../utils/types";
+import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
+import {CommentItem, LikeItem, Update, User} from "../utils/types";
 import Link from "next/link";
 import {format} from "date-fns";
 import {FiCornerUpRight, FiHeart, FiTrash} from "react-icons/fi";

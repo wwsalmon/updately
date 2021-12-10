@@ -8,7 +8,7 @@ import {useRouter} from "next/router";
 import NavbarItem from "./NavbarItem";
 import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-icons/fi";
 import {fetcher} from "../utils/utils";
-import {Update, User, Notification, DatedObj} from "../utils/types";
+import {Update, User, NotificationObj, DatedObj} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
 import {useTheme} from "next-themes";
 import axios from "axios";
@@ -17,7 +17,7 @@ import {IoMdExit} from "react-icons/io";
 import MenuItem from "./MenuItem";
 import { useEffect } from "react";
 
-type RichNotif = DatedObj<Notification> & {
+type RichNotif = DatedObj<NotificationObj> & {
     authorArr: User[],
     updateArr: (Update & {userArr: User[]})[],
     commentArr: (Comment & {updateArr: (Update & {userArr: User[]})[]})[],

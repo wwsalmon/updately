@@ -1,9 +1,8 @@
 import {NextApiRequest, NextApiResponse} from "next";
-import {notificationModel, updateModel, userModel} from "../../models/models";
-import mongoose from "mongoose";
+import {notificationModel} from "../../models/models";
 import {getSession} from "next-auth/client";
 import {getCurrUserRequest} from "../../utils/requests";
-import {Notification, Update, User} from "../../utils/types";
+import {User} from "../../utils/types";
 
 export default async function getNotificationsHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405);
