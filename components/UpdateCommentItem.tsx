@@ -1,18 +1,46 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
-import {CommentItem, LikeItem, Update, User} from "../utils/types";
+import {CommentItem, CommentObj, LikeItem, Update, User} from "../utils/types";
 import Link from "next/link";
 import {format} from "date-fns";
 import {FiCornerUpRight, FiHeart, FiTrash} from "react-icons/fi";
 import UpdateCommentForm from "./UpdateCommentForm";
 import axios from "axios";
 import useSWR, {responseInterface} from "swr";
-import {fetcher} from "../utils/utils";
+import {escapeRegExp, fetcher} from "../utils/utils";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/client";
 import UserPfpList from "./UserPfpList";
 
-export default function UpdateCommentItem({comment, update, userData, refreshIteration, setRefreshIteration}: {
+const CommentBody = ({comment, mentionedUsers}: {comment: CommentObj, mentionedUsers: User[]}) => {
+    const mentionStrings = comment.body.match(/(?<=@\[).*?(?=\))/g);
+    const mentionObjs = mentionStrings ? mentionStrings.map(d => ({
+        display: d.split("](")[0],
+        id: d.split("](")[1]
+    })) : [];
+    const regexString = mentionStrings ? mentionStrings.map(d => `\\@\\[${escapeRegExp(d)}\\)`).join("|") : null;
+    const bodySegments = mentionStrings ? comment.body.split(new RegExp(regexString)) : [];
+
+    return (
+        <p className="sm:text-xl">
+            {(mentionStrings && mentionStrings.length) ? bodySegments.map((segment, i) => (
+                <React.Fragment key={`comment-${comment._id}-fragment-${i}`}>
+                    {segment}
+                    {i !== bodySegments.length - 1 && (
+                        <Link href={`/@${mentionedUsers.find(d => d._id === mentionObjs[i].id).urlName}`}>
+                            <a className="bg-gray-100 border-b-2 border-black">
+                                @{mentionObjs[i].display}
+                            </a>
+                        </Link>
+                    )}
+                </React.Fragment>
+            )) : comment.body}
+        </p>
+    );
+}
+
+export default function UpdateCommentItem({comment, mentionedUsers, update, userData, refreshIteration, setRefreshIteration}: {
     comment: CommentItem,
+    mentionedUsers: User[],
     update: Update,
     userData: User,
     refreshIteration: number,
@@ -96,7 +124,7 @@ export default function UpdateCommentItem({comment, update, userData, refreshIte
                         {format(new Date(comment.createdAt), "M/d/yyyy 'at' h:mm a")}
                     </span>
                 </p>
-                <p className="sm:text-xl">{comment.body}</p>
+                <CommentBody comment={comment} mentionedUsers={mentionedUsers}/>
                 <div className="flex mt-2 items-center">
                     <button
                         className={`opacity-25 inline-flex items-center ${replyOpen ? "cursor-default" : "hover:opacity-75"}`}

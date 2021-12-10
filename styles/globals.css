@@ -137,6 +137,11 @@ a.up-button.small {
     display: block;
 }
 
+/* Comment box */
+
+.up-mention-input textarea {
+    @apply p-4;
+}
 
 /* Markdown editor */
 .EasyMDEContainer .editor-toolbar {
