@@ -27,13 +27,18 @@ export default function Navbar() {
     const router = useRouter();
     const [session, loading] = useSession();
     const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
-    const { data: notificationData, error: notificationsError }: responseInterface<{ notifications: RichNotif[] }, any> = useSWR(session ? `/api/get-notifications` : null, fetcher);
+    const [notificationsIter, setNotificationsIter] = useState<number>(0);
+    const { data: notificationData, error: notificationsError }: responseInterface<{ notifications: RichNotif[] }, any> = useSWR(session ? `/api/get-notifications?iter=${notificationsIter}` : null, fetcher);
     const numNotifications = (notificationData && notificationData.notifications) ? notificationData.notifications.filter(d => !d.read).length : 0
     const [ notifications, setNotifications ] = useState<RichNotif[]>([]);
 
     useEffect(() => {
         setNotifications(notificationData ? notificationData.notifications : [])
     }, [notificationData]);
+
+    useEffect(() => {
+        setNotificationsIter(notificationsIter + 1);
+    }, [router.asPath]);
 
     const {theme, setTheme} = useTheme();
 
