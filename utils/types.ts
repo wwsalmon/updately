@@ -34,6 +34,7 @@ export interface Update {
     comments: any[],
     createdAt: string, // date string
     updatedAt: string, // date string
+    mentionedUsers: string[], // ids
 }
 
 export interface PrivateAggregation {

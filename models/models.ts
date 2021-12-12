@@ -32,18 +32,7 @@ const commentSchema: Schema = new Schema({
     timestamps: true,
 });
 
-// this is also legacy. TODO: figure out how to remove this
 const updateSchema: Schema = new Schema({
-    body: reqString,
-    url: reqString,
-    title: unreqString,
-    date: Date,
-    readBy:  [mongoose.Schema.Types.ObjectId],
-}, {
-    timestamps: true,
-});
-
-const updateV2Schema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId,
     body: reqString,
     url: reqString,
@@ -51,6 +40,7 @@ const updateV2Schema: Schema = new Schema({
     date: Date,
     readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],
+    mentionedUsers: [mongoose.Schema.Types.ObjectId],
 }, {
     timestamps: true,
 });
@@ -58,7 +48,6 @@ const updateV2Schema: Schema = new Schema({
 const userSchema: Schema = new Schema({
     ...authorObj,
     private: {type: Boolean, required: true},
-    updates: [updateSchema], // legacy, I'm assuming? TODO: fully deprecate and remove this
     following:  [mongoose.Schema.Types.ObjectId],
     followers: [reqString], // emails of followers
     requests: [reqString], // emails of users requesting follows
@@ -85,7 +74,7 @@ const likeSchema: Schema = new Schema({
 });
 
 export const userModel = mongoose.models.user || mongoose.model("user", userSchema);
-export const updateModel = mongoose.models.update || mongoose.model("update", updateV2Schema);
+export const updateModel = mongoose.models.update || mongoose.model("update", updateSchema);
 export const commentModel = mongoose.models.comment || mongoose.model("comment", commentSchema);
 export const notificationModel: Model<NotificationDoc> = mongoose.models.notification || mongoose.model("notification", notificationSchema);
 export const likeModel: Model<LikeDoc> = mongoose.models.like || mongoose.model("like", likeSchema);
