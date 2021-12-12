@@ -5,7 +5,7 @@ import {userModel} from "../../models/models";
 export default async function searchUserHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405).json({message: "Method not allowed"});
 
-    const { query: { s } } = req;
+    const { query: { s, count } } = req;
 
     // if empty string, return empty array
     if (!s) return res.status(200).json({results: []});
@@ -19,7 +19,7 @@ export default async function searchUserHandler(req: NextApiRequest, res: NextAp
 
         const results = await userModel.aggregate([
             {$match: {"name": {$regex: `.*${s}.*`, $options: "i"}}},
-            {$limit: 10},
+            {$limit: +count || 10},
             {$group: {_id: "$_id", name: {$first: "$name"}, image: {$first: "$image"}, urlName: {$first: "$urlName"}}}
         ]);
 

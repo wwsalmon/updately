@@ -1,6 +1,8 @@
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import React, {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
+import {User} from "../utils/types";
+import axios from "axios";
 
 function getMentionFromCM(instance) {
     const cursorInfo = instance.getCursor();
@@ -10,6 +12,21 @@ function getMentionFromCM(instance) {
     const lastPhrase = thisLineToCursorSplit[thisLineToCursorSplit.length - 1];
     const isMention = lastPhrase.substr(0, 1) === "@";
     return {isMention: isMention, mentionQuery: lastPhrase.substr(1)};
+}
+
+export function setUserListByQuery(setUserList: Dispatch<SetStateAction<User[]>>, query: string, count?: number) {
+    if (query === "") return setUserList([]);
+
+    axios.get(`/api/search-user`, {
+        params: {
+            s: query,
+            count: count || 10,
+        }
+    }).then(res => {
+        setUserList(res.data.results);
+    }).catch(e => {
+        console.log(e);
+    });
 }
 
 export default function EditUpdate({body, setBody, title, setTitle, date, setDate, isLoading, onSave, onCancel, confirmText}: {
@@ -27,6 +44,13 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
     const editorRef = useRef();
     const [mentionOpen, setMentionOpen] = useState<boolean>(false);
     const [mentionQuery, setMentionQuery] = useState<string>("");
+    const [userList, setUserList] = useState<User[]>([]);
+    const [userSelectedIndex, setUserSelectedIndex] = useState<number>(0);
+
+    useEffect(() => {
+        setUserListByQuery(setUserList, mentionQuery, 5);
+        setUserSelectedIndex(0);
+    }, [mentionQuery]);
 
     const events = useMemo(() => ({
         cursorActivity: (instance) => {
@@ -48,6 +72,36 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
             }
         },
     }), []);
+
+    useEffect(() => {
+        if (!editorRef.current) return;
+        // @ts-ignore ts things editorRef.current is undefined but it can't be
+        const editorEl = editorRef.current.editorEl;
+        // @ts-ignore ts things editorRef.current is undefined but it can't be
+        const cm = editorRef.current.simpleMde.codemirror;
+
+        const keydownHandler = e => {
+            if (!userList.length) return;
+
+            if (["Enter", "Tab"].includes(e.key)) {
+                const cursorInfo = cm.getCursor();
+                const mentionStart = cursorInfo.ch - mentionQuery.length;
+                const selectedUser = userList[userSelectedIndex];
+                cm.doc.replaceRange(
+                    `[${selectedUser.name}](${selectedUser._id}) `,
+                    {line: cursorInfo.line, ch: mentionStart},
+                    {line: cursorInfo.line, ch: cursorInfo.ch}
+                );
+            }
+
+            if (e.key === "ArrowDown") setUserSelectedIndex(Math.min(userSelectedIndex + 1, userList.length - 1));
+            if (e.key === "ArrowUp") setUserSelectedIndex(Math.max(0, userSelectedIndex - 1));
+        }
+
+        editorEl.addEventListener("keydown", keydownHandler);
+
+        return () => editorEl.removeEventListener("keydown", keydownHandler);
+    }, [editorRef.current, mentionOpen, mentionQuery, userSelectedIndex, userList]);
 
     return (
         <>
@@ -78,21 +132,28 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
 
             <div className="my-8">
                 <div className="up-ui-title my-4"><span>Body</span></div>
-                <div className="prose content max-w-full">
-                    <SimpleMDE
-                        ref={editorRef}
-                        id="helloworld"
-                        onChange={setBody}
-                        value={body}
-                        options={{
-                            placeholder: "Write your update here...",
-                            toolbar: ["bold", "italic", "strikethrough", "|", "heading-1", "heading-2", "heading-3", "|", "link", "quote", "unordered-list", "ordered-list", "|", "guide"]
-                        }}
-                        events={events}
-                    />
+                <div className="max-w-full">
+                    <div className="prose content">
+                        <SimpleMDE
+                            ref={editorRef}
+                            id="updateEditor"
+                            onChange={setBody}
+                            value={body}
+                            options={{
+                                placeholder: "Write your update here...",
+                                toolbar: ["bold", "italic", "strikethrough", "|", "heading-1", "heading-2", "heading-3", "|", "link", "quote", "unordered-list", "ordered-list", "|", "guide"]
+                            }}
+                            events={events}
+                        />
+                    </div>
                     {mentionOpen && (
-                        <div className="fixed top-0 left-0 z-30 shadow-lg rounded-md p-4">
-                            {mentionQuery}
+                        <div className="fixed top-0 left-0 z-30 shadow-lg rounded-md py-1 bg-white">
+                            {userList.map((user, i) => (
+                                <div className={`flex items-center px-2 py-1 ${i === userSelectedIndex ? "bg-gray-100" : ""}`} key={`mention-list-user-${user._id}`}>
+                                    <img src={user.image} className="w-4 h-4 rounded-full mr-2" alt={user.name}/>
+                                    <span>{user.name}</span>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
