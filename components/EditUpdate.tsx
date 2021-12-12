@@ -3,6 +3,7 @@ import "easymde/dist/easymde.min.css";
 import React, {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
 import {User} from "../utils/types";
 import axios from "axios";
+import MentionItem from "./MentionItem";
 
 function getMentionFromCM(instance) {
     const cursorInfo = instance.getCursor();
@@ -157,10 +158,11 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
                             }}
                         >
                             {userList.map((user, i) => (
-                                <div className={`flex items-center px-2 py-1 ${i === userSelectedIndex ? "bg-gray-100" : ""}`} key={`mention-list-user-${user._id}`}>
-                                    <img src={user.image} className="w-4 h-4 rounded-full mr-2" alt={user.name}/>
-                                    <span>{user.name}</span>
-                                </div>
+                                <MentionItem
+                                    focused={i === userSelectedIndex}
+                                    user={user}
+                                    key={`mention-list-user-${user._id}`}
+                                />
                             ))}
                         </div>
                     )}

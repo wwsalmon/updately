@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import axios from "axios";
 import {Update, User} from "../utils/types";
 import { MentionsInput, Mention } from "react-mentions";
+import MentionItem from "./MentionItem";
 
 export default function UpdateCommentForm({update, userData, parentCommentId = null, callback, onCancel}: {
     update: Update,
@@ -11,6 +12,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
     onCancel: () => any,
 }) {
     const [commentText, setCommentText] = useState<string>("");
+    const [userList, setUserList] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     function postComment() {
@@ -42,6 +44,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
 
         axios.get(`/api/search-user?s=${query}`)
             .then(res => {
+                setUserList(res.data.results);
                 callback(res.data.results.map(d => ({display: d.name, id: d._id})))
             });
     }
@@ -56,17 +59,11 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
                 style={{
                     suggestions: {
                         list: {
-                            padding: "8px 0",
+                            padding: "4px 0",
                             fontSize: 16,
                             boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)", // shadow-lg
                             borderRadius: "0.375rem", // rounded-md
                         },
-                        item: {
-                            padding: "8px 12px",
-                            "&focused": {
-                                backgroundColor: "rgb(243 244 246)", // gray 100
-                            }
-                        }
                     }
                 }}
             >
@@ -75,6 +72,13 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
                     displayTransform={(id, display) => `@${display}`}
                     data={getMentionUsers}
                     className="border-b-2 border-black bg-gray-100"
+                    renderSuggestion={(entry, search, highlightedDisplay, index, focused) => (
+                        <MentionItem
+                            focused={focused}
+                            user={userList.find(d => d._id === entry.id)}
+                            key={`comment-${parentCommentId || "form"}-mention-${entry.id}`}
+                        />
+                    )}
                 />
             </MentionsInput>
             <div className="flex mt-2">
