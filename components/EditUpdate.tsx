@@ -132,7 +132,7 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
 
             <div className="my-8">
                 <div className="up-ui-title my-4"><span>Body</span></div>
-                <div className="max-w-full">
+                <div className="max-w-full relative">
                     <div className="prose content">
                         <SimpleMDE
                             ref={editorRef}
@@ -147,7 +147,15 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
                         />
                     </div>
                     {mentionOpen && (
-                        <div className="fixed top-0 left-0 z-30 shadow-lg rounded-md py-1 bg-white">
+                        <div
+                            className="fixed z-30 shadow-lg rounded-md py-1 bg-white"
+                            style={{
+                                // @ts-ignore editorRef.current not undefined
+                                top: editorRef.current ? editorRef.current.simpleMde.codemirror.cursorCoords(true, "window").top + 24 : 0,
+                                // @ts-ignore editorRef.current not undefined
+                                left: editorRef.current ? editorRef.current.simpleMde.codemirror.cursorCoords(true, "window").left : 0,
+                            }}
+                        >
                             {userList.map((user, i) => (
                                 <div className={`flex items-center px-2 py-1 ${i === userSelectedIndex ? "bg-gray-100" : ""}`} key={`mention-list-user-${user._id}`}>
                                     <img src={user.image} className="w-4 h-4 rounded-full mr-2" alt={user.name}/>
