@@ -1,7 +1,7 @@
 import {getSession} from "next-auth/client";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
-import {commentModel, likeModel, notificationModel, updateModel, userModel} from "../../models/models";
+import {commentModel, likeModel, notificationModel, userModel} from "../../models/models";
 
 export default async function newCommentHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === "GET") {
@@ -63,34 +63,43 @@ export default async function newCommentHandler(req: NextApiRequest, res: NextAp
 
             const returnComment = await commentModel.create(newComment);
 
+            let notifsToAdd = [];
+
             // if comment author is not update author, create notification for update author
-            if (req.body.updateAuthorId !== thisUser._id.toString()) {
-                await notificationModel.create({
-                    userId: req.body.updateAuthorId,
-                    updateId: updateId,
-                    authorId: thisUser._id,
-                    type: "comment",
-                    read: false,
-                });
-            }
+            if (req.body.updateAuthorId !== thisUser._id.toString()) notifsToAdd.push({
+                userId: req.body.updateAuthorId,
+                updateId: updateId,
+                authorId: thisUser._id,
+                type: "comment",
+                read: false,
+            });
 
             // if comment is subcomment, create notifications for authors of all subcomments of parent comment
             if (newComment.isSubComment) {
-                const parentComment = await commentModel.findOne({ _id: commentId });
-                const subComments = await commentModel.find({ parentCommentId: commentId });
-                const commentUserIds = [parentComment.authorId.toString(), ...subComments.map(d => d.authorId.toString())]
-                    .filter((d, i, a) => a.indexOf(d) === i) // filter out duplicates
-                    .filter(d => d !== thisUser._id.toString() && d !== req.body.updateAuthorId); // filter out ID of comment and post author
-                for (let userId of commentUserIds) {
-                    await notificationModel.create({
+                const parentComments = await commentModel.aggregate([
+                    {$match: {_id: mongoose.Types.ObjectId(commentId)}},
+                    {$lookup: {from: "comments", foreignField: "_id", localField: "parentCommentId", as: "subCommentsArr"}},
+                ])
+                const parentComment = parentComments[0];
+
+                if (parentComment) {
+                    const subComments = parentComment.subCommentsArr;
+
+                    const commentUserIds = [parentComment.authorId.toString(), ...subComments.map(d => d.authorId.toString())]
+                        .filter((d, i, a) => a.indexOf(d) === i) // filter out duplicates
+                        .filter(d => d !== thisUser._id.toString() && d !== req.body.updateAuthorId); // filter out ID of comment and post author
+
+                    notifsToAdd.push(...commentUserIds.map(userId => ({
                         userId: userId,
                         updateId: updateId,
                         authorId: thisUser._id,
                         type: "reply",
                         read: false,
-                    });
+                    })));
                 }
             }
+
+            await notificationModel.insertMany(notifsToAdd);
 
             return res.status(200).json({message: "success", data: returnComment});
         } catch (e) {
