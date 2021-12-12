@@ -45,9 +45,8 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     function onEdit() {
         setIsLoading(true);
 
-        axios.post("/api/edit-update", {
+        axios.post("/api/update", {
             id: thisUpdate._id,
-            username: data.user.urlName,
             date: date,
             body: body,
             title: title,
@@ -79,9 +78,10 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     }
 
     function handleDelete() {
-        axios.post("/api/delete-update", {
-            id: thisUpdate._id,
-            userId: data.user._id,
+        axios.delete("/api/update", {
+            data: {
+                id: thisUpdate._id,
+            }
         }).then(() => {
             router.push("/@" + data.user.urlName);
         }).catch(e => {
