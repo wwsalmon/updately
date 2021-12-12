@@ -8,7 +8,7 @@ import {useRouter} from "next/router";
 import NavbarItem from "./NavbarItem";
 import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-icons/fi";
 import {fetcher} from "../utils/utils";
-import {Update, User, NotificationObj, DatedObj} from "../utils/types";
+import {Update, User, NotificationObj, DatedObj, RichNotif} from "../utils/types";
 import {format, formatDistanceToNow} from "date-fns";
 import {useTheme} from "next-themes";
 import axios from "axios";
@@ -16,12 +16,7 @@ import { useState } from "react";
 import {IoMdExit} from "react-icons/io";
 import MenuItem from "./MenuItem";
 import { useEffect } from "react";
-
-type RichNotif = DatedObj<NotificationObj> & {
-    authorArr: User[],
-    updateArr: (Update & {userArr: User[]})[],
-    commentArr: (Comment & {updateArr: (Update & {userArr: User[]})[]})[],
-};
+import NotificationItem from "./NotificationItem";
 
 export default function Navbar() {
     const router = useRouter();
@@ -97,118 +92,7 @@ export default function Navbar() {
                                                     {notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: RichNotif) => (
-                                                            <div key={notification._id} className={(notification.read && notification.type !== "request") ? "opacity-50" : ""}>
-                                                                <MenuItem
-                                                                    text={(() => {
-                                                                        const thisAuthor = notification.authorArr[0];
-                                                                        const thisUpdate = notification.updateArr[0];
-                                                                        const thisComment = notification.commentArr[0];
-                                                                        const thisUpdateUser = thisUpdate ? thisUpdate.userArr[0] : null;
-                                                                        const thisCommentUpdate = thisComment ? thisComment.updateArr[0] : null;
-                                                                        const thisCommentUpdateUser = thisCommentUpdate ? thisCommentUpdate.userArr[0] : null;
-
-                                                                        const href: string = (notification.type === "follow" || notification.type === "request")
-                                                                            ?
-                                                                            `/@${thisAuthor.urlName}`
-                                                                            : (notification.type === "likeComment") ?
-                                                                                `/@${thisCommentUpdateUser.urlName}/${thisCommentUpdate.url}`
-                                                                                : `/@${thisUpdateUser.urlName}/${thisUpdate.url}`;
-
-                                                                        if (notification.type === "comment") {
-                                                                            return (
-                                                                                <>
-                                                                                    <span>
-                                                                                        <Link href={href}><a><b>{thisAuthor.name}</b> commented on your {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
-                                                                                    </span>
-                                                                                </>
-                                                                            )
-                                                                        }
-                                                                        if (notification.type === "reply") {
-                                                                            return (
-                                                                                <>
-                                                                            <span>
-                                                                                <Link href={href}><a><b>{thisAuthor.name}</b> replied to your comment on
-                                                                                    {" " + (thisUpdateUser.email === session.user.email ?
-                                                                                            "your" :
-                                                                                            thisUpdateUser._id === thisAuthor._id ?
-                                                                                                "their" :
-                                                                                                thisUpdateUser.name + "'s"
-                                                                                    ) + " "}
-                                                                                    {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
-                                                                            </span>
-                                                                                    <br/>
-                                                                                    <span className="opacity-50">
-                                                                                {formatDistanceToNow(new Date(notification.createdAt))} ago
-                                                                            </span>
-                                                                                </>
-                                                                            )
-                                                                        }
-                                                                        if (notification.type === "follow") {
-                                                                            return (
-                                                                                <>
-                                                                                    <span><b><Link href={href}><a>{thisAuthor.name}</a></Link></b> followed you</span>
-                                                                                    <br/>
-                                                                                    <span className="opacity-50">
-                                                                                            {formatDistanceToNow(new Date(notification.updatedAt))} ago
-                                                                                        </span>
-                                                                                </>
-                                                                            )
-                                                                        }
-                                                                        if (notification.type === "request") {
-                                                                            return (
-                                                                                <>
-                                                                                    <div className="flex flex-row items-center gap-4">
-                                                                                        <div>
-                                                                                            <span><b><Link href={href}><a>{thisAuthor.name}</a></Link></b> requested to follow you</span>
-                                                                                            <br/>
-                                                                                            <span className="opacity-50">
-                                                                                                    {formatDistanceToNow(new Date(notification.createdAt))} ago
-                                                                                                </span>
-                                                                                        </div>
-                                                                                        <button className="up-button small primary" onClick={() => acceptRequest(notification._id)}>Accept</button>
-                                                                                    </div>
-                                                                                </>
-                                                                            )
-                                                                        }
-                                                                        if (notification.type === "like") {
-                                                                            return (
-                                                                                <>
-                                                                                    <div>
-                                                                                        <span>
-                                                                                            <b><Link href={href}><a>{thisAuthor.name} </a></Link></b>
-                                                                                            <Link href={href}><a>liked your {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link></span>
-                                                                                        <br/>
-                                                                                        <span className="opacity-50">
-                                                                                            {formatDistanceToNow(new Date(notification.createdAt))} ago
-                                                                                        </span>
-                                                                                    </div>
-                                                                                </>
-                                                                            )
-                                                                        }
-                                                                        if (notification.type === "likeComment") {
-                                                                            return (
-                                                                                <>
-                                                                                    <span>
-                                                                                        <Link href={href}><a><b>{thisAuthor.name}</b> liked your comment on
-                                                                                            {" " + (thisCommentUpdateUser.email === session.user.email ?
-                                                                                                    "your" :
-                                                                                                    thisCommentUpdateUser._id === thisAuthor._id ?
-                                                                                                        "their" :
-                                                                                                        thisCommentUpdateUser.name + "'s"
-                                                                                            ) + " "}
-                                                                                            {format(new Date(thisCommentUpdate.date), "M/d/yy")} update</a></Link>
-                                                                                    </span>
-                                                                                            <br/>
-                                                                                            <span className="opacity-50">
-                                                                                        {formatDistanceToNow(new Date(notification.createdAt))} ago
-                                                                                    </span>
-                                                                                </>
-                                                                            )
-                                                                        }
-                                                                    })()}
-                                                                    nowrap={false}
-                                                                />
-                                                            </div>
+                                                            <NotificationItem notification={notification} acceptRequest={acceptRequest} key={notification._id}/>
                                                         ))
                                                     }
                                                 </div>

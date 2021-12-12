@@ -71,6 +71,12 @@ export interface NotificationObj {
 
 export type NotificationDoc = NotificationObj & Document;
 
+export type RichNotif = DatedObj<NotificationObj> & {
+    authorArr: User[],
+    updateArr: (Update & {userArr: User[]})[],
+    commentArr: (Comment & {updateArr: (Update & {userArr: User[]})[]})[],
+};
+
 export interface LikeObj {
     userId: string,
     updateId: string,
