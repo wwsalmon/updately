@@ -2,6 +2,7 @@ import {getSession} from "next-auth/client";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
 import {commentModel, likeModel, notificationModel, userModel} from "../../models/models";
+import {getMentionedUsersIds} from "./update";
 
 export default async function newCommentHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === "GET") {
@@ -64,6 +65,18 @@ export default async function newCommentHandler(req: NextApiRequest, res: NextAp
             const returnComment = await commentModel.create(newComment);
 
             let notifsToAdd = [];
+
+            // mentions
+            const mentionedUsersIds = await getMentionedUsersIds(req.body.commentText, thisUser);
+
+            notifsToAdd.push(...mentionedUsersIds.map(d => ({
+                userId: d,
+                updateId: updateId,
+                authorId: thisUser._id,
+                commentId: returnComment._id,
+                type: "mentionComment",
+                read: false,
+            })))
 
             // if comment author is not update author, create notification for update author
             if (req.body.updateAuthorId !== thisUser._id.toString()) notifsToAdd.push({

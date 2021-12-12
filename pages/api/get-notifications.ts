@@ -40,37 +40,28 @@ export default async function getNotificationsHandler(req: NextApiRequest, res: 
                     as: "updateArr",
                 },
             },
-            {
-                $lookup: {
-                    from: "comments",
-                    let: {"commentId": "$commentId"},
-                    pipeline: [
-                        {$match: {$expr: {$eq: ["$_id", "$$commentId"]}}},
-                        {
-                            $lookup: {
-                                from: "updates",
-                                let: {"updateId": "$updateId"},
-                                pipeline: [
-                                    {$match: {$expr: {$eq: ["$_id", "$$updateId"]}}},
-                                    {$lookup: {from: "users", foreignField: "_id", localField: "userId", as: "userArr"}},
-                                ],
-                                as: "updateArr",
-                            }
-                        }
-                    ],
-                    as: "commentArr",
-                }
-            }
         ]);
 
+        let notifsToDelete = [];
 
         // delete read notifications older than 14 days
         const oldNotificationIds: string[] = notifications
             .filter(d => d.read && +new Date() - +new Date(d.createdAt) > (14 * 8.64e7))
             .map(d => d._id.toString());
-        if (oldNotificationIds.length) await notificationModel.deleteMany({"_id": {$in: oldNotificationIds}});
 
-        notifications = notifications.filter(d => !oldNotificationIds.includes(d._id.toString()))
+        notifsToDelete.push(...oldNotificationIds);
+
+        // delete notifications related to updates that have been deleted
+        const deletedUpdateNotifications: string[] = notifications
+            .filter(d => !d.updateArr.length || !d.authorArr.length);
+
+        notifsToDelete.push(...deletedUpdateNotifications);
+
+        console.log(notifsToDelete);
+
+        if (notifsToDelete.length) await notificationModel.deleteMany({"_id": {$in: notifsToDelete}});
+
+        notifications = notifications.filter(d => !notifsToDelete.includes(d._id.toString()))
 
         return res.status(200).json({notifications: notifications});
     } catch (e) {

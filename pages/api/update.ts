@@ -14,7 +14,7 @@ function generateUrlName(title: string, date: string) {
     return url;
 }
 
-async function getMentionedUsersIds(body: string, thisUser: User) {
+export async function getMentionedUsersIds(body: string, thisUser: User) {
     const mentionStrings = body.match(/(?<=@\[).*?(?=\))/g);
     const mentionObjs = mentionStrings ? mentionStrings.map(d => ({
         display: d.split("](")[0],

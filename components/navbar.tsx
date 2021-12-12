@@ -8,14 +8,11 @@ import {useRouter} from "next/router";
 import NavbarItem from "./NavbarItem";
 import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-icons/fi";
 import {fetcher} from "../utils/utils";
-import {Update, User, NotificationObj, DatedObj, RichNotif} from "../utils/types";
-import {format, formatDistanceToNow} from "date-fns";
+import {RichNotif} from "../utils/types";
 import {useTheme} from "next-themes";
 import axios from "axios";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {IoMdExit} from "react-icons/io";
-import MenuItem from "./MenuItem";
-import { useEffect } from "react";
 import NotificationItem from "./NotificationItem";
 
 export default function Navbar() {

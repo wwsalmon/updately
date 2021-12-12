@@ -16,17 +16,12 @@ export default function NotificationItem({
                 text={(() => {
                     const thisAuthor = notification.authorArr[0];
                     const thisUpdate = notification.updateArr[0];
-                    const thisComment = notification.commentArr[0];
                     const thisUpdateUser = thisUpdate ? thisUpdate.userArr[0] : null;
-                    const thisCommentUpdate = thisComment ? thisComment.updateArr[0] : null;
-                    const thisCommentUpdateUser = thisCommentUpdate ? thisCommentUpdate.userArr[0] : null;
 
                     const href: string = (notification.type === "follow" || notification.type === "request")
                         ?
                         `/@${thisAuthor.urlName}`
-                        : (notification.type === "likeComment") ?
-                            `/@${thisCommentUpdateUser.urlName}/${thisCommentUpdate.url}`
-                            : `/@${thisUpdateUser.urlName}/${thisUpdate.url}`;
+                        : `/@${thisUpdateUser.urlName}/${thisUpdate.url}`;
 
                     if (notification.type === "comment") {
                         return (
@@ -111,13 +106,13 @@ export default function NotificationItem({
                                     <Link href={href}>
                                         <a>
                                             <b>{thisAuthor.name}</b> liked your comment on
-                                            {" " + (thisCommentUpdateUser.email === session.user.email ?
+                                            {" " + (thisAuthor.email === session.user.email ?
                                                     "your" :
-                                                    thisCommentUpdateUser._id === thisAuthor._id ?
+                                                    thisAuthor._id === thisAuthor._id ?
                                                         "their" :
-                                                        thisCommentUpdateUser.name + "'s"
+                                                        thisAuthor.name + "'s"
                                             ) + " "}
-                                            {format(new Date(thisCommentUpdate.date), "M/d/yy")} update
+                                            {format(new Date(thisUpdate.date), "M/d/yy")} update
                                         </a>
                                     </Link>
                                 </span>
@@ -141,6 +136,30 @@ export default function NotificationItem({
                                         {formatDistanceToNow(new Date(notification.createdAt))} ago
                                     </span>
                                 </div>
+                            </>
+                        );
+                    }
+                    if (notification.type === "mentionComment") {
+                        return (
+                            <>
+                                <span>
+                                    <Link href={href}>
+                                        <a>
+                                            <b>{thisAuthor.name}</b> mentioned you in their comment on
+                                            {" " + (thisUpdateUser.email === session.user.email ?
+                                                    "your" :
+                                                    thisUpdateUser._id === thisUpdateUser._id ?
+                                                        "their" :
+                                                        thisUpdateUser.name + "'s"
+                                            ) + " "}
+                                            {format(new Date(thisUpdate.date), "M/d/yy")} update
+                                        </a>
+                                    </Link>
+                                </span>
+                                <br/>
+                                <span className="opacity-50">
+                                    {formatDistanceToNow(new Date(notification.createdAt))} ago
+                                </span>
                             </>
                         );
                     }
