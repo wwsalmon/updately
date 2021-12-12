@@ -7,7 +7,7 @@ import UpdateCommentItem from "./UpdateCommentItem";
 
 export default function UpdateComments({update, userData}: { update: Update, userData: User }) {
     const [refreshIteration, setRefreshIteration] = useState<number>(0);
-    const {data, error}: responseInterface<{comments: CommentItem[], mentionedUsers: User[]}, any> = useSWR(`/api/get-comments?updateId=${update._id}&?iter=${refreshIteration}`, fetcher);
+    const {data, error}: responseInterface<{comments: CommentItem[], mentionedUsers: User[]}, any> = useSWR(`/api/comment?updateId=${update._id}&?iter=${refreshIteration}`, fetcher);
 
     return (
         <>
