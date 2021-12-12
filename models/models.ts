@@ -84,14 +84,8 @@ const likeSchema: Schema = new Schema({
     updateId: mongoose.Schema.Types.ObjectId, // ID of update or comment. TODO: change this to 'nodeId' eventually
 });
 
-const mentionSchema: Schema = new Schema({
-    userId: mongoose.Schema.Types.ObjectId, // ID of giving user
-    nodeId: mongoose.Schema.Types.ObjectId, // ID of update or comment
-})
-
 export const userModel = mongoose.models.user || mongoose.model("user", userSchema);
 export const updateModel = mongoose.models.update || mongoose.model("update", updateV2Schema);
 export const commentModel = mongoose.models.comment || mongoose.model("comment", commentSchema);
 export const notificationModel: Model<NotificationDoc> = mongoose.models.notification || mongoose.model("notification", notificationSchema);
 export const likeModel: Model<LikeDoc> = mongoose.models.like || mongoose.model("like", likeSchema);
-export const mentionModel: Model<MentionDoc> = mongoose.models.mention || mongoose.model("mention", mentionSchema);
