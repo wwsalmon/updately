@@ -1,10 +1,11 @@
 import {getSession} from "next-auth/client";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
-import {userModel, updateModel} from "../../models/models";
+import {userModel, updateModel, notificationModel} from "../../models/models";
 import short from "short-uuid";
 import {isEqual} from "date-fns";
 import {dateOnly} from "../../utils/utils";
+import {Update, User} from "../../utils/types";
 
 function generateUrlName(title: string, date: string) {
     let url: string = date;
@@ -12,6 +13,27 @@ function generateUrlName(title: string, date: string) {
     url += "-" + short.generate();
     return url;
 }
+
+async function getMentionedUsersIds(body: string, thisUser: User) {
+    const mentionStrings = body.match(/(?<=@\[).*?(?=\))/g);
+    const mentionObjs = mentionStrings ? mentionStrings.map(d => ({
+        display: d.split("](")[0],
+        id: d.split("](")[1]
+    })) : [];
+
+    const mentionedUsers = await userModel.find({_id: {$in: mentionObjs.map(d => d.id)}});
+    const mentionedUsersIds = mentionedUsers.map(d => d._id.toString()).filter(d => d !== thisUser._id.toString());
+
+    return mentionedUsersIds;
+}
+
+const getMentionNotifs = (mentionedUsersIds: string[], thisUpdate: Update, thisUser: User) => mentionedUsersIds.map(d => ({
+    userId: d,
+    updateId: thisUpdate._id,
+    authorId: thisUser._id,
+    type: "mentionUpdate",
+    read: false,
+}));
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const session = await getSession({ req });
@@ -41,28 +63,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     urlChanged = url;
                 }
 
+                const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
+
+                update["mentionedUsers"] = mentionedUsersIds;
                 update["title"] = req.body.title;
                 update["date"] = req.body.date;
                 update["body"] = req.body.body;
 
                 await update.save();
 
+                const newMentions = mentionedUsersIds.filter(d => !update.mentionedUsers.map(x => x.toString()).includes(d));
+
+                const notifsToAdd = getMentionNotifs(newMentions, update, thisUser);
+
+                await notificationModel.insertMany(notifsToAdd);
+
                 return res.status(200).json({message: "success", urlChanged: urlChanged});
+            } else {
+                const url = generateUrlName(req.body.title, req.body.date);
+
+                const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
+
+                const thisUpdate = await updateModel.create({
+                    date: new Date(req.body.date),
+                    body: req.body.body,
+                    url: url,
+                    title: req.body.title || "",
+                    userId: new mongoose.Types.ObjectId(thisUser.id),
+                    mentionedUsers: mentionedUsersIds,
+                });
+
+                const notifsToAdd = getMentionNotifs(mentionedUsersIds, thisUpdate, thisUser);
+
+                await notificationModel.insertMany(notifsToAdd);
+
+                return res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
             }
-
-            const url = generateUrlName(req.body.title, req.body.date)
-
-            const newUpdate = {
-                date: new Date(req.body.date),
-                body: req.body.body,
-                url: url,
-                title: req.body.title || "",
-                userId: new mongoose.Types.ObjectId(thisUser.id),
-            };
-
-            await updateModel.create(newUpdate);
-
-            return res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
         } else if (req.method === "DELETE") {
             if (!req.body.id) return res.status(400).send("No ID in request");
 

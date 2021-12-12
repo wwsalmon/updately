@@ -58,7 +58,7 @@ export interface CommentObj {
 
 export type CommentItem = CommentObj & {authorArr: DatedObj<User>[]};
 
-export type NotificationTypeOpts = "comment" | "reply" | "follow" | "request" | "like" | "likeComment";
+export type NotificationTypeOpts = "comment" | "reply" | "follow" | "request" | "like" | "likeComment" | "mentionUpdate";
 
 export interface NotificationObj {
     userId: string,
