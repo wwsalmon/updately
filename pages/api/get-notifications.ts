@@ -57,8 +57,6 @@ export default async function getNotificationsHandler(req: NextApiRequest, res: 
 
         notifsToDelete.push(...deletedUpdateNotifications);
 
-        console.log(notifsToDelete);
-
         if (notifsToDelete.length) await notificationModel.deleteMany({"_id": {$in: notifsToDelete}});
 
         notifications = notifications.filter(d => !notifsToDelete.includes(d._id.toString()))

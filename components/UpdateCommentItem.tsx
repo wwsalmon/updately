@@ -10,19 +10,21 @@ import {escapeRegExp, fetcher} from "../utils/utils";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/client";
 import UserPfpList from "./UserPfpList";
+import {getMentionInfo} from "../pages/api/update";
+
+export function getMentionsAndBodySegments(body: string) {
+    const {mentionStrings, mentionObjs} = getMentionInfo(body);
+    const regexString = mentionStrings ? mentionStrings.map(d => `\\@\\[${escapeRegExp(d)}\\)`).join("|") : null;
+    const bodySegments = mentionStrings ? body.split(new RegExp(regexString)) : [];
+    return {bodySegments: bodySegments, mentionObjs: mentionObjs};
+}
 
 const CommentBody = ({comment, mentionedUsers}: {comment: CommentObj, mentionedUsers: User[]}) => {
-    const mentionStrings = comment.body.match(/(?<=@\[).*?(?=\))/g);
-    const mentionObjs = mentionStrings ? mentionStrings.map(d => ({
-        display: d.split("](")[0],
-        id: d.split("](")[1]
-    })) : [];
-    const regexString = mentionStrings ? mentionStrings.map(d => `\\@\\[${escapeRegExp(d)}\\)`).join("|") : null;
-    const bodySegments = mentionStrings ? comment.body.split(new RegExp(regexString)) : [];
+    const {bodySegments, mentionObjs} = getMentionsAndBodySegments(comment.body);
 
     return (
         <p className="sm:text-xl">
-            {(mentionStrings && mentionStrings.length) ? bodySegments.map((segment, i) => (
+            {(mentionObjs && mentionObjs.length) ? bodySegments.map((segment, i) => (
                 <React.Fragment key={`comment-${comment._id}-fragment-${i}`}>
                     {segment}
                     {i !== bodySegments.length - 1 && (

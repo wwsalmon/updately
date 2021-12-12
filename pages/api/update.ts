@@ -14,26 +14,33 @@ function generateUrlName(title: string, date: string) {
     return url;
 }
 
-export async function getMentionedUsersIds(body: string, thisUser: User) {
+export function getMentionInfo(body: string) {
     const mentionStrings = body.match(/(?<=@\[).*?(?=\))/g);
     const mentionObjs = mentionStrings ? mentionStrings.map(d => ({
         display: d.split("](")[0],
         id: d.split("](")[1]
     })) : [];
 
+    return {mentionStrings: mentionStrings, mentionObjs: mentionObjs};
+}
+
+export async function getMentionedUsersIds(body: string, thisUser: User) {
+    const {mentionObjs} = getMentionInfo(body);
     const mentionedUsers = await userModel.find({_id: {$in: mentionObjs.map(d => d.id)}});
-    const mentionedUsersIds = mentionedUsers.map(d => d._id.toString()).filter(d => d !== thisUser._id.toString());
+    const mentionedUsersIds = mentionedUsers.map(d => d._id.toString());
 
     return mentionedUsersIds;
 }
 
-const getMentionNotifs = (mentionedUsersIds: string[], thisUpdate: Update, thisUser: User) => mentionedUsersIds.map(d => ({
-    userId: d,
-    updateId: thisUpdate._id,
-    authorId: thisUser._id,
-    type: "mentionUpdate",
-    read: false,
-}));
+const getMentionNotifs = (mentionedUsersIds: string[], thisUpdate: Update, thisUser: User) => mentionedUsersIds
+    .filter(d => d !== thisUser._id.toString())
+    .map(d => ({
+        userId: d,
+        updateId: thisUpdate._id,
+        authorId: thisUser._id,
+        type: "mentionUpdate",
+        read: false,
+    }));
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const session = await getSession({ req });

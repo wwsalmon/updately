@@ -19,11 +19,12 @@ import UpdateComments from "../../components/UpdateComments";
 import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
 import {notificationModel} from "../../models/models";
+import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 
-export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
+export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
     const [session, loading] = useSession();
-    const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
+    const [data, setData] = useState<{user: User, updates: (Update & {mentionedUsersArr: User[]})[]}>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
     const isOwner = !loading && session && (data.user.email === session.user.email);
@@ -114,6 +115,16 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
         tables: true,
         extensions: [showdownHtmlEscape],
     });
+
+    const {bodySegments, mentionObjs} = getMentionsAndBodySegments(body);
+
+    const bodyToParse = (mentionObjs && mentionObjs.length) ?
+        bodySegments.map((segment, i) => {
+            let retval = segment;
+            if (i !== bodySegments.length - 1) retval += `@[${mentionObjs[i].display}](/@${thisUpdate.mentionedUsersArr.find(d => d._id.toString() === mentionObjs[i].id).urlName})`;
+            return retval;
+        }).join("")
+        : body;
 
     return (
         <div className="max-w-7xl relative mx-auto">
@@ -213,7 +224,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         </div>
                         <hr className="my-8"/>
                         <div className="prose content my-8 dark:text-gray-300 break-words overflow-hidden">
-                            {Parser(markdownConverter.makeHtml(thisUpdate.body))}
+                            {Parser(markdownConverter.makeHtml(bodyToParse))}
                         </div>
                         <hr className="my-8"/>
                         <UpdateComments update={thisUpdate} userData={userData}/>

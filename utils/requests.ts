@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import * as mongoose from "mongoose";
 import {updateModel, userModel} from "../models/models";
 import short from "short-uuid";
 import axios from "axios";
@@ -12,7 +12,10 @@ export async function getUpdateRequest(username: string, url: string) {
 
     let user = await userModel.findOne({ "urlName": username });
     if (user === null) return null;
-    const updates = await updateModel.find({ "userId": user._id });
+    const updates = await updateModel.aggregate([
+        {$match: {"userId": user._id}},
+        {$lookup: {from: "users", foreignField: "_id", localField: "mentionedUsers", as: "mentionedUsersArr"}}
+    ])
     if (!updates.some(d => d.url === encodeURIComponent(url))) return null;
 
     return {

@@ -69,7 +69,7 @@ export default async function newCommentHandler(req: NextApiRequest, res: NextAp
             // mentions
             const mentionedUsersIds = await getMentionedUsersIds(req.body.commentText, thisUser);
 
-            notifsToAdd.push(...mentionedUsersIds.map(d => ({
+            notifsToAdd.push(...mentionedUsersIds.filter(d => d !== thisUser._id.toString()).map(d => ({
                 userId: d,
                 updateId: updateId,
                 authorId: thisUser._id,
