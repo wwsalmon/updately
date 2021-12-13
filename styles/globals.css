@@ -44,6 +44,10 @@ input, textarea {
     line-height: 1.1;
 }
 
+.up-font-serif {
+    font-family: "Alegreya", serif;
+}
+
 .up-h2 {
     font-size: 24px;
     line-height: 1.1;
@@ -133,6 +137,11 @@ a.up-button.small {
     display: block;
 }
 
+/* Comment box */
+
+.up-mention-input textarea {
+    @apply p-4;
+}
 
 /* Markdown editor */
 .EasyMDEContainer .editor-toolbar {

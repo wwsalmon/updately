@@ -34,7 +34,16 @@ export interface Update {
     comments: any[],
     createdAt: string, // date string
     updatedAt: string, // date string
+    mentionedUsers: string[], // ids
 }
+
+export interface PrivateAggregation {
+    private: true,
+    date: string, // date string
+    count: number,
+}
+
+export type FeedItem = (DatedObj<Update> & {userArr: DatedObj<User>[]}) | PrivateAggregation;
 
 export interface CommentObj {
     _id: string,
@@ -47,15 +56,38 @@ export interface CommentObj {
     updatedAt: string, // date string
 }
 
-export interface Notification extends Document {
+export type CommentItem = CommentObj & {authorArr: DatedObj<User>[]};
+
+export type NotificationTypeOpts = "comment" | "reply" | "follow" | "request" | "like" | "likeComment" | "mentionUpdate" | "mentionComment";
+
+export interface NotificationObj {
     userId: string,
     authorId: string,
     updateId: string,
-    type: "comment" | "reply" | "follow" | "request" | "like",
+    commentId?: string,
+    type: NotificationTypeOpts,
     read: boolean,
 }
 
-export interface LikeObj extends Document {
+export type NotificationDoc = NotificationObj & Document;
+
+export type RichNotif = DatedObj<NotificationObj> & {
+    authorArr: User[],
+    updateArr: (Update & {userArr: User[]})[],
+};
+
+export interface LikeObj {
     userId: string,
     updateId: string,
 }
+
+export type LikeDoc = LikeObj & Document;
+
+export interface MentionObj {
+    userId: string,
+    updateId: string,
+}
+
+export type MentionDoc = MentionObj & Document;
+
+export type LikeItem = LikeObj & {userArr: User[]};

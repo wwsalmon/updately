@@ -1,6 +1,34 @@
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
-import React, {Dispatch, SetStateAction} from "react";
+import React, {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
+import {User} from "../utils/types";
+import axios from "axios";
+import MentionItem from "./MentionItem";
+
+function getMentionFromCM(instance) {
+    const cursorInfo = instance.getCursor();
+    const thisLine = instance.doc.getLine(cursorInfo.line);
+    const thisLineToCursor = thisLine.substr(0, cursorInfo.ch);
+    const thisLineToCursorSplit = thisLineToCursor.split(" ");
+    const lastPhrase = thisLineToCursorSplit[thisLineToCursorSplit.length - 1];
+    const isMention = lastPhrase.substr(0, 1) === "@";
+    return {isMention: isMention, mentionQuery: lastPhrase.substr(1)};
+}
+
+export function setUserListByQuery(setUserList: Dispatch<SetStateAction<User[]>>, query: string, count?: number) {
+    if (query === "") return setUserList([]);
+
+    axios.get(`/api/search-user`, {
+        params: {
+            s: query,
+            count: count || 10,
+        }
+    }).then(res => {
+        setUserList(res.data.results);
+    }).catch(e => {
+        console.log(e);
+    });
+}
 
 export default function EditUpdate({body, setBody, title, setTitle, date, setDate, isLoading, onSave, onCancel, confirmText}: {
     body: string,
@@ -14,6 +42,68 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
     onCancel: (any) => any,
     confirmText: string,
 }) {
+    const editorRef = useRef();
+    const [mentionOpen, setMentionOpen] = useState<boolean>(false);
+    const [mentionQuery, setMentionQuery] = useState<string>("");
+    const [userList, setUserList] = useState<User[]>([]);
+    const [userSelectedIndex, setUserSelectedIndex] = useState<number>(0);
+
+    useEffect(() => {
+        setUserListByQuery(setUserList, mentionQuery, 5);
+        setUserSelectedIndex(0);
+    }, [mentionQuery]);
+
+    const events = useMemo(() => ({
+        cursorActivity: (instance) => {
+            const {isMention, mentionQuery} = getMentionFromCM(instance);
+            if (isMention) {
+                setMentionOpen(true);
+                setMentionQuery(mentionQuery);
+            } else {
+                setMentionOpen(false);
+            }
+        },
+        keydown: (instance, event) => {
+            const {isMention, mentionQuery} = getMentionFromCM(instance);
+            if (isMention) {
+                if (["Enter", "ArrowDown", "ArrowUp", "Tab"].includes(event.key)) {
+                    event.preventDefault();
+                    return;
+                }
+            }
+        },
+    }), []);
+
+    useEffect(() => {
+        if (!editorRef.current) return;
+        // @ts-ignore ts things editorRef.current is undefined but it can't be
+        const editorEl = editorRef.current.editorEl;
+        // @ts-ignore ts things editorRef.current is undefined but it can't be
+        const cm = editorRef.current.simpleMde.codemirror;
+
+        const keydownHandler = e => {
+            if (!userList.length) return;
+
+            if (["Enter", "Tab"].includes(e.key)) {
+                const cursorInfo = cm.getCursor();
+                const mentionStart = cursorInfo.ch - mentionQuery.length;
+                const selectedUser = userList[userSelectedIndex];
+                cm.doc.replaceRange(
+                    `[${selectedUser.name}](${selectedUser._id}) `,
+                    {line: cursorInfo.line, ch: mentionStart},
+                    {line: cursorInfo.line, ch: cursorInfo.ch}
+                );
+            }
+
+            if (e.key === "ArrowDown") setUserSelectedIndex(Math.min(userSelectedIndex + 1, userList.length - 1));
+            if (e.key === "ArrowUp") setUserSelectedIndex(Math.max(0, userSelectedIndex - 1));
+        }
+
+        editorEl.addEventListener("keydown", keydownHandler);
+
+        return () => editorEl.removeEventListener("keydown", keydownHandler);
+    }, [editorRef.current, mentionOpen, mentionQuery, userSelectedIndex, userList]);
+
     return (
         <>
             <div className="my-8">
@@ -43,16 +133,39 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
 
             <div className="my-8">
                 <div className="up-ui-title my-4"><span>Body</span></div>
-                <div className="prose content max-w-full">
-                    <SimpleMDE
-                        id="helloworld"
-                        onChange={setBody}
-                        value={body}
-                        options={{
-                            placeholder: "Write your update here...",
-                            toolbar: ["bold", "italic", "strikethrough", "|", "heading-1", "heading-2", "heading-3", "|", "link", "quote", "unordered-list", "ordered-list", "|", "guide"]
-                        }}
-                    />
+                <div className="max-w-full relative">
+                    <div className="prose content">
+                        <SimpleMDE
+                            ref={editorRef}
+                            id="updateEditor"
+                            onChange={setBody}
+                            value={body}
+                            options={{
+                                placeholder: "Write your update here...",
+                                toolbar: ["bold", "italic", "strikethrough", "|", "heading-1", "heading-2", "heading-3", "|", "link", "quote", "unordered-list", "ordered-list", "|", "guide"]
+                            }}
+                            events={events}
+                        />
+                    </div>
+                    {mentionOpen && (
+                        <div
+                            className="fixed z-30 shadow-lg rounded-md py-1 bg-white"
+                            style={{
+                                // @ts-ignore editorRef.current not undefined
+                                top: editorRef.current ? editorRef.current.simpleMde.codemirror.cursorCoords(true, "window").top + 24 : 0,
+                                // @ts-ignore editorRef.current not undefined
+                                left: editorRef.current ? editorRef.current.simpleMde.codemirror.cursorCoords(true, "window").left : 0,
+                            }}
+                        >
+                            {userList.map((user, i) => (
+                                <MentionItem
+                                    focused={i === userSelectedIndex}
+                                    user={user}
+                                    key={`mention-list-user-${user._id}`}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

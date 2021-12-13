@@ -14,16 +14,17 @@ import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {LikeObj, Update, User} from "../../utils/types";
+import {LikeItem, Update, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
 import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
 import {notificationModel} from "../../models/models";
+import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 
-export default function UpdatePage(props: { data: {user: User, updates: Update[]}, updateUrl: string, userData: User }) {
+export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
     const [session, loading] = useSession();
-    const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
+    const [data, setData] = useState<{user: User, updates: (Update & {mentionedUsersArr: User[]})[]}>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
     const isOwner = !loading && session && (data.user.email === session.user.email);
@@ -37,7 +38,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     const [likesIter, setLikesIter] = useState<number>(0);
 
     const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
-    const {data: likesData, error: likesError}: responseInterface<{ likes: (LikeObj & {userArr: User[]})[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
+    const {data: likesData, error: likesError}: responseInterface<{ likes: LikeItem[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
     const updates = feedDataObj ? feedDataObj.updates : {updates: []};
 
     const isLike = likesData && likesData.likes && userData && !!likesData.likes.find(d => d.userId === userData._id);
@@ -45,9 +46,8 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     function onEdit() {
         setIsLoading(true);
 
-        axios.post("/api/edit-update", {
+        axios.post("/api/update", {
             id: thisUpdate._id,
-            username: data.user.urlName,
             date: date,
             body: body,
             title: title,
@@ -79,9 +79,10 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
     }
 
     function handleDelete() {
-        axios.post("/api/delete-update", {
-            id: thisUpdate._id,
-            userId: data.user._id,
+        axios.delete("/api/update", {
+            data: {
+                id: thisUpdate._id,
+            }
         }).then(() => {
             router.push("/@" + data.user.urlName);
         }).catch(e => {
@@ -114,6 +115,16 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
         tables: true,
         extensions: [showdownHtmlEscape],
     });
+
+    const {bodySegments, mentionObjs} = getMentionsAndBodySegments(body);
+
+    const bodyToParse = (mentionObjs && mentionObjs.length) ?
+        bodySegments.map((segment, i) => {
+            let retval = segment;
+            if (i !== bodySegments.length - 1) retval += `@[${mentionObjs[i].display}](/@${thisUpdate.mentionedUsersArr.find(d => d._id.toString() === mentionObjs[i].id).urlName})`;
+            return retval;
+        }).join("")
+        : body;
 
     return (
         <div className="max-w-7xl relative mx-auto">
@@ -161,7 +172,11 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                                     <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
                                 </div>
                                 <div className="flex mt-6 items-center">
-                                    <button className="up-button text small flex items-center mr-6" onClick={onPressLike}>
+                                    <button
+                                        className="up-button text small flex items-center mr-6"
+                                        onClick={onPressLike}
+                                        disabled={!(likesData && likesData.likes)}
+                                    >
                                         {isLike ? (
                                             <FiHeart color="red"/>
                                         ) : (
@@ -209,7 +224,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                         </div>
                         <hr className="my-8"/>
                         <div className="prose content my-8 dark:text-gray-300 break-words overflow-hidden">
-                            {Parser(markdownConverter.makeHtml(thisUpdate.body))}
+                            {Parser(markdownConverter.makeHtml(bodyToParse))}
                         </div>
                         <hr className="my-8"/>
                         <UpdateComments update={thisUpdate} userData={userData}/>
@@ -232,7 +247,7 @@ export default function UpdatePage(props: { data: {user: User, updates: Update[]
                             </Link>
                         </div>
                     ))}
-                    {updates && data.updates.length > 10 && <p 
+                    {updates && data.updates.length > 20 && <p
                     className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
                     ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>}
                 </div>

@@ -1,9 +1,8 @@
 import {NextApiRequest, NextApiResponse} from "next";
-import {notificationModel, updateModel, userModel} from "../../models/models";
-import mongoose from "mongoose";
+import {notificationModel} from "../../models/models";
 import {getSession} from "next-auth/client";
 import {getCurrUserRequest} from "../../utils/requests";
-import {Notification, Update, User} from "../../utils/types";
+import {User} from "../../utils/types";
 
 export default async function getNotificationsHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405);
@@ -43,14 +42,24 @@ export default async function getNotificationsHandler(req: NextApiRequest, res: 
             },
         ]);
 
+        let notifsToDelete = [];
 
         // delete read notifications older than 14 days
         const oldNotificationIds: string[] = notifications
             .filter(d => d.read && +new Date() - +new Date(d.createdAt) > (14 * 8.64e7))
             .map(d => d._id.toString());
-        if (oldNotificationIds.length) await notificationModel.deleteMany({"_id": {$in: oldNotificationIds}});
 
-        notifications = notifications.filter(d => !oldNotificationIds.includes(d._id.toString()))
+        notifsToDelete.push(...oldNotificationIds);
+
+        // delete notifications related to updates that have been deleted
+        const deletedUpdateNotifications: string[] = notifications
+            .filter(d => !d.updateArr.length || !d.authorArr.length);
+
+        notifsToDelete.push(...deletedUpdateNotifications);
+
+        if (notifsToDelete.length) await notificationModel.deleteMany({"_id": {$in: notifsToDelete}});
+
+        notifications = notifications.filter(d => !notifsToDelete.includes(d._id.toString()))
 
         return res.status(200).json({notifications: notifications});
     } catch (e) {

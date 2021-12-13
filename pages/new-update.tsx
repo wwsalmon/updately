@@ -21,7 +21,7 @@ export default function NewUpdate({userData}: {userData: User}) {
     function handlePost() {
         setPostLoading(true);
 
-        axios.post("/api/new-update", {
+        axios.post("/api/update", {
             date: date,
             body: body,
             title: title,

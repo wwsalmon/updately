@@ -3,7 +3,7 @@ import {notificationModel} from "../../models/models";
 import mongoose from "mongoose";
 import {getSession} from "next-auth/client";
 import {getCurrUserRequest} from "../../utils/requests";
-import {Notification, User} from "../../utils/types";
+import {NotificationDoc, User} from "../../utils/types";
 
 export default async function readNotificationsHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") return res.status(405);
@@ -15,7 +15,7 @@ export default async function readNotificationsHandler(req: NextApiRequest, res:
         console.log(req.body.id);
 
         const thisUser: User = await getCurrUserRequest(session.user.email);
-        const thisNotification: Notification = await getNotification(req.body.id);
+        const thisNotification: NotificationDoc = await getNotification(req.body.id);
 
         if (!thisNotification) return res.status(404).json({message: "No notification found for given ID"});
         if (thisNotification.userId.toString() !== thisUser._id.toString()) return res.status(403).json({message: "You do not have permission to mark this notification as read"});
@@ -28,7 +28,7 @@ export default async function readNotificationsHandler(req: NextApiRequest, res:
     }
 }
 
-export async function getNotification(notificationId: string): Promise<Notification> {
+export async function getNotification(notificationId: string): Promise<NotificationDoc> {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,

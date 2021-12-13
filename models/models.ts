@@ -1,5 +1,5 @@
-import mongoose, {Schema, Model} from "mongoose";
-import {LikeObj, Notification} from "../utils/types";
+import mongoose, {Model, Schema} from "mongoose";
+import {LikeDoc, MentionDoc, NotificationDoc} from "../utils/types";
 
 const reqString = {
     type: String,
@@ -33,16 +33,6 @@ const commentSchema: Schema = new Schema({
 });
 
 const updateSchema: Schema = new Schema({
-    body: reqString,
-    url: reqString,
-    title: unreqString,
-    date: Date,
-    readBy:  [mongoose.Schema.Types.ObjectId],
-}, {
-    timestamps: true,
-});
-
-const updateV2Schema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId,
     body: reqString,
     url: reqString,
@@ -50,6 +40,7 @@ const updateV2Schema: Schema = new Schema({
     date: Date,
     readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],
+    mentionedUsers: [mongoose.Schema.Types.ObjectId],
 }, {
     timestamps: true,
 });
@@ -57,7 +48,6 @@ const updateV2Schema: Schema = new Schema({
 const userSchema: Schema = new Schema({
     ...authorObj,
     private: {type: Boolean, required: true},
-    updates: [updateSchema],
     following:  [mongoose.Schema.Types.ObjectId],
     followers: [reqString], // emails of followers
     requests: [reqString], // emails of users requesting follows
@@ -71,6 +61,7 @@ const notificationSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId, // ID of receiving user
     authorId: mongoose.Schema.Types.ObjectId, // ID of comment author
     updateId: mongoose.Schema.Types.ObjectId, // ID of update of comment to generate link and notification message
+    commentId: {type: mongoose.Schema.Types.ObjectId, required: false}, // ID of the comment for likeComment
     type: reqString, // "comment" | "reply" | "follow" | "request"
     read: {type: Boolean, required: true},
 }, {
@@ -79,11 +70,11 @@ const notificationSchema: Schema = new Schema({
 
 const likeSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId, // ID of giving user
-    updateId: mongoose.Schema.Types.ObjectId, // ID of update 
+    updateId: mongoose.Schema.Types.ObjectId, // ID of update or comment. TODO: change this to 'nodeId' eventually
 });
 
-export const userModel = mongoose.models.user || mongoose.model('user', userSchema);
-export const updateModel = mongoose.models.update || mongoose.model('update', updateV2Schema);
-export const commentModel = mongoose.models.comment || mongoose.model('comment', commentSchema);
-export const notificationModel: Model<Notification> = mongoose.models.notification || mongoose.model('notification', notificationSchema);
-export const likeModel: Model<LikeObj> = mongoose.models.like || mongoose.model('like', likeSchema);
+export const userModel = (!!mongoose.models && mongoose.models.user) || mongoose.model("user", userSchema);
+export const updateModel = (!!mongoose.models && mongoose.models.update) || mongoose.model("update", updateSchema);
+export const commentModel = (!!mongoose.models && mongoose.models.comment) || mongoose.model("comment", commentSchema);
+export const notificationModel: Model<NotificationDoc> = (!!mongoose.models && mongoose.models.notification) || mongoose.model("notification", notificationSchema);
+export const likeModel: Model<LikeDoc> = (!!mongoose.models && mongoose.models.like) || mongoose.model("like", likeSchema);

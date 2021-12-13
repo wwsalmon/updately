@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
-import {CommentObj, Update, User} from "../utils/types";
-import useSWR from "swr";
+import {CommentItem, CommentObj, Update, User} from "../utils/types";
+import useSWR, {responseInterface} from "swr";
 import {fetcher} from "../utils/utils";
 import UpdateCommentForm from "./UpdateCommentForm";
 import UpdateCommentItem from "./UpdateCommentItem";
 
 export default function UpdateComments({update, userData}: { update: Update, userData: User }) {
     const [refreshIteration, setRefreshIteration] = useState<number>(0);
-    const {data, error} = useSWR(`/api/get-comments?updateId=${update._id}&?iter=${refreshIteration}`, fetcher);
+    const {data, error}: responseInterface<{comments: CommentItem[], mentionedUsers: User[]}, any> = useSWR(`/api/comment?updateId=${update._id}&?iter=${refreshIteration}`, fetcher);
 
     return (
         <>
@@ -21,12 +21,12 @@ export default function UpdateComments({update, userData}: { update: Update, use
                 />
             </div>
             <div className="my-4">
-                {data && data.comments.filter(d => !d.parentCommentId).map((comment: CommentObj) => (
-                    <div className="mb-12">
+                {data && data.comments.filter(d => !d.parentCommentId).map(comment => (
+                    <div className="mb-12" key={`comment-${comment._id}`}>
                         <UpdateCommentItem
                             comment={comment}
+                            mentionedUsers={data.mentionedUsers}
                             update={update}
-                            users={data.users}
                             userData={userData}
                             refreshIteration={refreshIteration}
                             setRefreshIteration={setRefreshIteration}
@@ -36,8 +36,8 @@ export default function UpdateComments({update, userData}: { update: Update, use
                                 <div className="mb-6">
                                     <UpdateCommentItem
                                         comment={subComment}
+                                        mentionedUsers={data.mentionedUsers}
                                         update={update}
-                                        users={data.users}
                                         userData={userData}
                                         refreshIteration={refreshIteration}
                                         setRefreshIteration={setRefreshIteration}

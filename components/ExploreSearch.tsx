@@ -3,6 +3,7 @@ import {User} from "../utils/types";
 import axios from "axios";
 import {FiX} from "react-icons/fi";
 import UserListItem from "./UserListItem";
+import {setUserListByQuery} from "./EditUpdate";
 
 export default function ExploreSearch(props: { userData: User }) { // Userdata is the session's user
     const [query, setQuery] = useState<string>("");
@@ -10,17 +11,7 @@ export default function ExploreSearch(props: { userData: User }) { // Userdata i
     const [userList, setUserList] = useState<User[]>([]);
 
     useEffect(() => {
-        if (query === "") return setUserList([]);
-
-        axios.get(`/api/search-user`, {
-            params: {
-                s: query,
-            }
-        }).then(res => {
-            setUserList(res.data.results);
-        }).catch(e => {
-            console.log(e);
-        });
+        setUserListByQuery(setUserList, query);
     }, [query]);
 
     return (
