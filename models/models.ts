@@ -71,6 +71,8 @@ const notificationSchema: Schema = new Schema({
 const likeSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId, // ID of giving user
     updateId: mongoose.Schema.Types.ObjectId, // ID of update or comment. TODO: change this to 'nodeId' eventually
+}, {
+    timestamps: true,
 });
 
 export const userModel = (!!mongoose.models && mongoose.models.user) || mongoose.model("user", userSchema);
