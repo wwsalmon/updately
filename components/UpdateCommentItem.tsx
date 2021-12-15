@@ -136,7 +136,7 @@ export default function UpdateCommentItem({comment, mentionedUsers, update, user
                         <FiCornerUpRight/>
                         <span className="ml-2">{replyOpen ? "Replying" : "Reply"}</span>
                     </button>
-                    {(commentAuthor._id === userData._id || update.userId === userData._id) && (confirmDelete ? (
+                    {userData && (commentAuthor._id === userData._id || update.userId === userData._id) && (confirmDelete ? (
                         <button
                             className="opacity-75 inline-flex items-center hover:opacity-100 ml-8 text-red-400"
                             ref={confirmDeleteRef}
