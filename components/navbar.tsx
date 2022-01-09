@@ -21,11 +21,11 @@ export default function Navbar() {
     const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
     const [notificationsIter, setNotificationsIter] = useState<number>(0);
     const { data: notificationData, error: notificationsError }: responseInterface<{ notifications: RichNotif[] }, any> = useSWR(session ? `/api/get-notifications?iter=${notificationsIter}` : null, fetcher);
-    const numNotifications = (notificationData && notificationData.notifications) ? notificationData.notifications.filter(d => !d.read).length : 0
     const [ notifications, setNotifications ] = useState<RichNotif[]>([]);
+    const numNotifications = notifications.filter(d => !d.read).length
 
     useEffect(() => {
-        setNotifications(notificationData ? notificationData.notifications : [])
+        if (notificationData && notificationData.notifications) setNotifications(notificationData.notifications)
     }, [notificationData]);
 
     useEffect(() => {
@@ -39,9 +39,7 @@ export default function Navbar() {
         axios.post("/api/accept-request", {
             notificationId: notificationId
         }).then(res => {
-            setNotifications(notifications.map(n => (
-                n._id == res.data.notificationData._id ? res.data.notificationData : n
-            )));
+            setNotificationsIter(notificationsIter + 1);
         }).catch(e => {
             console.log(e);
             // setIsLoading(false);
@@ -70,11 +68,11 @@ export default function Navbar() {
                         </button>
                         {session ? (
                             <>
-                                {notificationData && notificationData.notifications && (
+                                {notifications && (
                                     <>
                                     <button className="mr-4 px-2 h-10 relative up-hover-button">
                                         <FiBell/>
-                                        {notificationData.notifications.length > 0 && (
+                                        {notifications.length > 0 && (
                                             <>
                                                 {numNotifications > 0 && (
                                                     <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
@@ -83,7 +81,7 @@ export default function Navbar() {
                                                 )}
                                             </>
                                         )}
-                                        {notificationData.notifications.length > 0 && (
+                                        {notifications.length > 0 && (
                                             <>
                                                  <div className="up-hover-dropdown cursor-default mt-10 w-64 md:w-96 overflow-y-auto max-h-96">
                                                     {notifications

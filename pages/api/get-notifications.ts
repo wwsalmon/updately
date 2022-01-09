@@ -53,7 +53,7 @@ export default async function getNotificationsHandler(req: NextApiRequest, res: 
 
         // delete notifications related to updates that have been deleted
         const deletedUpdateNotifications: string[] = notifications
-            .filter(d => !d.updateArr.length || !d.authorArr.length);
+            .filter(d => d.type !== "request" && d.type !== "follow" && (!d.updateArr.length || !d.authorArr.length));
 
         notifsToDelete.push(...deletedUpdateNotifications);
 
