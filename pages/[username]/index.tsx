@@ -72,7 +72,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                             </div>
                         )}
                         {(isOwner) && (
-                            <Link href={`@${data.user.urlName}/edit-profile`}>
+                            <Link href={`/@${data.user.urlName}/edit-profile`}>
                                 <a className="up-button text small ml-auto">Edit profile</a>
                             </Link>
                         )}
@@ -80,7 +80,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 </div>
             )}
 
-            <Link href={`@${data.user.urlName}/following`}>
+            <Link href={`/@${data.user.urlName}/following`}>
                 <a className="up-ui-title mb-4 block">
                     Following ({props.following.length})
                 </a>
@@ -88,7 +88,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
             <UserPfpList userList={props.following} pageUser={data.user} isFollowers={false}/>
 
             <div className="mb-4 mt-12">
-                <Link href={`@${data.user.urlName}/followers`}>
+                <Link href={`/@${data.user.urlName}/followers`}>
                     <a className="up-ui-title">
                         Followers ({props.followers.length})
                     </a>

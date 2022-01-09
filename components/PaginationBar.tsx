@@ -19,6 +19,7 @@ export default function PaginationBar({page, count, label, setPage}: {
                             className={"py-2 px-4 rounded-md mr-2 " + (d === page ? "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-opacity-20" : "")}
                             onClick={() => setPage(d)}
                             disabled={+d === +page}
+                            key={d}
                         >{d}</button>
                     ))}
                 </div>
