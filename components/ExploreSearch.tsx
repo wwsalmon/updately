@@ -39,6 +39,7 @@ export default function ExploreSearch(props: { userData: User }) { // Userdata i
                     setUserList={setUserList}
                     userData={userData}
                     setUserData={setUserData}
+                    key={user._id}
                 />
             ))}
         </>
