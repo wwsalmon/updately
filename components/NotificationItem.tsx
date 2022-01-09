@@ -108,9 +108,9 @@ export default function NotificationItem({
                                             <b>{thisAuthor.name}</b> liked your comment on
                                             {" " + (thisAuthor.email === session.user.email ?
                                                     "your" :
-                                                    thisAuthor._id === thisAuthor._id ?
+                                                    thisUpdateUser._id === thisAuthor._id ?
                                                         "their" :
-                                                        thisAuthor.name + "'s"
+                                                        thisUpdateUser.name + "'s"
                                             ) + " "}
                                             {format(new Date(thisUpdate.date), "M/d/yy")} update
                                         </a>
@@ -148,7 +148,7 @@ export default function NotificationItem({
                                             <b>{thisAuthor.name}</b> mentioned you in their comment on
                                             {" " + (thisUpdateUser.email === session.user.email ?
                                                     "your" :
-                                                    thisUpdateUser._id === thisUpdateUser._id ?
+                                                    thisUpdateUser._id === thisAuthor._id ?
                                                         "their" :
                                                         thisUpdateUser.name + "'s"
                                             ) + " "}
