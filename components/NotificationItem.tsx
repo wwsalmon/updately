@@ -6,8 +6,9 @@ import {useSession} from "next-auth/client";
 
 export default function NotificationItem({
                                              notification,
-                                             acceptRequest
-                                         }: { notification: RichNotif, acceptRequest: (notifId: string) => any }) {
+                                             acceptRequest,
+                                             isLoading,
+                                         }: { notification: RichNotif, acceptRequest: (notifId: string) => any, isLoading?: boolean }) {
     const [session, loading] = useSession();
 
     return (
@@ -74,11 +75,14 @@ export default function NotificationItem({
                                             {formatDistanceToNow(new Date(notification.createdAt))} ago
                                         </span>
                                     </div>
-                                    <button
-                                        className="up-button small primary"
-                                        onClick={() => acceptRequest(notification._id)}
-                                    >Accept
-                                    </button>
+                                    <div className="relative">
+                                        <button
+                                            className="up-button small primary"
+                                            onClick={() => acceptRequest(notification._id)}
+                                            disabled={isLoading}
+                                        ><span className={isLoading ? "invisible" : ""}>Accept</span></button>
+                                        {isLoading && <div className="up-spinner"/> }
+                                    </div>
                                 </div>
                             </>
                         );

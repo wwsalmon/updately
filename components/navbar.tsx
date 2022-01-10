@@ -23,6 +23,7 @@ export default function Navbar() {
     const { data: notificationData, error: notificationsError }: responseInterface<{ notifications: RichNotif[] }, any> = useSWR(session ? `/api/get-notifications?iter=${notificationsIter}` : null, fetcher);
     const [ notifications, setNotifications ] = useState<RichNotif[]>([]);
     const numNotifications = notifications.filter(d => !d.read).length
+    const [loadingNotificationIds, setLoadingNotificationIds] = useState<string[]>([]);
 
     useEffect(() => {
         if (notificationData && notificationData.notifications) setNotifications(notificationData.notifications)
@@ -35,15 +36,16 @@ export default function Navbar() {
     const {theme, setTheme} = useTheme();
 
     const acceptRequest = (notificationId) => {
-        // setIsLoading(true);
+        setLoadingNotificationIds([...loadingNotificationIds, notificationId]);
         axios.post("/api/accept-request", {
             notificationId: notificationId
         }).then(res => {
             setNotificationsIter(notificationsIter + 1);
         }).catch(e => {
             console.log(e);
-            // setIsLoading(false);
-        })
+        }).finally(() => 
+            setLoadingNotificationIds(loadingNotificationIds.filter(n => n !== notificationId))
+        )
     }
 
     return (
@@ -87,7 +89,12 @@ export default function Navbar() {
                                                     {notifications
                                                         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
                                                         .map((notification: RichNotif) => (
-                                                            <NotificationItem notification={notification} acceptRequest={acceptRequest} key={notification._id}/>
+                                                            <NotificationItem
+                                                                notification={notification}
+                                                                acceptRequest={acceptRequest}
+                                                                isLoading={loadingNotificationIds.includes(notification._id)}
+                                                                key={notification._id}
+                                                            />
                                                         ))
                                                     }
                                                 </div>
