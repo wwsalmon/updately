@@ -43,7 +43,7 @@ export default async function editBioHandler(req: NextApiRequest, res: NextApiRe
         await receivingUser.save();
         await notification.save();
 
-        res.status(200).json({message: "success", notificationData: notification});
+        res.status(200).json({message: "success"});
     } catch (e) {
         res.status(500).json({error: e});
     }

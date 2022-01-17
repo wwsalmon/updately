@@ -44,7 +44,7 @@ export default function Home(props: {userData: User}) {
                 <div className="max-w-4xl relative mx-auto px-4">
                     <h1 className="up-h1 mt-16">Your feed</h1>
                     <div className="my-6">
-                        <Link href={`@${userData.urlName}/following`}>
+                        <Link href={`/@${userData.urlName}/following`}>
                             <a className="up-ui-title">
                                 Following ({userData.following.length})
                             </a>
