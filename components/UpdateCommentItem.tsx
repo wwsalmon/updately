@@ -8,7 +8,6 @@ import axios from "axios";
 import useSWR, {responseInterface} from "swr";
 import {escapeRegExp, fetcher} from "../utils/utils";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/client";
 import UserPfpList from "./UserPfpList";
 import {getMentionInfo} from "../pages/api/update";
 
@@ -49,7 +48,6 @@ export default function UpdateCommentItem({comment, mentionedUsers, update, user
     setRefreshIteration: Dispatch<SetStateAction<number>>,
 }) {
     const router = useRouter();
-    const [session, loading] = useSession();
 
     const [replyOpen, setReplyOpen] = useState<boolean>(false);
     const [likesIter, setLikesIter] = useState<number>(0);
@@ -87,7 +85,7 @@ export default function UpdateCommentItem({comment, mentionedUsers, update, user
     }
 
     function onPressLike() {
-        if (!session) return router.push("/sign-in");
+        if (!userData) return router.push("/sign-in");
 
         if (!(likesData && likesData.likes)) return;
 

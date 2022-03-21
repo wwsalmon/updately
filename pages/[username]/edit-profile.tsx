@@ -14,10 +14,12 @@ import {useTheme} from "next-themes";
 
 
 export default function EditBioPage(props: { userData: User }) {
+    const initialPrivacy = props.userData.truePrivate ? "private" : props.userData.private ? "unlisted" : "public";
+
     const router = useRouter();
     const [userData, setUserData] = useState<User>(props.userData);
     const [bio, setBio] = useState<string>(props.userData.bio || "");
-    const [isPrivate, setIsPrivate] = useState<boolean>(props.userData.private || false);
+    const [privacy, setPrivacy] = useState<"public" | "private" | "unlisted">(initialPrivacy);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const {theme, setTheme} = useTheme();
       
@@ -26,7 +28,8 @@ export default function EditBioPage(props: { userData: User }) {
         axios.post("/api/edit-profile", {
             id: userData._id,
             bio: bio,
-            private: isPrivate,
+            private: privacy === "unlisted",
+            truePrivate: privacy === "private",
         }).then(res => {
             setUserData(res.data.userData);
             router.push(`/@${userData.urlName}`);
@@ -37,8 +40,9 @@ export default function EditBioPage(props: { userData: User }) {
     }
 
     const options = [
-        { value: false, label: "Show" },
-        { value: true, label: "Hide" },
+        { value: "public", label: "Public (show in public feeds, link accessible)" },
+        { value: "unlisted", label: "Unlisted (hidden in public feeds, link accessible)" },
+        { value: "private", label: "Private (hidden in public feeds, not link accessible)" },
     ]
     
     const customStyles = {
@@ -110,14 +114,13 @@ export default function EditBioPage(props: { userData: User }) {
                 <div className="">
                     <div className="mb-4">
                         <h2 className="up-ui-title mb-2">
-                            Hide posts from public feeds?
+                            Privacy settings
                         </h2>
-                        <p className="text-sm opacity-50">This will hide your updates from non-followers, including from the global explore feed.</p>
                     </div>
                     <Select 
                         options={options}
-                        defaultValue={options.filter(o => o.value === isPrivate)}
-                        onChange={option => setIsPrivate(option.value)}
+                        defaultValue={options.find(d => d.value === privacy)}
+                        onChange={option => setPrivacy(option.value)}
                         isSearchable={false}
                         className="rounded-md text-xl"
                         isDisabled={isLoading}
@@ -137,7 +140,7 @@ export default function EditBioPage(props: { userData: User }) {
                 <div className="relative">
                     <button
                         className="up-button primary small"
-                        disabled={((userData.bio ? userData.bio === bio : bio === "") && (userData.private === isPrivate)) || isLoading}
+                        disabled={((userData.bio ? userData.bio === bio : bio === "") && (privacy === initialPrivacy)) || isLoading}
                         onClick={saveProfile}
                     >
                         Save

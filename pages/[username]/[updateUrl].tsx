@@ -1,5 +1,5 @@
 import {GetServerSideProps} from "next";
-import {getSession, useSession} from "next-auth/client";
+import {getSession} from "next-auth/client";
 import {getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
@@ -23,11 +23,10 @@ import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 
 export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
-    const [session, loading] = useSession();
     const [data, setData] = useState<{user: User, updates: (Update & {mentionedUsersArr: User[]})[]}>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
-    const isOwner = !loading && session && (data.user.email === session.user.email);
+    const isOwner = userData && (data.user.email === userData.email);
     const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(props.updateUrl));
 
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -92,7 +91,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
     }
 
     function onPressLike() {
-        if (!session) return router.push("/sign-in");
+        if (!userData) return router.push("/sign-in");
 
         if (!(likesData && likesData.likes)) return;
 
@@ -261,12 +260,25 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const username: string = context.params.username.substr(1);
     const updateUrl: string = context.params.updateUrl;
     const data = await getUpdateRequest(username, updateUrl);
+
+    if (!data) return { notFound: true };
+
     const session = await getSession(context);
     const userData = session ? await getCurrUserRequest(session.user.email) : null;
 
-    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
+    const isTruePrivate = data.user.truePrivate;
 
-    if (!data) return { notFound: true };
+    if (isTruePrivate && (
+        !userData ||
+        !(
+            // following user
+            data.user.followers.includes(userData.email) ||
+            // or are the user
+            data.user._id.toString() === userData._id.toString()
+        )
+    )) return { notFound: true };
+
+    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
 
     return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
 };

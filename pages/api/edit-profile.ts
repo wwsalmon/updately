@@ -25,6 +25,7 @@ export default async function editBioHandler(req: NextApiRequest, res: NextApiRe
 
         user["bio"] = req.body.bio || "";
         user["private"] = req.body.private || false;
+        user["truePrivate"] = req.body.truePrivate || false;
         await user.save();
 
         res.status(200).json({message: "success", userData: user});

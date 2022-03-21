@@ -46,7 +46,7 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
             await notificationModel.deleteOne({"authorId": currUser._id, "userId": followUser._id, "type": "request"});
         } else {
             // otherwise, follow or request to follow
-            if (followUser.private) {
+            if (followUser.private || followUser.truePrivate) {
                 currUser.requesting.push(req.body.id);
                 followUser.requests.push(session.user.email);
 
@@ -64,7 +64,7 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
                 userId: req.body.id,
                 updateId: null,
                 authorId: currUser._id.toString(),
-                type: followUser.private ? "request" : "follow",
+                type: (followUser.private || followUser.truePrivate) ? "request" : "follow",
                 read: false,
             });
             await newNotification.save();
