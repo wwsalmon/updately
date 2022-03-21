@@ -102,8 +102,8 @@ export async function getDemoFeedRequest({ req }) {
 
     updates = updates.reduce((a, b) => {
         if (a.length === 0) return [b];
-        if (b.userArr[0].private) {
-            const matchingPrivateIndex = a.findIndex(d => d.private && (d.date.toString() === b.date.toString()));
+        if (b.userArr[0].private || b.userArr[0].truePrivate) {
+            const matchingPrivateIndex = a.findIndex(d => (d.private || d.truePrivate) && (d.date.toString() === b.date.toString()));
             if (matchingPrivateIndex > -1) {
                 let newArr = [...a];
                 newArr[matchingPrivateIndex] = {private: true, count: a[matchingPrivateIndex].count + 1, date: a[matchingPrivateIndex].date};

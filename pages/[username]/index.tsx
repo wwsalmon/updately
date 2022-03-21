@@ -101,7 +101,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
 
             <hr className="my-8"/>
 
-            {data.user.private && (!userData || !data.user.followers.includes(props.userData.email) && !isOwner) ? (
+            {(data.user.private || data.user.truePrivate) && (!userData || !data.user.followers.includes(props.userData.email) && !isOwner) ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
