@@ -48,6 +48,63 @@ export default function Navbar() {
         )
     }
 
+    const NavbarDarkModeButton = () => (
+        <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="up-button text">
+            <FiMoon/>
+        </button>
+    );
+
+    const NavbarNotificationMenu = () => (
+        <button className="mr-4 px-2 h-10 relative up-hover-button">
+            <FiBell/>
+            {notifications.length > 0 && (
+                <>
+                    {numNotifications > 0 && (
+                        <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
+                            <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
+                        </div>
+                    )}
+                </>
+            )}
+            {notifications.length > 0 && (
+                <>
+                    <div className="up-hover-dropdown cursor-default mt-10 w-64 md:w-96 overflow-y-auto max-h-96">
+                        {notifications
+                            .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+                            .map((notification: RichNotif) => (
+                                <NotificationItem
+                                    notification={notification}
+                                    acceptRequest={acceptRequest}
+                                    isLoading={loadingNotificationIds.includes(notification._id)}
+                                    key={notification._id}
+                                />
+                            ))
+                        }
+                    </div>
+                </>
+            )}
+        </button>
+    );
+
+    const NavbarProfileMenu = () => (
+        <button className="relative up-hover-button">
+            <div className="flex items-center">
+                <FiChevronDown/>
+                <img
+                    src={session.user.image}
+                    alt={`Profile picture of ${session.user.name}`}
+                    className="w-10 h-10 ml-2 rounded-full"
+                />
+            </div>
+            <div className="up-hover-dropdown mt-10">
+                {data && data.data && (
+                    <MenuLink icon={<FiUser />} text="Profile" href={`/@${data.data.urlName}`}/>
+                )}
+                <MenuButton icon={<IoMdExit />} text="Sign out" onClick={signOut}/>
+            </div>
+        </button>
+    );
+
     return (
         <>
             <div className="w-full sticky mb-8 top-0 z-30 bg-white dark:bg-gray-900">
@@ -62,63 +119,13 @@ export default function Navbar() {
                             <NavbarItem icon={<FiUser/>} text="Profile" href={`/@${data.data.urlName}`} selected={router.asPath === `/@${data.data.urlName}`}/>
                         )}
                     </div>
-                    
                     <div className="ml-auto flex items-center gap-x-4">                        
                         {session && <Link href="/new-update"><a className="up-button small primary hidden sm:block">Post new update</a></Link>}
-                        <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="up-button text">
-                            <FiMoon/>
-                        </button>
+                        <NavbarDarkModeButton/>
                         {session ? (
                             <>
-                                {notifications && (
-                                    <>
-                                    <button className="mr-4 px-2 h-10 relative up-hover-button">
-                                        <FiBell/>
-                                        {notifications.length > 0 && (
-                                            <>
-                                                {numNotifications > 0 && (
-                                                    <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
-                                                        <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
-                                        {notifications.length > 0 && (
-                                            <>
-                                                 <div className="up-hover-dropdown cursor-default mt-10 w-64 md:w-96 overflow-y-auto max-h-96">
-                                                    {notifications
-                                                        .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
-                                                        .map((notification: RichNotif) => (
-                                                            <NotificationItem
-                                                                notification={notification}
-                                                                acceptRequest={acceptRequest}
-                                                                isLoading={loadingNotificationIds.includes(notification._id)}
-                                                                key={notification._id}
-                                                            />
-                                                        ))
-                                                    }
-                                                </div>
-                                            </>
-                                        )}
-                                    </button>
-                                    </>
-                                )}
-                                <button className="relative up-hover-button">
-                                    <div className="flex items-center">
-                                        <FiChevronDown/>
-                                        <img
-                                            src={session.user.image}
-                                            alt={`Profile picture of ${session.user.name}`}
-                                            className="w-10 h-10 ml-2 rounded-full"
-                                        />
-                                    </div>
-                                    <div className="up-hover-dropdown mt-10">
-                                        {data && data.data && (
-                                            <MenuLink icon={<FiUser />} text="Profile" href={`/@${data.data.urlName}`}/>
-                                        )}
-                                        <MenuButton icon={<IoMdExit />} text="Sign out" onClick={signOut}/>
-                                    </div>
-                                </button>
+                                {notifications && <NavbarNotificationMenu/>}
+                                <NavbarProfileMenu/>
                             </>
                         ) : (
                             <button
