@@ -82,6 +82,8 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
         const cm = editorRef.current.simpleMde.codemirror;
 
         const keydownHandler = e => {
+            const {isMention, mentionQuery} = getMentionFromCM(cm);
+            if (!isMention) return;
             if (!userList.length) return;
 
             if (["Enter", "Tab"].includes(e.key)) {
