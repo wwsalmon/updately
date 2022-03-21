@@ -1,5 +1,5 @@
 import {GetServerSideProps} from "next";
-import {getSession, useSession} from "next-auth/client";
+import {getSession} from "next-auth/client";
 import {getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
@@ -23,11 +23,10 @@ import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 
 export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
-    const [session, loading] = useSession();
     const [data, setData] = useState<{user: User, updates: (Update & {mentionedUsersArr: User[]})[]}>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
-    const isOwner = !loading && session && (data.user.email === session.user.email);
+    const isOwner = userData && (data.user.email === userData.email);
     const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(props.updateUrl));
 
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -92,7 +91,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
     }
 
     function onPressLike() {
-        if (!session) return router.push("/sign-in");
+        if (!userData) return router.push("/sign-in");
 
         if (!(likesData && likesData.likes)) return;
 

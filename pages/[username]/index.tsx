@@ -1,10 +1,10 @@
 import {GetServerSideProps} from "next";
 import {getProfileRequest} from "../api/get-profile";
-import {getSession, useSession} from "next-auth/client";
+import {getSession} from "next-auth/client";
 import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
-import {cleanForJSON, dateOnly} from "../../utils/utils";
+import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
 import {getCurrUserRequest, getProfilesByEmails, getProfilesByIds} from "../../utils/requests";
 import React, {useEffect, useState} from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
@@ -15,15 +15,13 @@ import UserHeaderLeft from "../../components/UserHeaderLeft";
 import {useRouter} from "next/router";
 import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
-import {fetcher} from "../../utils/utils";
 import useSWR from "swr";
 import {notificationModel} from "../../models/models";
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[] }) {
     const [page, setPage] = useState<number>(1);
     const router = useRouter();
-    const [session, loading] = useSession();
-    const isOwner = !loading && session && (props.data.user.email === session.user.email);
+    const isOwner = props.userData && (props.data.user.email === props.userData.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
 
@@ -103,7 +101,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
 
             <hr className="my-8"/>
 
-            {data.user.private && (!session || !data.user.followers.includes(session.user.email) && !isOwner) ? (
+            {data.user.private && (!userData || !data.user.followers.includes(props.userData.email) && !isOwner) ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>

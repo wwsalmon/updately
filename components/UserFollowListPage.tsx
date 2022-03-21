@@ -1,6 +1,5 @@
 import {User} from "../utils/types";
 import React, {useState} from "react";
-import {useSession} from "next-auth/client";
 import {NextSeo} from "next-seo";
 import UserHeaderLeft from "./UserHeaderLeft";
 import ReducedProfileFollowButton from "./ReducedProfileFollowButton";
@@ -17,8 +16,7 @@ export default function UserFollowListPage(props: {
     const [pageUser, setPageUser] = useState<User>(props.pageUser);
     const [userData, setUserData] = useState<User>(props.userData);
     const [userList, setUserList] = useState<User[]>(props.userList);
-    const [session, loading] = useSession();
-    const isOwner = !loading && session && (props.pageUser.email === session.user.email);
+    const isOwner = props.userData && (props.pageUser.email === props.userData.email);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
