@@ -15,6 +15,7 @@ export interface User {
     following: string[], // ids
     image: string,
     private: boolean,
+    truePrivate: boolean,
     requesting: string[],
     requests: [],
     updatedAt: string, // date string,
