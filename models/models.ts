@@ -48,6 +48,7 @@ const updateSchema: Schema = new Schema({
 const userSchema: Schema = new Schema({
     ...authorObj,
     private: {type: Boolean, required: true},
+    truePrivate: {type: Boolean, required: true},
     following:  [mongoose.Schema.Types.ObjectId],
     followers: [reqString], // emails of followers
     requests: [reqString], // emails of users requesting follows

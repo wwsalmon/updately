@@ -173,5 +173,6 @@ export async function createAccount(user) {
         image: user.image,
         urlName: urlName,
         private: false,
+        truePrivate: false,
     });
 }
