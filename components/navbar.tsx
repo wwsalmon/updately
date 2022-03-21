@@ -1,5 +1,4 @@
-import {FaGoogle} from "react-icons/fa";
-import {signIn, signOut, useSession} from "next-auth/client";
+import {signOut, useSession} from "next-auth/client";
 import Link from "next/link";
 import MenuButton from "./MenuButton";
 import useSWR, {responseInterface} from "swr";
@@ -14,6 +13,8 @@ import axios from "axios";
 import {useEffect, useState} from "react";
 import {IoMdExit} from "react-icons/io";
 import NotificationItem from "./NotificationItem";
+import SignInButton from "./SignInButton";
+import FloatingCta from "./FloatingCTA";
 
 export default function Navbar() {
     const router = useRouter();
@@ -128,18 +129,12 @@ export default function Navbar() {
                                 <NavbarProfileMenu/>
                             </>
                         ) : (
-                            <button
-                                className="up-button primary"
-                                onClick={() => signIn('google')}
-                            >
-                                <div className="flex items-center">
-                                    <FaGoogle/><span className="ml-2">Sign in</span>
-                                </div>
-                            </button>
+                            <SignInButton/>
                         )}
                     </div>
                 </div>
             </div>
+            <FloatingCta/>
         </>
     );
 }
