@@ -260,12 +260,25 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const username: string = context.params.username.substr(1);
     const updateUrl: string = context.params.updateUrl;
     const data = await getUpdateRequest(username, updateUrl);
+
+    if (!data) return { notFound: true };
+
     const session = await getSession(context);
     const userData = session ? await getCurrUserRequest(session.user.email) : null;
 
-    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
+    const isTruePrivate = data.user.truePrivate;
 
-    if (!data) return { notFound: true };
+    if (isTruePrivate && (
+        !userData ||
+        !(
+            // following user
+            data.user.followers.includes(userData.email) ||
+            // or are the user
+            data.user._id.toString() === userData._id.toString()
+        )
+    )) return { notFound: true };
+
+    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
 
     return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
 };
