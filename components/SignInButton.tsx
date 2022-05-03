@@ -1,4 +1,4 @@
-import {signIn} from "next-auth/client";
+import {signIn} from "next-auth/react";
 import {FaGoogle} from "react-icons/fa";
 
 export default function SignInButton({className}: {className?: string}) {

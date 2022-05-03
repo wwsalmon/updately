@@ -1,5 +1,5 @@
 import "../styles/globals.css";
-import {Provider} from 'next-auth/client';
+import {SessionProvider} from 'next-auth/react';
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import NProgress from "nprogress";
@@ -13,12 +13,13 @@ Router.events.on("routeChangeError", () => NProgress.done());
 
 export default function App({Component, pageProps}) {
     return (
+        // @ts-ignore
         <ThemeProvider attribute="class" defaultTheme="light">
-            <Provider session={pageProps.session}>
+            <SessionProvider session={pageProps.session}>
                 <Navbar/>
                 <Component {...pageProps} />
                 <Footer/>
-            </Provider>
+            </SessionProvider>
         </ThemeProvider>
     )
 }

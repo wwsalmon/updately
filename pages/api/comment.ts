@@ -1,4 +1,4 @@
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
 import {commentModel, likeModel, notificationModel, userModel} from "../../models/models";

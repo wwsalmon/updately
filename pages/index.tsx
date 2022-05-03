@@ -1,4 +1,4 @@
-import {getSession, signIn} from "next-auth/client";
+import {getSession, signIn} from "next-auth/react";
 import {GetServerSideProps} from "next";
 import {getCurrUserRequest} from "../utils/requests";
 import React from "react";

@@ -1,5 +1,5 @@
 import {GetServerSideProps} from "next";
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import {getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";

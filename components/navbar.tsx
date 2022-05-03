@@ -1,4 +1,4 @@
-import {signOut, useSession} from "next-auth/client";
+import {signOut, useSession} from "next-auth/react";
 import Link from "next/link";
 import MenuButton from "./MenuButton";
 import useSWR, {responseInterface} from "swr";
@@ -18,7 +18,7 @@ import FloatingCta from "./FloatingCTA";
 
 export default function Navbar() {
     const router = useRouter();
-    const [session, loading] = useSession();
+    const {data: session} = useSession();
     const { data, error } = useSWR(session ? "/api/get-curr-user" : null, fetcher) || {data: null, error: null};
     const [notificationsIter, setNotificationsIter] = useState<number>(0);
     const { data: notificationData, error: notificationsError }: responseInterface<{ notifications: RichNotif[] }, any> = useSWR(session ? `/api/get-notifications?iter=${notificationsIter}` : null, fetcher);

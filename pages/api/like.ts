@@ -1,5 +1,5 @@
 import {NextApiRequest, NextApiResponse} from "next";
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import mongoose from "mongoose";
 import {commentModel, likeModel, notificationModel, updateModel, userModel} from "../../models/models";
 import {NotificationObj, NotificationTypeOpts} from "../../utils/types";

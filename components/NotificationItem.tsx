@@ -2,14 +2,14 @@ import MenuItem from "./MenuItem";
 import Link from "next/link";
 import {format, formatDistanceToNow} from "date-fns";
 import {RichNotif} from "../utils/types";
-import {useSession} from "next-auth/client";
+import {useSession} from "next-auth/react";
 
 export default function NotificationItem({
                                              notification,
                                              acceptRequest,
                                              isLoading,
                                          }: { notification: RichNotif, acceptRequest: (notifId: string) => any, isLoading?: boolean }) {
-    const [session, loading] = useSession();
+    const {data: session, status} = useSession();
 
     return (
         <div className={(notification.read && notification.type !== "request") ? "opacity-50" : ""}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {NextSeo} from "next-seo";
 import {GetServerSideProps} from "next";
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import {getCurrUserRequest} from "../utils/requests";
 import {cleanForJSON} from "../utils/utils";
 import {DatedObj, FeedItem, PrivateAggregation, Update, User} from "../utils/types";

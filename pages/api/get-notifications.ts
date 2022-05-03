@@ -1,6 +1,6 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import {notificationModel} from "../../models/models";
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import {getCurrUserRequest} from "../../utils/requests";
 import {User} from "../../utils/types";
 

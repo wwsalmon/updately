@@ -1,18 +1,20 @@
-import NextAuth from "next-auth";
-import Providers from "next-auth/providers";
-import mongoose from "mongoose";
-import {userModel} from "../../../models/models";
+import NextAuth, {NextAuthOptions} from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import {NextApiRequest, NextApiResponse} from "next";
 import {createAccount} from "../../../utils/requests";
+import {userModel} from "../../../models/models";
+import mongoose from "mongoose";
 
-const options = {
+const options: NextAuthOptions = {
     providers: [
-        Providers.Google({
+        GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET
         }),
     ],
+    secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-        signIn: async (user, account, profile) => {
+        signIn: async ({user}) => {
             await mongoose.connect(process.env.MONGODB_URL, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
@@ -30,4 +32,4 @@ const options = {
     }
 };
 
-export default (req, res) => NextAuth(req, res, options);
+export default (req: NextApiRequest, res: NextApiResponse) => NextAuth(req, res, options);

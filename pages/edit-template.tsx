@@ -3,7 +3,7 @@ import axios from "axios";
 import {useRouter} from "next/router";
 import {NextSeo} from "next-seo";
 import {GetServerSideProps} from "next";
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import {User} from "../utils/types";

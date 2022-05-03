@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {getProfileRequest} from "../api/get-profile";
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import {format} from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";

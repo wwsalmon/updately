@@ -1,5 +1,5 @@
 import {GetServerSideProps} from "next";
-import {getSession, signIn} from "next-auth/client";
+import {getSession, signIn} from "next-auth/react";
 import {FaGoogle} from "react-icons/fa";
 import React from "react";
 import {NextSeo} from "next-seo";

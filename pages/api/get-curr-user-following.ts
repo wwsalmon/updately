@@ -1,4 +1,4 @@
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import {NextApiRequest, NextApiResponse} from "next";
 import {getCurrUserFeedRequest, getDemoFeedRequest} from "../../utils/requests";
 import mongoose from "mongoose";
@@ -27,8 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const followingArr = lookupObj[0].followingArr;
 
-        res.status(200).json({users: followingArr});
+        return res.status(200).json({users: followingArr});
     } catch (e) {
-        res.status(500).json({error: e});
+        return res.status(500).json({error: e});
     }
 }

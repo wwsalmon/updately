@@ -5,7 +5,7 @@ import {useRouter} from "next/router";
 import EditUpdate from "../components/EditUpdate";
 import {NextSeo} from "next-seo";
 import {GetServerSideProps} from "next";
-import {getSession} from "next-auth/client";
+import {getSession} from "next-auth/react";
 import {getCurrUserRequest} from "../utils/requests";
 import {cleanForJSON} from "../utils/utils";
 import {User} from "../utils/types";

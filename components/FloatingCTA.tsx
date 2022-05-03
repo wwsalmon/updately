@@ -1,12 +1,12 @@
 import {useState} from "react";
 import {FiChevronUp, FiX} from "react-icons/fi";
 import SignInButton from "./SignInButton";
-import {useSession} from "next-auth/client";
+import {useSession} from "next-auth/react";
 import Link from "next/link";
 import {useRouter} from "next/router";
 
 export default function FloatingCta({}: {}) {
-    const [session, loading] = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const isHomePage = router.route === "/";
 
