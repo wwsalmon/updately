@@ -67,7 +67,7 @@ export async function getCurrUserFeedRequest(user, req) {
     if (userData.following.length === 0) return {userData: userData, feedData: null};
 
     const updates = await updateModel.aggregate([
-        {$match: {userId: {$in: userData.following.map(d => mongoose.Types.ObjectId(d))}}},
+        {$match: {userId: {$in: [...userData.following, userData._id].map(d => mongoose.Types.ObjectId(d))}}},
         {$sort: {date: -1}},
         {$skip: (+req.query.page - 1) * 20},
         {$limit: 20},
