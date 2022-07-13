@@ -3,7 +3,7 @@
 const config = {
   mongodb: {
     // TODO Change (or review) the url to your MongoDB:
-    url: process.env.MONGODB_URL,
+    url: "mongodb+srv://admin:n8nqNlct1y1z2szu@v1.yrebw.mongodb.net/v1?retryWrites=true&w=majority",
 
     options: {
       useNewUrlParser: true, // removes a deprecation warning when connecting

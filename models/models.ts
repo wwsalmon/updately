@@ -1,5 +1,5 @@
 import mongoose, {Model, Schema} from "mongoose";
-import {LikeDoc, MentionDoc, NotificationDoc} from "../utils/types";
+import {LikeDoc, NotificationDoc} from "../utils/types";
 
 const reqString = {
     type: String,
@@ -35,12 +35,13 @@ const commentSchema: Schema = new Schema({
 const updateSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId,
     body: reqString,
-    url: reqString,
+    url: unreqString, // required only for published updates
     title: unreqString,
     date: Date,
     readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],
     mentionedUsers: [mongoose.Schema.Types.ObjectId],
+    published: {type: Boolean, required: true},
 }, {
     timestamps: true,
 });
