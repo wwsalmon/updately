@@ -36,7 +36,7 @@ const updateSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId,
     body: reqString,
     url: unreqString, // required only for published updates
-    title: unreqString,
+    title: reqString, // the field is always there but it is an empty string on untitled updates
     date: Date,
     readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],

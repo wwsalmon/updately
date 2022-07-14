@@ -21,6 +21,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         userId: new mongoose.Types.ObjectId(userData._id),
         date: format(new Date(), "yyyy-MM-dd"),
         body: userData.template || "",
+        title: "",
         published: false,
     });
 
