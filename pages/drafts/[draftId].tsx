@@ -58,6 +58,18 @@ const Draft = ({update}: {update: Update}) => {
         })
     }
 
+    const handleDelete = () => {
+        axios.delete("/api/update", {
+            data: {
+                id: update._id,
+            }
+        }).then(res => {
+            router.push("/");
+        }).catch(e => {
+            console.log(e);
+        })
+    }
+
     useInterval(() => handleSave({date, body, title}), isSaved ? null : 1000);
 
     // run this effect on update only (not on initial mount)
@@ -77,7 +89,8 @@ const Draft = ({update}: {update: Update}) => {
                 description="Post a new update to share with your followers."
             />
 
-            <h1 className="up-h1">New update</h1>
+            <h1 className="up-h1 mb-4">New update</h1>
+            <p>This draft is automatically saved. You can access your drafts by going to your profile.</p>
 
             <EditUpdate
                 body={body}
@@ -88,8 +101,9 @@ const Draft = ({update}: {update: Update}) => {
                 setDate={setDate}
                 isLoading={postLoading}
                 onSave={handlePublish}
-                onCancel={() => router.push("/")}
+                onCancel={handleDelete}
                 confirmText="Post update"
+                cancelText="Delete draft"
             />
 
         </div>

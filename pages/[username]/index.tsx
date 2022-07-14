@@ -138,6 +138,10 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                         )}
                     </div>
 
+                    {tab === "drafts" && props.draftCount > 0 && (
+                        <p>Drafts are only visible to you.</p>
+                    )}
+
                     {updates && updates.length > 0 ? updates.map(update => (
                         <a
                             key={update._id}

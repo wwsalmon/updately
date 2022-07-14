@@ -30,7 +30,7 @@ export function setUserListByQuery(setUserList: Dispatch<SetStateAction<User[]>>
     });
 }
 
-export default function EditUpdate({body, setBody, title, setTitle, date, setDate, isLoading, onSave, onCancel, confirmText}: {
+export default function EditUpdate({body, setBody, title, setTitle, date, setDate, isLoading, onSave, onCancel, confirmText, cancelText}: {
     body: string,
     setBody: Dispatch<SetStateAction<string>>,
     title: string,
@@ -41,6 +41,7 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
     onSave: (any) => any,
     onCancel: (any) => any,
     confirmText: string,
+    cancelText: string,
 }) {
     const editorRef = useRef();
     const [mentionOpen, setMentionOpen] = useState<boolean>(false);
@@ -182,7 +183,7 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
                         <div className="up-spinner"/>
                     )}
                 </div>
-                <button className="up-button text mx-2" disabled={isLoading} onClick={onCancel}>Cancel</button>
+                <button className="up-button text mx-2" disabled={isLoading} onClick={onCancel}>{cancelText}</button>
             </div>
         </>
     )

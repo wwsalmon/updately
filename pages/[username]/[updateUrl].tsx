@@ -160,6 +160,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                         onSave={onEdit}
                         onCancel={onCancelEdit}
                         confirmText="Save changes"
+                        cancelText="Cancel"
                     />
                 ) : (
                     <>
