@@ -115,32 +115,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     await notificationModel.insertMany(notifsToAdd);
 
                     return res.status(200).json({message: "success", urlChanged: urlChanged});
-
                 }
             }
-            if (req.body.id) {
 
-                
-            } else {
-                const url = generateUrlName(req.body.title, req.body.date);
-
-                const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
-
-                const thisUpdate = await updateModel.create({
-                    date: new Date(req.body.date),
-                    body: req.body.body,
-                    url: url,
-                    title: req.body.title || "",
-                    userId: new mongoose.Types.ObjectId(thisUser.id),
-                    mentionedUsers: mentionedUsersIds,
-                });
-
-                const notifsToAdd = getMentionNotifs(mentionedUsersIds, thisUpdate, thisUser);
-
-                await notificationModel.insertMany(notifsToAdd);
-
-                return res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
-            }
         } else if (req.method === "DELETE") {
             if (!req.body.id) return res.status(400).send("No ID in request");
 
