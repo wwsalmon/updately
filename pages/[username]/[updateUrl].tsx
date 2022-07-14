@@ -46,6 +46,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
         setIsLoading(true);
 
         axios.post("/api/update", {
+            requestType: "savePublished",
             id: thisUpdate._id,
             date: date,
             body: body,
