@@ -64,7 +64,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             
             switch(req.body.requestType) {
                 case "saveDraft": {
-
+                    update["title"] = req.body.title;
+                    update["date"] = req.body.date;
+                    update["body"] = req.body.body;
+                    await update.save();
+                    return res.status(200).json({message: "success"});
                 }
                 case "publish": {
                     const url = generateUrlName(req.body.title, req.body.date);
@@ -86,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                     return res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
                 }
-                case "updatePublished": {
+                case "savePublished": {
                     let urlChanged: boolean | string = false;
 
                     if (!isEqual(dateOnly(update.date.toString()), dateOnly(req.body.date))) {

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import axios from "axios";
 import {useRouter} from "next/router";
 import {NextSeo} from "next-seo";
@@ -10,6 +10,7 @@ import { updateModel } from "../../models/models";
 import { getCurrUserRequest } from "../../utils/requests";
 import { cleanForJSON } from "../../utils/utils";
 import { format } from "date-fns";
+import { useInterval } from "../../utils/hooks";
 
 const Draft = ({update}: {update: Update}) => {
     const router = useRouter();
@@ -18,10 +19,31 @@ const Draft = ({update}: {update: Update}) => {
     const [title, setTitle] = useState<string>("");
     const [date, setDate] = useState<string>(format(new Date(update.date), "yyyy-MM-dd"));
     const [postLoading, setPostLoading] = useState<boolean>(false);
+    const [isSaved, setIsSaved] = useState<boolean>(true);
 
-    function handlePost() {
+    useEffect(() => {
+        const x = document.getElementsByClassName("autosave")
+        if (x && x.length > 0) x[x.length - 1].innerHTML = isSaved ? "Saved" : "Saving..."
+    }, [isSaved])
+
+    const handleSave = useCallback(({date, body, title}) => {
+        setIsSaved(false);
+
+        axios.post("/api/update", {
+            requestType: "saveDraft",
+            date: date,
+            body: body,
+            title: title,
+            id: update._id,
+        }).then(res => {
+            setIsSaved(true);
+        }).catch(e => {
+            console.log(e);
+        })
+    }, [])
+
+    const handlePublish = () => {
         setPostLoading(true);
-
         axios.post("/api/update", {
             requestType: "publish",
             date: date,
@@ -35,6 +57,19 @@ const Draft = ({update}: {update: Update}) => {
             setPostLoading(false);
         })
     }
+
+    useInterval(() => handleSave({date, body, title}), isSaved ? null : 1000);
+
+    // run this effect on update only (not on initial mount)
+    const isInitialMount = useRef(true);
+    useEffect(() => {
+    if (isInitialMount.current) {
+        isInitialMount.current = false;
+    } else {
+        setIsSaved(false);
+    }
+    }, [body, title, date]);
+
     return (
         <div className="max-w-4xl mx-auto px-4">
             <NextSeo
@@ -52,7 +87,7 @@ const Draft = ({update}: {update: Update}) => {
                 date={date}
                 setDate={setDate}
                 isLoading={postLoading}
-                onSave={handlePost}
+                onSave={handlePublish}
                 onCancel={() => router.push("/")}
                 confirmText="Post update"
             />
