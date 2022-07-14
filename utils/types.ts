@@ -36,6 +36,7 @@ export interface Update {
     createdAt: string, // date string
     updatedAt: string, // date string
     mentionedUsers: string[], // ids
+    published: boolean,
 }
 
 export interface PrivateAggregation {
