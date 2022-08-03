@@ -102,7 +102,7 @@ const Draft = ({update}: {update: Update}) => {
                 isLoading={postLoading}
                 onSave={handlePublish}
                 onCancel={handleDelete}
-                confirmText="Post update"
+                confirmText="Publish update"
                 cancelText="Delete draft"
             />
 
