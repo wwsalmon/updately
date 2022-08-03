@@ -36,9 +36,8 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [likesIter, setLikesIter] = useState<number>(0);
 
-    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}&updatePage=${true}`, fetcher);
+    const {data: updates} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}`, fetcher);
     const {data: likesData, error: likesError}: responseInterface<{ likes: LikeItem[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
-    const updates = feedDataObj ? feedDataObj.updates : {updates: []};
 
     const isLike = likesData && likesData.likes && userData && !!likesData.likes.find(d => d.userId === userData._id);
 
@@ -240,9 +239,12 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition dark:opacity-75"}`}
                             key={update._id}
                         >
-                            <Link href={`/@${data.user.urlName}/${update.url}`} shallow={false}>
+                            <Link
+                                href={update.published ? `/@${data.user.urlName}/${update.url}` : `/drafts/${update._id}`}
+                                shallow={false}
+                            >
                                 <a>
-                                    <div className="font-bold"><span>{format(dateOnly(update.date), "MMMM d, yyyy")}</span></div>
+                                    <div className="font-bold"><span>{update.published ? "" : "DRAFT: "}{format(dateOnly(update.date), "MMMM d, yyyy")}</span></div>
                                     <div><span>{update.title.substr(0,24)}{update.title.length > 24 ? "..." : ""}</span></div>
                                 </a>
                             </Link>
