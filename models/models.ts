@@ -1,6 +1,10 @@
 import mongoose, {Model, Schema} from "mongoose";
 import {LikeDoc, NotificationDoc} from "../utils/types";
 
+// workaround to get empty strings to be recognized as valid string values from https://github.com/Automattic/mongoose/issues/7150
+const Str = mongoose.Schema.Types.String as any;
+Str.checkRequired(v => v != null);
+
 const reqString = {
     type: String,
     required: true,
