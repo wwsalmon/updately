@@ -3,6 +3,7 @@ import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
 import {updateModel, userModel} from "../../models/models";
 import {AxiosPromise} from "axios";
+import {User} from "../../utils/types";
 
 export default async function getProfileHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405);
@@ -21,7 +22,7 @@ export default async function getProfileHandler(req: NextApiRequest, res: NextAp
     }
 }
 
-export async function getProfileRequest(username: string) {
+export async function getProfileRequest(username: string, thisUser?: User) {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -30,7 +31,12 @@ export async function getProfileRequest(username: string) {
 
     let user = await userModel.findOne({ urlName: username });
     if (user === null) return null;
-    const updates = await updateModel.find({ userId: user._id });
+
+    let conditions = {userId: user._id};
+
+    if (!thisUser || thisUser._id.toString() !== user._id.toString()) conditions["published"] = true;
+
+    const updates = await updateModel.find(conditions);
 
     return {user: user, updates: updates};
 }

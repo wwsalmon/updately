@@ -2,6 +2,7 @@ import * as mongoose from "mongoose";
 import {updateModel, userModel} from "../models/models";
 import short from "short-uuid";
 import axios from "axios";
+import {getSession} from "next-auth/react";
 
 export async function getUpdateRequest(username: string, url: string) {
     await mongoose.connect(process.env.MONGODB_URL, {
@@ -31,15 +32,23 @@ export async function getUpdatesRequest({req}) {
         useUnifiedTopology: true,
         useFindAndModify: false,
     });
+    const session = await getSession({req});
+    let thisUser = null;
+    if (session) {
+        thisUser = await userModel.findOne({email: session.user.email});
+    };
 
     // req.query.urlName is the url of the user
     let user = await userModel.findOne({ "urlName": req.query.urlName });
 
     if (user === null) return null;
-    // req.query.drafts is a string of "true" or "false"
-    let updates = await updateModel
-        .find({ "userId": user._id, "published": !(req.query.drafts.toLowerCase() === "true") })
-        .sort('-date').skip((+req.query.page - 1) * 10).limit(10);
+    let updates;
+
+    let conditions = { userId: user._id };
+
+    if (!thisUser || thisUser._id.toString() !== user._id.toString()) conditions["published"] = true;
+
+    updates = await updateModel.find(conditions).sort('-date').skip((+req.query.page - 1) * 10).limit(10);
 
     return updates;
 }

@@ -16,7 +16,7 @@ import {useRouter} from "next/router";
 import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
 import useSWR from "swr";
-import {notificationModel, updateModel} from "../../models/models";
+import {notificationModel, updateModel, userModel} from "../../models/models";
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[], draftCount: number }) {
     const [page, setPage] = useState<number>(1);
@@ -24,9 +24,8 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
     const isOwner = props.userData && (props.data.user.email === props.userData.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
-    const [tab, setTab] = useState<"updates"|"drafts">("updates");
 
-    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}&drafts=${tab === "drafts"}`, fetcher);
+    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}`, fetcher);
 
     useEffect(() => {
         if (router.query.notification) {
@@ -108,22 +107,6 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                     <div className="flex flex-col-reverse sm:flex-row sm:items-center">
                         {isOwner ? (
                             <>
-                            <div>
-                                <button
-                                    onClick={() => {
-                                        setTab("updates")
-                                        setPage(1);
-                                    }}
-                                    className={`${tab === "updates" ? "border-black" : "opacity-50"} up-ui-title border-b-2 border-transparent pb-2`}
-                                >Latest updates ({data.updates.length})</button>
-                                <button
-                                    onClick={() => {
-                                        setTab("drafts")
-                                        setPage(1);
-                                    }}
-                                    className={`${tab === "drafts" ? "border-black": "opacity-50"} up-ui-title border-b-2 border-transparent pb-2 ml-8`}
-                                >Drafts ({props.draftCount})</button>
-                            </div>
                             <div className="flex ml-auto mt-4 mb-12 sm:mb-4">
                                 <Link href="/edit-template">
                                     <a className="up-button text small ml-auto mr-4">Edit template</a>
@@ -138,26 +121,22 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                         )}
                     </div>
 
-                    {tab === "drafts" && props.draftCount > 0 && (
-                        <p className="my-4">Drafts are only visible to you.</p>
-                    )}
-
                     {updates && updates.length > 0 ? updates.map(update => (
                         <a
                             key={update._id}
                             className="block my-8"
-                            href={tab === "updates" ? `/@${data.user.urlName}/${update.url}` : `/drafts/${update._id}`}
+                            href={update.published ? `/@${data.user.urlName}/${update.url}` : `/drafts/${update._id}`}
                         >
-                            <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
+                            <h3 className="up-ui-item-title">{update.published ? "" : "DRAFT: "}{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
                             <p className="up-ui-item-subtitle">
                                 {update.title && (<span className="mr-2">{update.title}</span>)}
                                 <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
                             </p>
                         </a>
                     )) : (
-                        <p className="up-ui-item-subtitle">No {tab} yet.</p>
+                        <p className="up-ui-item-subtitle">No updates yet.</p>
                     )}
-                    {updates && updates.length > 0 && <PaginationBar page={page} count={tab === "updates" ? data.updates.length : props.draftCount} label={"updates"} setPage={setPage}/>}
+                    {updates && updates.length > 0 && <PaginationBar page={page} count={data.updates.length} label={"updates"} setPage={setPage}/>}
                 </>
             )}
 
@@ -169,18 +148,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (Array.isArray(context.params.username) || context.params.username.substr(0, 1) !== "@") return { notFound: true };
 
     const username: string = context.params.username.substr(1);
-    const data = await getProfileRequest(username);
-    if (!data) return { notFound: true };
 
     const session = await getSession(context);
-    const userData = session ? (session.user.email === data.user.email ? data.user : await getCurrUserRequest(session.user.email)) : null;
+    const thisUser = await userModel.findOne({email: session.user.email});
 
-    if (userData) await notificationModel.updateMany({userId: userData._id, type: "follow", authorId: data.user._id}, {read: true});
+    const data = await getProfileRequest(username, thisUser);
+    if (!data) return { notFound: true };
+
+    if (thisUser) await notificationModel.updateMany({userId: thisUser._id, type: "follow", authorId: data.user._id}, {read: true});
 
     let followers = await getProfilesByEmails(data.user.followers);
     let following = await getProfilesByIds(data.user.following);
 
-    const draftCount = await updateModel.countDocuments({userId: data.user._id, published: false});
-
-    return { props: { data: cleanForJSON(data), draftCount: draftCount, userData: cleanForJSON(userData), followers: cleanForJSON(followers), following: cleanForJSON(following), key: data.user._id.toString() }};
+    return { props: { data: cleanForJSON(data), userData: cleanForJSON(thisUser), followers: cleanForJSON(followers), following: cleanForJSON(following), key: data.user._id.toString() }};
 };
