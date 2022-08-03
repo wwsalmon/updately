@@ -8,7 +8,7 @@ import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/react";
 import { updateModel } from "../../models/models";
 import { getCurrUserRequest } from "../../utils/requests";
-import { cleanForJSON } from "../../utils/utils";
+import {cleanForJSON, dateOnly} from "../../utils/utils";
 import { format } from "date-fns";
 import { useInterval } from "../../utils/hooks";
 
@@ -17,7 +17,7 @@ const Draft = ({update}: {update: Update}) => {
 
     const [body, setBody] = useState<string>(update.body);
     const [title, setTitle] = useState<string>(update.title);
-    const [date, setDate] = useState<string>(format(new Date(update.date), "yyyy-MM-dd"));
+    const [date, setDate] = useState<string>(format(dateOnly(update.date), "yyyy-MM-dd"));
     const [postLoading, setPostLoading] = useState<boolean>(false);
     const [isSaved, setIsSaved] = useState<boolean>(true);
 
