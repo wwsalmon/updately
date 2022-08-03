@@ -1,5 +1,9 @@
 import mongoose, {Model, Schema} from "mongoose";
-import {LikeDoc, MentionDoc, NotificationDoc} from "../utils/types";
+import {LikeDoc, NotificationDoc} from "../utils/types";
+
+// workaround to get empty strings to be recognized as valid string values from https://github.com/Automattic/mongoose/issues/7150
+const Str = mongoose.Schema.Types.String as any;
+Str.checkRequired(v => v != null);
 
 const reqString = {
     type: String,
@@ -35,12 +39,13 @@ const commentSchema: Schema = new Schema({
 const updateSchema: Schema = new Schema({
     userId: mongoose.Schema.Types.ObjectId,
     body: reqString,
-    url: reqString,
-    title: unreqString,
+    url: unreqString, // required only for published updates
+    title: reqString, // the field is always there but it is an empty string on untitled updates
     date: Date,
     readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],
     mentionedUsers: [mongoose.Schema.Types.ObjectId],
+    published: {type: Boolean, required: true},
 }, {
     timestamps: true,
 });

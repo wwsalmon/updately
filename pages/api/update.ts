@@ -57,55 +57,67 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const thisUser = await userModel.findOne({ email: session.user.email });
 
         if (req.method === "POST") {
-            if (req.body.id) {
-                const update = await updateModel.findOne({ "_id": req.body.id });
-                if (update === null) return res.status(500).json({message: "No update found for given username and ID"});
-                if (update.userId.toString() !== thisUser._id.toString()) return res.status(403).send("Unauthed");
-
-                let urlChanged: boolean | string = false;
-
-                if (!isEqual(dateOnly(update.date.toString()), dateOnly(req.body.date))) {
-                    const url = generateUrlName(req.body.title, req.body.date);
-                    update["url"] = url;
-                    urlChanged = url;
+            if (!req.body.id) return res.status(400).json({message: "No id provided."});
+            const update = await updateModel.findOne({ "_id": req.body.id });
+            if (update === null) return res.status(500).json({message: "No update found for given username and ID"});
+            if (update.userId.toString() !== thisUser._id.toString()) return res.status(403).send("Unauthed");
+            
+            switch(req.body.requestType) {
+                case "saveDraft": {
+                    update["title"] = req.body.title;
+                    update["date"] = req.body.date;
+                    update["body"] = req.body.body;
+                    await update.save();
+                    return res.status(200).json({message: "success"});
                 }
+                case "publish": {
+                    const url = generateUrlName(req.body.title, req.body.date);
 
-                const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
+                    const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
 
-                update["mentionedUsers"] = mentionedUsersIds;
-                update["title"] = req.body.title;
-                update["date"] = req.body.date;
-                update["body"] = req.body.body;
+                    update["mentionedUsers"] = mentionedUsersIds;
+                    update["title"] = req.body.title;
+                    update["date"] = req.body.date;
+                    update["body"] = req.body.body;
+                    update["url"] = url;
+                    update["published"] = true;
 
-                await update.save();
+                    await update.save();
 
-                const newMentions = mentionedUsersIds.filter(d => !update.mentionedUsers.map(x => x.toString()).includes(d));
+                    const notifsToAdd = getMentionNotifs(mentionedUsersIds, update, thisUser);
 
-                const notifsToAdd = getMentionNotifs(newMentions, update, thisUser);
+                    await notificationModel.insertMany(notifsToAdd);
 
-                await notificationModel.insertMany(notifsToAdd);
+                    return res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
+                }
+                case "savePublished": {
+                    let urlChanged: boolean | string = false;
 
-                return res.status(200).json({message: "success", urlChanged: urlChanged});
-            } else {
-                const url = generateUrlName(req.body.title, req.body.date);
+                    if (!isEqual(dateOnly(update.date.toString()), dateOnly(req.body.date))) {
+                        const url = generateUrlName(req.body.title, req.body.date);
+                        update["url"] = url;
+                        urlChanged = url;
+                    }
 
-                const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
+                    const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
 
-                const thisUpdate = await updateModel.create({
-                    date: new Date(req.body.date),
-                    body: req.body.body,
-                    url: url,
-                    title: req.body.title || "",
-                    userId: new mongoose.Types.ObjectId(thisUser.id),
-                    mentionedUsers: mentionedUsersIds,
-                });
+                    update["mentionedUsers"] = mentionedUsersIds;
+                    update["title"] = req.body.title;
+                    update["date"] = req.body.date;
+                    update["body"] = req.body.body;
 
-                const notifsToAdd = getMentionNotifs(mentionedUsersIds, thisUpdate, thisUser);
+                    await update.save();
 
-                await notificationModel.insertMany(notifsToAdd);
+                    const newMentions = mentionedUsersIds.filter(d => !update.mentionedUsers.map(x => x.toString()).includes(d));
 
-                return res.status(200).json({message: "success", url: "/@" + thisUser.urlName + "/" + url});
+                    const notifsToAdd = getMentionNotifs(newMentions, update, thisUser);
+
+                    await notificationModel.insertMany(notifsToAdd);
+
+                    return res.status(200).json({message: "success", urlChanged: urlChanged});
+                }
             }
+
         } else if (req.method === "DELETE") {
             if (!req.body.id) return res.status(400).send("No ID in request");
 

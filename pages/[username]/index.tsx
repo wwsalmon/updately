@@ -16,17 +16,16 @@ import {useRouter} from "next/router";
 import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
 import useSWR from "swr";
-import {notificationModel} from "../../models/models";
+import {notificationModel, updateModel, userModel} from "../../models/models";
 
-export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[] }) {
+export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[], draftCount: number }) {
     const [page, setPage] = useState<number>(1);
     const router = useRouter();
     const isOwner = props.userData && (props.data.user.email === props.userData.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
 
-    const {data: feedDataObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}`, fetcher);
-    const updates = feedDataObj ? feedDataObj.updates : {updates: []};
+    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}`, fetcher);
 
     useEffect(() => {
         if (router.query.notification) {
@@ -105,10 +104,9 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
-                    <div className="sm:flex items-center">
-                        <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
-
-                        {isOwner && (
+                    <div className="flex flex-col-reverse sm:flex-row sm:items-center">
+                        {isOwner ? (
+                            <>
                             <div className="flex ml-auto mt-4 mb-12 sm:mb-4">
                                 <Link href="/edit-template">
                                     <a className="up-button text small ml-auto mr-4">Edit template</a>
@@ -117,12 +115,19 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                                     <a className="up-button primary small">Post new update</a>
                                 </Link>
                             </div>
+                            </>
+                        ) :  (
+                            <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
                         )}
                     </div>
 
                     {updates && updates.length > 0 ? updates.map(update => (
-                        <a key={update._id} className="block my-8" href={`/@${data.user.urlName}/${update.url}`}>
-                            <h3 className="up-ui-item-title">{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
+                        <a
+                            key={update._id}
+                            className="block my-8"
+                            href={update.published ? `/@${data.user.urlName}/${update.url}` : `/drafts/${update._id}`}
+                        >
+                            <h3 className="up-ui-item-title">{update.published ? "" : "DRAFT: "}{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
                             <p className="up-ui-item-subtitle">
                                 {update.title && (<span className="mr-2">{update.title}</span>)}
                                 <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
@@ -143,16 +148,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (Array.isArray(context.params.username) || context.params.username.substr(0, 1) !== "@") return { notFound: true };
 
     const username: string = context.params.username.substr(1);
-    const data = await getProfileRequest(username);
-    if (!data) return { notFound: true };
 
     const session = await getSession(context);
-    const userData = session ? (session.user.email === data.user.email ? data.user : await getCurrUserRequest(session.user.email)) : null;
+    const thisUser = await userModel.findOne({email: session.user.email});
 
-    if (userData) await notificationModel.updateMany({userId: userData._id, type: "follow", authorId: data.user._id}, {read: true});
+    const data = await getProfileRequest(username, thisUser);
+    if (!data) return { notFound: true };
+
+    if (thisUser) await notificationModel.updateMany({userId: thisUser._id, type: "follow", authorId: data.user._id}, {read: true});
 
     let followers = await getProfilesByEmails(data.user.followers);
     let following = await getProfilesByIds(data.user.following);
 
-    return { props: { data: cleanForJSON(data), userData: cleanForJSON(userData), followers: cleanForJSON(followers), following: cleanForJSON(following), key: data.user._id.toString() }};
+    return { props: { data: cleanForJSON(data), userData: cleanForJSON(thisUser), followers: cleanForJSON(followers), following: cleanForJSON(following), key: data.user._id.toString() }};
 };
