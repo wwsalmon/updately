@@ -150,7 +150,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const username: string = context.params.username.substr(1);
 
     const session = await getSession(context);
-    const thisUser = await userModel.findOne({email: session.user.email});
+    const thisUser = session ? await userModel.findOne({email: session.user.email}) : null;
 
     const data = await getProfileRequest(username, thisUser);
     if (!data) return { notFound: true };
