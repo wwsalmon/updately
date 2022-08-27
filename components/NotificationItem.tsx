@@ -3,13 +3,38 @@ import Link from "next/link";
 import {format, formatDistanceToNow} from "date-fns";
 import {RichNotif} from "../utils/types";
 import {useSession} from "next-auth/react";
+import axios from "axios";
+import { Dispatch, SetStateAction, useState } from "react";
 
 export default function NotificationItem({
                                              notification,
-                                             acceptRequest,
-                                             isLoading,
-                                         }: { notification: RichNotif, acceptRequest: (notifId: string) => any, isLoading?: boolean }) {
+                                             setNotificationsIter,
+                                         }: { notification: RichNotif, setNotificationsIter: Dispatch<SetStateAction<number>> }) {
     const {data: session, status} = useSession();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const acceptRequest = (notificationId) => {
+        setIsLoading(true);
+        axios.post("/api/accept-request", {
+            notificationId: notificationId
+        }).then(res => {
+            setNotificationsIter(prev => prev + 1);
+        }).catch(e => {
+            console.log(e);
+        }).finally(() => 
+            setIsLoading(false)
+        )
+    }
+
+    const rejectRequest = (notificationId) => {
+        axios.post("/api/reject-request", {
+            notificationId: notificationId
+        }).then(res => {
+            setNotificationsIter(prev => prev + 1);
+        }).catch(e => {
+            console.log(e);
+        })
+    }
 
     return (
         <div className={(notification.read && notification.type !== "request") ? "opacity-50" : ""}>
@@ -82,6 +107,13 @@ export default function NotificationItem({
                                             disabled={isLoading}
                                         ><span className={isLoading ? "invisible" : ""}>Accept</span></button>
                                         {isLoading && <div className="up-spinner"/> }
+                                    </div>
+                                    <div className="relative">
+                                        <button
+                                            className="up-button small text"
+                                            onClick={() => rejectRequest(notification._id)}
+                                            disabled={isLoading}
+                                        >Delete</button>
                                     </div>
                                 </div>
                             </>

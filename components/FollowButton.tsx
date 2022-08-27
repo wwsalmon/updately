@@ -14,7 +14,7 @@ export default function FollowButton({isFollowing, isRequesting, isLoading, isLo
             {isLoggedIn ? (
                 <div className="relative">
                     {(isFollowing || isRequesting) ? (
-                        <button className="up-button text" onClick={onClick}>
+                        <button className="up-button small text" onClick={onClick}>
                             <span className={isLoading ? "invisible" : ""}>{isFollowing ? "Following" : "Requested"}</span>
                         </button>
                     ) : (

@@ -9,12 +9,13 @@ import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-ico
 import {fetcher} from "../utils/utils";
 import {RichNotif} from "../utils/types";
 import {useTheme} from "next-themes";
-import axios from "axios";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {IoMdExit} from "react-icons/io";
 import NotificationItem from "./NotificationItem";
 import SignInButton from "./SignInButton";
 import FloatingCta from "./FloatingCTA";
+
+const allEqual = (arr: RichNotif[], arr2: RichNotif[]) => arr.length === arr2.length && arr.every( (n, idx) => n._id === arr[idx]._id && n.type === arr2[idx].type && n.read === arr2[idx].read && n.updatedAt === arr2[idx].updatedAt);
 
 export default function Navbar() {
     const router = useRouter();
@@ -23,11 +24,16 @@ export default function Navbar() {
     const [notificationsIter, setNotificationsIter] = useState<number>(0);
     const { data: notificationData, error: notificationsError }: responseInterface<{ notifications: RichNotif[] }, any> = useSWR(session ? `/api/get-notifications?iter=${notificationsIter}` : null, fetcher);
     const [ notifications, setNotifications ] = useState<RichNotif[]>([]);
+    // const notificationRef = useRef<RichNotif[]>([]); // keeps track of latest notifications
+    // const notifications = notificationRef.current;
     const numNotifications = notifications.filter(d => !d.read).length
-    const [loadingNotificationIds, setLoadingNotificationIds] = useState<string[]>([]);
 
     useEffect(() => {
-        if (notificationData && notificationData.notifications) setNotifications(notificationData.notifications)
+        if (notificationData && notificationData.notifications) {
+            console.log("notifications changed", notificationData)
+            setNotifications(notificationData.notifications)
+        }
+        // if (notificationData && notificationData.notifications && !allEqual(notificationData.notifications, notificationRef.current)) notificationRef.current = notificationData.notifications
     }, [notificationData]);
 
     useEffect(() => {
@@ -35,19 +41,6 @@ export default function Navbar() {
     }, [router.asPath]);
 
     const {theme, setTheme} = useTheme();
-
-    const acceptRequest = (notificationId) => {
-        setLoadingNotificationIds([...loadingNotificationIds, notificationId]);
-        axios.post("/api/accept-request", {
-            notificationId: notificationId
-        }).then(res => {
-            setNotificationsIter(notificationsIter + 1);
-        }).catch(e => {
-            console.log(e);
-        }).finally(() => 
-            setLoadingNotificationIds(loadingNotificationIds.filter(n => n !== notificationId))
-        )
-    }
 
     const NavbarDarkModeButton = () => (
         <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="up-button text">
@@ -75,8 +68,7 @@ export default function Navbar() {
                             .map((notification: RichNotif) => (
                                 <NotificationItem
                                     notification={notification}
-                                    acceptRequest={acceptRequest}
-                                    isLoading={loadingNotificationIds.includes(notification._id)}
+                                    setNotificationsIter={setNotificationsIter}
                                     key={notification._id}
                                 />
                             ))
