@@ -60,7 +60,7 @@ export default function UpdateFeed({updates, page, setPage, count}: {updates: Fe
                     </div>
                 )
             }) : (
-                <div className="prose content my-6 dark:opacity-70">
+                <div className="prose content my-6 dark:prose-invert">
                     <p>Looks like the users you're following haven't posted anything yet. Follow more people or remind your friends to write their updates!</p>
                 </div>
             )}

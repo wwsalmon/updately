@@ -223,7 +223,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                             )}
                         </div>
                         <hr className="my-8"/>
-                        <div className="prose content my-8 dark:text-gray-300 break-words overflow-hidden">
+                        <div className="prose dark:prose-invert content my-8 dark:text-gray-300 break-words overflow-hidden">
                             {Parser(markdownConverter.makeHtml(bodyToParse))}
                         </div>
                         <hr className="my-8"/>
