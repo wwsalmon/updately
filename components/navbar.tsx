@@ -5,17 +5,15 @@ import useSWR, {responseInterface} from "swr";
 import MenuLink from "./MenuLink";
 import {useRouter} from "next/router";
 import NavbarItem from "./NavbarItem";
-import {FiBell, FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-icons/fi";
+import {FiChevronDown, FiHome, FiMoon, FiSearch, FiUser} from "react-icons/fi";
 import {fetcher} from "../utils/utils";
 import {RichNotif} from "../utils/types";
 import {useTheme} from "next-themes";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {IoMdExit} from "react-icons/io";
-import NotificationItem from "./NotificationItem";
 import SignInButton from "./SignInButton";
 import FloatingCta from "./FloatingCTA";
-
-const allEqual = (arr: RichNotif[], arr2: RichNotif[]) => arr.length === arr2.length && arr.every( (n, idx) => n._id === arr[idx]._id && n.type === arr2[idx].type && n.read === arr2[idx].read && n.updatedAt === arr2[idx].updatedAt);
+import NavbarNotificationMenu from "./NavbarNotificationMenu";
 
 export default function Navbar() {
     const router = useRouter();
@@ -24,16 +22,12 @@ export default function Navbar() {
     const [notificationsIter, setNotificationsIter] = useState<number>(0);
     const { data: notificationData, error: notificationsError }: responseInterface<{ notifications: RichNotif[] }, any> = useSWR(session ? `/api/get-notifications?iter=${notificationsIter}` : null, fetcher);
     const [ notifications, setNotifications ] = useState<RichNotif[]>([]);
-    // const notificationRef = useRef<RichNotif[]>([]); // keeps track of latest notifications
-    // const notifications = notificationRef.current;
     const numNotifications = notifications.filter(d => !d.read).length
 
     useEffect(() => {
         if (notificationData && notificationData.notifications) {
-            console.log("notifications changed", notificationData)
             setNotifications(notificationData.notifications)
         }
-        // if (notificationData && notificationData.notifications && !allEqual(notificationData.notifications, notificationRef.current)) notificationRef.current = notificationData.notifications
     }, [notificationData]);
 
     useEffect(() => {
@@ -48,36 +42,6 @@ export default function Navbar() {
         </button>
     );
 
-    const NavbarNotificationMenu = () => (
-        <button className="mr-4 px-2 h-10 relative up-hover-button">
-            <FiBell/>
-            {notifications.length > 0 && (
-                <>
-                    {numNotifications > 0 && (
-                        <div className="rounded-full w-3 h-3 bg-red-500 top-0 right-0 absolute text-white font-bold">
-                            <span style={{fontSize: 8, top: -9}} className="relative">{numNotifications}</span>
-                        </div>
-                    )}
-                </>
-            )}
-            {notifications.length > 0 && (
-                <>
-                    <div className="up-hover-dropdown cursor-default mt-10 w-64 md:w-96 overflow-y-auto max-h-96">
-                        {notifications
-                            .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
-                            .map((notification: RichNotif) => (
-                                <NotificationItem
-                                    notification={notification}
-                                    setNotificationsIter={setNotificationsIter}
-                                    key={notification._id}
-                                />
-                            ))
-                        }
-                    </div>
-                </>
-            )}
-        </button>
-    );
 
     const NavbarProfileMenu = () => (
         <button className="relative up-hover-button">
@@ -117,7 +81,7 @@ export default function Navbar() {
                         <NavbarDarkModeButton/>
                         {session ? (
                             <>
-                                {notifications && <NavbarNotificationMenu/>}
+                                {notifications && <NavbarNotificationMenu notifications={notifications} numNotifications={numNotifications} setNotificationsIter={setNotificationsIter}/>}
                                 <NavbarProfileMenu/>
                             </>
                         ) : (

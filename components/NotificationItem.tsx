@@ -92,28 +92,37 @@ export default function NotificationItem({
                     if (notification.type === "request") {
                         return (
                             <>
-                                <div className="flex flex-row items-center gap-4">
-                                    <div>
-                                        <span><b><Link href={href}><a>{thisAuthor.name}</a></Link></b> requested to follow you</span>
-                                        <br/>
-                                        <span className="opacity-50">
-                                            {formatDistanceToNow(new Date(notification.createdAt))} ago
-                                        </span>
+                                <div className="flex flex-row items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <img
+                                            src={notification.authorArr[0].image}
+                                            alt={`Profile picture of ${notification.authorArr[0].name}`}
+                                            className="w-10 h-10 ml-2 rounded-full"
+                                        />
+                                        <div>
+                                            <span><b><Link href={href}><a>{thisAuthor.name}</a></Link></b></span>
+                                            <br/>
+                                            <span className="opacity-50">
+                                                {formatDistanceToNow(new Date(notification.createdAt))} ago
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="relative">
-                                        <button
-                                            className="up-button small primary"
-                                            onClick={() => acceptRequest(notification._id)}
-                                            disabled={isLoading}
-                                        ><span className={isLoading ? "invisible" : ""}>Accept</span></button>
-                                        {isLoading && <div className="up-spinner"/> }
-                                    </div>
-                                    <div className="relative">
-                                        <button
-                                            className="up-button small text"
-                                            onClick={() => rejectRequest(notification._id)}
-                                            disabled={isLoading}
-                                        >Delete</button>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative">
+                                            <button
+                                                className="up-button small primary"
+                                                onClick={() => acceptRequest(notification._id)}
+                                                disabled={isLoading}
+                                            ><span className={isLoading ? "invisible" : ""}>Accept</span></button>
+                                            {isLoading && <div className="up-spinner"/> }
+                                        </div>
+                                        <div className="relative">
+                                            <button
+                                                className="up-button small text"
+                                                onClick={() => rejectRequest(notification._id)}
+                                                disabled={isLoading}
+                                            >Delete</button>
+                                        </div>
                                     </div>
                                 </div>
                             </>
