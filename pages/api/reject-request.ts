@@ -2,15 +2,16 @@ import {getSession} from "next-auth/react";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
 import {notificationModel, userModel} from "../../models/models";
+import getLookup from "../../utils/getLookup";
+import {res400, res403, res404, res405, res500} from "next-response-helpers";
 
-export default async function editBioHandler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== "POST") return res.status(405);
+export default async function rejectRequest(req: NextApiRequest, res: NextApiResponse) {
+    if (req.method !== "POST") return res405(res);
+
     const session = await getSession({ req });
-    if (!session) {
-        res.status(403).json({message: "You must be signed in to edit a user profile."});
-        return;
-    }
-    if (!req.body.notificationId) return res.status(422).json({message: "No notification ID in request"});
+    if (!session) return res403(res);
+
+    if (!req.body.notificationId) return res400(res, "No notification ID in request");
 
     try {
         mongoose.connect(process.env.MONGODB_URL, {
@@ -19,26 +20,31 @@ export default async function editBioHandler(req: NextApiRequest, res: NextApiRe
             useFindAndModify: false,
         });
 
-        const notification = await notificationModel.findById(req.body.notificationId)
+        const notification = await notificationModel.aggregate([
+            {$match: {_id: mongoose.Types.ObjectId(req.body.notificationId)}},
+            getLookup("users", "_id", "authorId", "author"),
+            {$unwind: "$author"},
+            getLookup("users", "_id", "userId", "user"),
+            {$unwind: "$user"},
+        ]);
 
-        const requester = await userModel.findById(notification.authorId);
-        const receivingUser = await userModel.findById(notification.userId);
+        if (!notification) return res404(res);
 
-        if (!requester) return res.status(500).json({message: "No user found for given ID"});
-        if (!receivingUser) return res.status(500).json({message: "No user found for given ID"});
-        if (receivingUser.email !== session.user.email) return res.status(403).json({message: "You do not have permission to accept this follow request."});
+        const thisNotification = notification[0];
 
-        requester.requesting = requester.requesting.filter(d => !d.equals(notification.userId));
-        requester.markModified("requesting");
+        const author = thisNotification.author;
+        const user = thisNotification.user;
 
-        receivingUser.requests = receivingUser.requests.filter(d => d !== requester.email);
-        receivingUser.markModified("requests");
+        if (!author || !user) return res500(res, new Error("Author or user not found for notification"));
+        if (user.email !== session.user.email) return res403(res, "You do not have permission to reject this follow request");
 
-        await requester.save();
-        await receivingUser.save();
+        const requesting = author.requesting.filter(d => !d.equals(thisNotification.userId));
+        await userModel.updateOne({_id: author._id}, {$set: {requesting}});
 
-        // Delete notification
-        await notification.remove();
+        const requests = user.requests.filter(d => d !== user.email);
+        await userModel.updateOne({_id: user._id}, {$set: {requests}});
+
+        await notificationModel.deleteOne({_id: thisNotification._id});
 
         res.status(200).json({message: "success"});
     } catch (e) {
