@@ -137,7 +137,7 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
             <div className="my-8">
                 <div className="up-ui-title my-4"><span>Body</span></div>
                 <div className="max-w-full relative">
-                    <div className="prose content">
+                    <div className="prose content dark:prose-invert">
                         <SimpleMDE
                             ref={editorRef}
                             id="updateEditor"

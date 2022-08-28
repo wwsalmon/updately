@@ -27,13 +27,8 @@ input, textarea {
     display: none;
 }
 
-.prose h3, .prose h2, .prose h1, .prose a, .prose strong, .prose em {
-    @apply dark:text-white
-}
-
 .content {
     font-size: 20px;
-    @apply dark:text-white;
 }
 
 /* Updately theme */
@@ -192,8 +187,4 @@ a.up-button.small {
 
 .dark .CodeMirror-focused .CodeMirror-selected {
     background-color: rgba(229, 231, 235, 0.2) !important;
-}
-
-.dark .prose blockquote {
-    color: #fff;
 }

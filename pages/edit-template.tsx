@@ -51,7 +51,7 @@ export default function EditTemplate(props: {userData: User}) {
             <hr className="my-8"/>
 
             <div className="my-8">
-                <div className="prose content max-w-full">
+                <div className="prose dark:prose-invert content max-w-full">
                     <SimpleMDE
                         id="helloworld"
                         onChange={setTemplate}
