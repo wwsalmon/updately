@@ -1,9 +1,8 @@
-import {FiBell} from "react-icons/fi";
+import {FiBell, FiChevronLeft, FiChevronRight} from "react-icons/fi";
 import {RichNotif} from "../utils/types";
 import {Dispatch, SetStateAction, useState} from "react";
 import NotificationItem from "./NotificationItem";
 import MenuItem from "./MenuItem";
-import {MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight} from "react-icons/md";
 
 const NavbarNotificationMenu = ({notifications, numNotifications, setNotificationsIter}: {notifications: RichNotif[], numNotifications: number, setNotificationsIter: Dispatch<SetStateAction<number>>}) => {
     const followReqs = notifications.filter(d => d.type === "request");
@@ -29,8 +28,8 @@ const NavbarNotificationMenu = ({notifications, numNotifications, setNotificatio
                                 <button onClick={() => setIsFollowReqs(false)} className="hover:bg-gray-50 dark:hover:bg-opacity-10 w-full">
                                         <MenuItem text={
                                             <div className="flex items-center gap-4">
-                                                <MdOutlineKeyboardArrowLeft className="h-8 w-8 opacity-50"/>
-                                                <p className="font-bold">Back</p>
+                                                <FiChevronLeft/>
+                                                <p>Back</p>
                                             </div>
                                         }/>
                                     </button>
@@ -52,11 +51,11 @@ const NavbarNotificationMenu = ({notifications, numNotifications, setNotificatio
                                                     <img
                                                         src={followReqs[0].authorArr[0].image}
                                                         alt={`Profile picture of ${followReqs[0].authorArr[0].name}`}
-                                                        className="w-10 h-10 ml-2 rounded-full"
+                                                        className="w-6 h-6 ml-2 rounded-full"
                                                     />
-                                                    <p className="font-bold">Follow requests ({followReqs.length})</p>
+                                                    <p>Follow requests ({followReqs.length})</p>
                                                 </div>
-                                                <MdOutlineKeyboardArrowRight className="h-8 w-8 opacity-50"/>
+                                                <FiChevronRight/>
                                             </div>
                                         }/>
                                     </button>
