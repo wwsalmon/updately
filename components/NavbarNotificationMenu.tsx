@@ -26,7 +26,7 @@ const NavbarNotificationMenu = ({notifications, numNotifications, setNotificatio
                     <div className="up-hover-dropdown cursor-default mt-10 w-64 md:w-[32rem] overflow-y-auto max-h-96">
                         {isFollowReqs ? (
                             <>
-                                <button onClick={() => setIsFollowReqs(false)} className="hover:bg-gray-50 w-full">
+                                <button onClick={() => setIsFollowReqs(false)} className="hover:bg-gray-50 dark:hover:bg-opacity-10 w-full">
                                         <MenuItem text={
                                             <div className="flex items-center gap-4">
                                                 <MdOutlineKeyboardArrowLeft className="h-8 w-8 opacity-50"/>
@@ -45,7 +45,7 @@ const NavbarNotificationMenu = ({notifications, numNotifications, setNotificatio
                         ) : (
                             <>
                                 {followReqs.length > 0 && (
-                                    <button onClick={() => setIsFollowReqs(true)} className="hover:bg-gray-50 w-full">
+                                    <button onClick={() => setIsFollowReqs(true)} className="hover:bg-gray-50 dark:hover:bg-opacity-10 w-full">
                                         <MenuItem text={
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-4">
