@@ -17,7 +17,7 @@ const Draft = ({update}: {update: Update}) => {
 
     const [body, setBody] = useState<string>(update.body);
     const [title, setTitle] = useState<string>(update.title);
-    const [date, setDate] = useState<string>(update.createdAt == update.updatedAt ? format(new Date(), "yyyy-MM-dd") : format(dateOnly(update.date), "yyyy-MM-dd"));
+    const [date, setDate] = useState<string>(update.createdAt === update.updatedAt ? format(new Date(), "yyyy-MM-dd") : format(dateOnly(update.date), "yyyy-MM-dd"));
     const [postLoading, setPostLoading] = useState<boolean>(false);
     const [isSaved, setIsSaved] = useState<boolean>(true);
 
