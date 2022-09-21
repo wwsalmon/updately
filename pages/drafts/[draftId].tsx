@@ -17,7 +17,7 @@ const Draft = ({update}: {update: Update}) => {
 
     const [body, setBody] = useState<string>(update.body);
     const [title, setTitle] = useState<string>(update.title);
-    const [date, setDate] = useState<string>(format(dateOnly(update.date), "yyyy-MM-dd"));
+    const [date, setDate] = useState<string>(update.createdAt == update.updatedAt ? format(new Date(), "yyyy-MM-dd") : format(dateOnly(update.date), "yyyy-MM-dd"));
     const [postLoading, setPostLoading] = useState<boolean>(false);
     const [isSaved, setIsSaved] = useState<boolean>(true);
 
@@ -25,6 +25,8 @@ const Draft = ({update}: {update: Update}) => {
         const x = document.getElementsByClassName("autosave")
         if (x && x.length > 0) x[x.length - 1].innerHTML = isSaved ? "Saved" : "Saving..."
     }, [isSaved])
+
+
 
     const handleSave = useCallback(({date, body, title}) => {
         setIsSaved(false);
