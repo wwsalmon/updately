@@ -133,9 +133,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                                 </Link>
                             </div>
                             </>
-                        ) :  (
-                            <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
-                        )}
+                        ) :  ''}
                         
                     </div>
 
