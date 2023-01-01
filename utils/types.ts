@@ -93,3 +93,8 @@ export interface MentionObj {
 export type MentionDoc = MentionObj & Document;
 
 export type LikeItem = LikeObj & {userArr: User[]};
+
+export enum SortBy {
+    Date,
+    WordCount
+}

@@ -3,6 +3,7 @@ import {updateModel, userModel} from "../models/models";
 import short from "short-uuid";
 import axios from "axios";
 import {getSession} from "next-auth/react";
+import { SortBy } from "./types";
 
 export async function getUpdateRequest(username: string, url: string) {
     await mongoose.connect(process.env.MONGODB_URL, {
@@ -48,7 +49,26 @@ export async function getUpdatesRequest({req}) {
 
     if (!thisUser || thisUser._id.toString() !== user._id.toString()) conditions["published"] = true;
 
-    updates = await updateModel.find(conditions).sort('-date').skip((+req.query.page - 1) * 10).limit(10);
+    if (parseInt(req.query.sortBy) == SortBy.WordCount) {
+        updates = await updateModel.aggregate([
+            { $match: conditions },
+            {
+                $addFields: {
+                    wordCount: {
+                        $size: { $split: ['$body', ' '] },
+                    },
+                },
+            },
+            { $sort: { wordCount: -1, date: -1, _id: 1 } },
+            {$project: {"wordCount": 0}},
+            { $skip: (+req.query.page - 1) * 10 },
+            { $limit: 10 },
+        ]);
+    }
+    else {
+        updates = await updateModel.find(conditions).sort('-date').skip((+req.query.page - 1) * 10).limit(10);
+    }
+
 
     return updates;
 }

@@ -9,7 +9,7 @@ import {getCurrUserRequest, getProfilesByEmails, getProfilesByIds} from "../../u
 import React, {useEffect, useState} from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {Update, User} from "../../utils/types";
+import {SortBy, Update, User} from "../../utils/types";
 import UserPfpList from "../../components/UserPfpList";
 import UserHeaderLeft from "../../components/UserHeaderLeft";
 import {useRouter} from "next/router";
@@ -17,6 +17,13 @@ import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
 import useSWR from "swr";
 import {notificationModel, updateModel, userModel} from "../../models/models";
+import CustomSelect from "../../components/CustomSelect";
+
+const options = [
+	{ value: SortBy.Date, label: 'Date' },
+	{ value: SortBy.WordCount, label: 'Length' },
+];
+
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[], draftCount: number }) {
     const [page, setPage] = useState<number>(1);
@@ -24,8 +31,8 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
     const isOwner = props.userData && (props.data.user.email === props.userData.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
-
-    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}`, fetcher);
+    const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
+    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}&sortBy=${sortBy}`, fetcher);
 
     useEffect(() => {
         if (router.query.notification) {
@@ -105,6 +112,16 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
             ) : (
                 <>
                     <div className="flex flex-col-reverse sm:flex-row sm:items-center">
+                        <p className="up-ui-title">Sort by:</p>
+                        <div className="flex-auto mx-2 mt-4 mb-12 sm:mb-4">
+                            <CustomSelect
+                                options={options}
+                                defaultValue={options.find(x => x.value == SortBy.Date)}
+                                onChange={option => setSortBy(option.value)}
+                                isSearchable={false}
+                                className="rounded-md text-xl"
+                            />
+                        </div>
                         {isOwner ? (
                             <>
                             <div className="flex ml-auto mt-4 mb-12 sm:mb-4">
@@ -119,6 +136,7 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                         ) :  (
                             <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
                         )}
+                        
                     </div>
 
                     {updates && updates.length > 0 ? updates.map(update => (
