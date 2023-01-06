@@ -2,8 +2,11 @@ import * as mongoose from "mongoose";
 import {updateModel, userModel} from "../models/models";
 import short from "short-uuid";
 import axios from "axios";
+import cohere from "cohere-ai"
 import {getSession} from "next-auth/react";
-import { SortBy } from "./types";
+import { SortBy, Update } from "./types";
+import { NextApiRequest } from "next";
+import { dot, norm } from "mathjs";
 
 export async function getUpdateRequest(username: string, url: string) {
     await mongoose.connect(process.env.MONGODB_URL, {
@@ -204,4 +207,76 @@ export async function createAccount(user) {
         private: false,
         truePrivate: false,
     });
+}
+
+
+async function getUserUpdates (username: string) {
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+    let user = await userModel.findOne({ "urlName": username })
+    if (user === null) return null;
+    
+    const updates: Update[] = await updateModel.find({
+        userId : user._id,
+        published: true
+    })
+    return updates
+}
+
+export async function generateUserEmbeddings (username: string) {
+    cohere.init(process.env.COHERE_KEY)
+    const updates = await getUserUpdates(username);
+    const response = await cohere.embed({
+        texts: updates.map(update => update.body),
+        truncate: "RIGHT"
+    });
+    console.log(response)
+    return updates.map((update, index) => {
+        return {
+            update: update,
+            embeddings: response.body.embeddings[index]
+        }
+    })
+}
+
+
+
+async function getUpdate (url: string) {
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+    });
+
+    const update: Update = await updateModel.findOne({
+        url: url
+    });
+    return update
+}
+
+
+export async function getTopThree (username: string, url: string) {
+    cohere.init(process.env.COHERE_KEY)
+    const update = await getUpdate(url);
+    const updateEmbedding = (await cohere.embed({
+        texts: [update.body],
+        truncate: "RIGHT"
+    })).body.embeddings[0];
+    const embeddings = (await generateUserEmbeddings(username));
+
+    const similarities = embeddings.map(embedding => {
+        return {
+            update: embedding.update,
+            similarity: dot(updateEmbedding, embedding.embeddings) / ((norm(updateEmbedding) as number) * (norm(embedding.embeddings) as number))
+        }
+    })
+
+    similarities.sort((a, b) => b.similarity - a.similarity);
+    console.log(similarities.map(update => ({similarity: update.similarity, title: update.update.title})));
+    const finalUpdates = similarities.slice(1, 4).map(similarity => similarity.update);
+
+    return finalUpdates;
 }
