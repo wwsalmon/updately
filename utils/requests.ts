@@ -1,12 +1,12 @@
 import * as mongoose from "mongoose";
-import {updateModel, userModel} from "../models/models";
+import {embeddingModel, updateModel, userModel} from "../models/models";
 import short from "short-uuid";
 import axios from "axios";
 import cohere from "cohere-ai"
 import {getSession} from "next-auth/react";
 import { SortBy, Update } from "./types";
 import { NextApiRequest } from "next";
-import { dot, norm } from "mathjs";
+// import { dot, norm } from "mathjs";
 
 export async function getUpdateRequest(username: string, url: string) {
     await mongoose.connect(process.env.MONGODB_URL, {
@@ -210,21 +210,21 @@ export async function createAccount(user) {
 }
 
 
-async function getUserUpdates (username: string) {
-    await mongoose.connect(process.env.MONGODB_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
-    });
-    let user = await userModel.findOne({ "urlName": username })
-    if (user === null) return null;
+// async function getUserUpdates (userId: string) {
+//     await mongoose.connect(process.env.MONGODB_URL, {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true,
+//         useFindAndModify: false,
+//     });
+//     let user = await userModel.findOne({ "urlName": username })
+//     if (user === null) return null;
     
-    const updates: Update[] = await updateModel.find({
-        userId : user._id,
-        published: true
-    })
-    return updates
-}
+//     const updates: Update[] = await updateModel.find({
+//         userId : user._id,
+//         published: true
+//     })
+//     return updates
+// }
 
 export async function generateUserEmbeddings (updates: Update[]) {
     cohere.init(process.env.COHERE_KEY)
@@ -232,10 +232,17 @@ export async function generateUserEmbeddings (updates: Update[]) {
         texts: updates.map(update => update.body),
         truncate: "RIGHT"
     });
-    console.log(response)
     return response.body.embeddings
 }
 
+export async function generateEmbedding(text:string) {
+    cohere.init(process.env.COHERE_KEY)
+    const response = await cohere.embed({
+        texts: [text],
+        truncate: "RIGHT"
+    })
+    return response.body.embeddings[0]
+}
 
 
 async function getUpdate (url: string) {
@@ -251,49 +258,111 @@ async function getUpdate (url: string) {
     return update
 }
 
-async function getUserEmbeddings(username: string) {
-	const updates = await getUserUpdates(username);
-	if (updates[0].embedding === undefined || updates[0].embedding.length === 0) {
-        console.log("CACHE MISS")
-		const embeddings = await generateUserEmbeddings(updates);
-		updates.forEach(async (update, index) => {
-			update['embedding'] = embeddings[index];
-			await update.save(); //ive been casting these as Updates oops
-		});
-		return updates;
+async function getUserEmbeddings(userId: string) {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+	const updatesWithEmbeddings: (Update & { embedding: number[] })[] =
+		await updateModel.aggregate([
+			{ $match: { userId: mongoose.Types.ObjectId(userId) } },
+			{
+				$lookup: {
+					from: 'embeddings',
+					localField: '_id',
+					foreignField: 'updateId',
+					as: 'fromEmbeddings',
+				},
+			},
+			{ $match: { fromEmbeddings: { $ne: [] } } },
+			{
+				$replaceRoot: {
+					newRoot: {
+						$mergeObjects: [{ $arrayElemAt: ['$fromEmbeddings', 0] }, '$$ROOT'],
+					},
+				},
+			},
+			{ $project: { fromEmbeddings: 0 } },
+		]);
+	const updatesWithoutEmbeddings = await updateModel.aggregate([
+		{ $match: { userId: mongoose.Types.ObjectId(userId) } },
+		{
+			$lookup: {
+				from: 'embeddings',
+				localField: '_id',
+				foreignField: 'updateId',
+				as: 'fromEmbeddings',
+			},
+		},
+		{ $match: { fromEmbeddings: { $eq: [] } } },
+		{ $project: { fromEmbeddings: 0 } },
+	]);
+	console.log(updatesWithoutEmbeddings.map(update => update.title));
+	if (updatesWithoutEmbeddings.length != 0) {
+		console.log('cache misses: recomputing embeddings');
+		const embeddings = await generateUserEmbeddings(updatesWithoutEmbeddings);
+		console.log(embeddings[0]);
+		console.log('computed embeddings from cohere');
+		await embeddingModel.insertMany(
+			embeddings.map((embedding, index) => ({
+				updateId: mongoose.Types.ObjectId(updatesWithoutEmbeddings[index]._id),
+				embedding: embedding,
+			})),
+			error => {
+				throw new Error(error);
+			}
+		);
+
+		updatesWithEmbeddings.push(
+			...updatesWithoutEmbeddings.map((update, index) => ({
+				embedding: embeddings[index],
+				...update,
+			}))
+		);
 	}
-	return updates;
+	// console.log(updatesWithEmbeddings)
+	return updatesWithEmbeddings;
 }
 
-export function semanticSimilarity(a: Update, b: Update) {
-	return (
-		dot(a.embedding, b.embedding) /
-		((norm(a.embedding) as number) * (norm(b.embedding) as number))
-	);
+
+export function semanticSimilarity(a: number[], b: number[]) {
+	const dot = (a: Float64Array, b: Float64Array) =>
+		a.reduce((prev, curr, index) => prev + curr * b[index]);
+
+	const norm = (x: Float64Array) =>
+		Math.sqrt(x.reduce((prev, curr) => prev + curr * curr));
+
+	const aEmbed = new Float64Array(a);
+	const bEmbed = new Float64Array(b);
+	return dot(aEmbed, bEmbed) / (norm(aEmbed) * norm(bEmbed));
 }
 
-export async function getTopThree(username: string, url: string) {
+export async function getTopThree(userId: string, updateId: string) {
 	console.log('GETTING TOP THREE');
 	cohere.init(process.env.COHERE_KEY);
-	const update = await getUpdate(url);
-	console.log('GOT UPDATE');
-	const hasNoEmbedding = (update: Update) =>
-		update.embedding === undefined || update.embedding.length === 0;
-	if (hasNoEmbedding(update)) {
-		console.log('update has no embedding');
-		update['embedding'] = (
-			await cohere.embed({
-				texts: [update.body],
-				truncate: 'RIGHT',
-			})
-		).body.embeddings[0];
-	}
-	const updatesWithEmbeddings = await getUserEmbeddings(username);
-	console.log('GOT EMBEDDINGS');
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
 
-	updatesWithEmbeddings
-		.map((x): [Update, number] => [x, semanticSimilarity(x, update)])
-		.sort((a, b) => b[1] - a[1]);
+	const update = await updateModel.findById(updateId);
+	const updatesWithEmbeddings = await getUserEmbeddings(userId);
+	const embedding = await embeddingModel.findOne({
+		updateId: update._id,
+	});
+	console.log('got embeddings');
 
-	return updatesWithEmbeddings.slice(1, 4);
+	console.time('computing similarity');
+	const similarities = updatesWithEmbeddings.map((x): [Update, number] => [
+		x,
+		semanticSimilarity(x.embedding, embedding.embedding),
+	]);
+	console.timeEnd('computing similarity');
+	console.time('sorting');
+	const sortedSimilarities = similarities.sort((a, b) => b[1] - a[1]);
+	console.timeEnd('sorting');
+	// console.log(sortedSimilarities.map(x => `title: ${x[0].title} similarity: ${x[1]}`))
+	return sortedSimilarities.map(x => x[0]).slice(1, 4);
 }

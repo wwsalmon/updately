@@ -20,9 +20,10 @@ import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
 import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
+import TopThree from "../../components/TopThree";
 import { DeleteModal } from "../../components/Modal";
 
-export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User, topThree: Update[] }) {
+export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
     const [data, setData] = useState<{user: User, updates: (Update & {mentionedUsersArr: User[]})[]}>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
@@ -218,23 +219,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                         </div>
                         <hr className="my-8"/>
                         <div className="up-ui-title mb-4 dark:text-gray-300"><span>Similar</span></div>
-                        {props.topThree.map(update => (
-                            <div
-                            className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition dark:opacity-75"}`}
-                            key={update._id}
-                        >
-
-                            <Link
-                                href={`/@${data.user.urlName}/${update.url}`}
-                                shallow={false}
-                            >
-                                <a>
-                                    <div className="font-bold"><span>{update.published ? "" : "DRAFT: "}{format(dateOnly(update.date), "MMMM d, yyyy")}</span></div>
-                                    <div><span>{update.title}</span></div>
-                                </a>
-                            </Link>
-                        </div>
-                        ))}
+                        <TopThree user={props.data.user} update={thisUpdate} />
                         <UpdateComments update={thisUpdate} userData={userData}/>
                     </>
                 )}
@@ -272,7 +257,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const username: string = context.params.username.substring(1);
     const updateUrl: string = context.params.updateUrl;
     const data = await getUpdateRequest(username, updateUrl);
-    const topThree = await getTopThree(username, updateUrl);
+    // const topThree = await getTopThree(username, updateUrl);
 
     if (!data) return { notFound: true };
 
@@ -293,5 +278,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
 
-    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl, topThree: cleanForJSON(topThree) }};
+    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl}};
 };

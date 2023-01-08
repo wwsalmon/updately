@@ -17,7 +17,6 @@
     "cohere-ai": "^5.0.2",
     "date-fns": "^2.16.1",
     "html-react-parser": "^0.14.2",
-    "mathjs": "^11.5.0",
     "mongoose": "^5.10.16",
     "next": "^12.1.6",
     "next-auth": "^4.3.4",
