@@ -46,6 +46,7 @@ const updateSchema: Schema = new Schema({
     comments: [commentSchema],
     mentionedUsers: [mongoose.Schema.Types.ObjectId],
     published: {type: Boolean, required: true},
+    embedding: [mongoose.Schema.Types.Number]
 }, {
     timestamps: true,
 });

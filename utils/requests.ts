@@ -226,20 +226,14 @@ async function getUserUpdates (username: string) {
     return updates
 }
 
-export async function generateUserEmbeddings (username: string) {
+export async function generateUserEmbeddings (updates: Update[]) {
     cohere.init(process.env.COHERE_KEY)
-    const updates = await getUserUpdates(username);
     const response = await cohere.embed({
         texts: updates.map(update => update.body),
         truncate: "RIGHT"
     });
     console.log(response)
-    return updates.map((update, index) => {
-        return {
-            update: update,
-            embeddings: response.body.embeddings[index]
-        }
-    })
+    return response.body.embeddings
 }
 
 
@@ -257,26 +251,49 @@ async function getUpdate (url: string) {
     return update
 }
 
+async function getUserEmbeddings(username: string) {
+	const updates = await getUserUpdates(username);
+	if (updates[0].embedding === undefined || updates[0].embedding.length === 0) {
+        console.log("CACHE MISS")
+		const embeddings = await generateUserEmbeddings(updates);
+		updates.forEach(async (update, index) => {
+			update['embedding'] = embeddings[index];
+			await update.save(); //ive been casting these as Updates oops
+		});
+		return updates;
+	}
+	return updates;
+}
 
-export async function getTopThree (username: string, url: string) {
-    cohere.init(process.env.COHERE_KEY)
-    const update = await getUpdate(url);
-    const updateEmbedding = (await cohere.embed({
-        texts: [update.body],
-        truncate: "RIGHT"
-    })).body.embeddings[0];
-    const embeddings = (await generateUserEmbeddings(username));
+export function semanticSimilarity(a: Update, b: Update) {
+	return (
+		dot(a.embedding, b.embedding) /
+		((norm(a.embedding) as number) * (norm(b.embedding) as number))
+	);
+}
 
-    const similarities = embeddings.map(embedding => {
-        return {
-            update: embedding.update,
-            similarity: dot(updateEmbedding, embedding.embeddings) / ((norm(updateEmbedding) as number) * (norm(embedding.embeddings) as number))
-        }
-    })
+export async function getTopThree(username: string, url: string) {
+	console.log('GETTING TOP THREE');
+	cohere.init(process.env.COHERE_KEY);
+	const update = await getUpdate(url);
+	console.log('GOT UPDATE');
+	const hasNoEmbedding = (update: Update) =>
+		update.embedding === undefined || update.embedding.length === 0;
+	if (hasNoEmbedding(update)) {
+		console.log('update has no embedding');
+		update['embedding'] = (
+			await cohere.embed({
+				texts: [update.body],
+				truncate: 'RIGHT',
+			})
+		).body.embeddings[0];
+	}
+	const updatesWithEmbeddings = await getUserEmbeddings(username);
+	console.log('GOT EMBEDDINGS');
 
-    similarities.sort((a, b) => b.similarity - a.similarity);
-    console.log(similarities.map(update => ({similarity: update.similarity, title: update.update.title})));
-    const finalUpdates = similarities.slice(1, 4).map(similarity => similarity.update);
+	updatesWithEmbeddings
+		.map((x): [Update, number] => [x, semanticSimilarity(x, update)])
+		.sort((a, b) => b[1] - a[1]);
 
-    return finalUpdates;
+	return updatesWithEmbeddings.slice(1, 4);
 }
