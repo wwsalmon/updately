@@ -54,7 +54,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
             <MentionsInput
                 value={commentText}
                 onChange={e => setCommentText(e.target.value)}
-                className="w-full border p-4 rounded-md text-xl up-mention-input bg-white dark:bg-gray-900"
+                className="w-full border p-4 rounded-md text-xl up-mention-input bg-white dark:bg-black"
                 placeholder="Write a comment..."
                 style={{
                     suggestions: {
@@ -81,26 +81,24 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
                     )}
                 />
             </MentionsInput>
-            <div className="flex mt-2">
-                <div className="ml-auto relative">
-                    <button
-                        className="up-button text ml-auto mr-4"
-                        disabled={!parentCommentId && commentText.length === 0}
-                        onClick={clearComment}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className="up-button primary small"
-                        disabled={commentText.length === 0 || isLoading}
-                        onClick={postComment}
-                    >
-                        Post
-                    </button>
+            <div className="flex items-center mt-2">
+                <button
+                    className="up-button text ml-auto mr-4 block"
+                    disabled={!parentCommentId && commentText.length === 0}
+                    onClick={clearComment}
+                >
+                    Cancel
+                </button>
+                <button
+                    className="up-button primary small relative block"
+                    disabled={commentText.length === 0 || isLoading}
+                    onClick={postComment}
+                >
+                    Post
                     {isLoading && (
                         <div className="up-spinner"/>
                     )}
-                </div>
+                </button>
             </div>
         </>
     );
