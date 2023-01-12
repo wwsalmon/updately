@@ -54,7 +54,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
             <MentionsInput
                 value={commentText}
                 onChange={e => setCommentText(e.target.value)}
-                className="w-full border p-4 rounded-md text-xl up-mention-input bg-white dark:bg-black"
+                className="w-full border p-4 rounded-md text-xl up-mention-input bg-white dark:bg-gray-900"
                 placeholder="Write a comment..."
                 style={{
                     suggestions: {
