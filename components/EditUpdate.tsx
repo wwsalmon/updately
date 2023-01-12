@@ -152,7 +152,7 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
                     </div>
                     {mentionOpen && (
                         <div
-                            className="fixed z-30 shadow-lg rounded-md py-1 bg-white"
+                            className="fixed z-30 shadow-lg rounded-md py-1 bg-white dark:bg-black"
                             style={{
                                 // @ts-ignore editorRef.current not undefined
                                 top: editorRef.current ? editorRef.current.simpleMde.codemirror.cursorCoords(true, "window").top + 24 : 0,

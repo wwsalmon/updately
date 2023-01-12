@@ -22,7 +22,7 @@ export default function UpdateFeed({updates, page, setPage, count}: {updates: Fe
                         )}
                         {("private" in update) ? (
                             <div className="flex items-center my-6">
-                                <div className="w-16 h-16 rounded-full mr-4 flex items-center justify-center bg-gray-100 dark:bg-opacity-20">
+                                <div className="w-16 h-16 rounded-full mr-4 flex items-center justify-center bg-gray-100 dark:bg-neutral-800">
                                     <span className="text-center text-xl"><FiLock/></span>
                                 </div>
                                 <p className="text-xl opacity-50">{update.count} private update{update.count === 1 ? "" : "s"}</p>

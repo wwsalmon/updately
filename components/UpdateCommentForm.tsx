@@ -54,12 +54,12 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
             <MentionsInput
                 value={commentText}
                 onChange={e => setCommentText(e.target.value)}
-                className="w-full border p-4 rounded-md text-xl up-mention-input"
+                className="w-full border p-4 rounded-md text-xl up-mention-input bg-white dark:bg-gray-900"
                 placeholder="Write a comment..."
                 style={{
                     suggestions: {
                         list: {
-                            padding: "4px 0",
+                            // padding: "4px 0",
                             fontSize: 16,
                             boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)", // shadow-lg
                             borderRadius: "0.375rem", // rounded-md
@@ -71,7 +71,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
                     trigger="@"
                     displayTransform={(id, display) => `@${display}`}
                     data={getMentionUsers}
-                    className="border-b-2 border-black bg-gray-100"
+                    className="border-b-2 border-black bg-gray-100 dark:bg-neutral-700"
                     renderSuggestion={(entry, search, highlightedDisplay, index, focused) => (
                         <MentionItem
                             focused={focused}
