@@ -188,3 +188,8 @@ a.up-button.small {
 .dark .CodeMirror-focused .CodeMirror-selected {
     background-color: rgba(229, 231, 235, 0.2) !important;
 }
+
+/* wish this was a tailwind class */
+.font-inherit {
+    font-family: inherit;
+}
