@@ -89,12 +89,16 @@ a.up-button.small {
     @apply text-white;
 }
 
+.up-button.primary:not(:disabled):hover {
+    background-color: #001abb; /* postulate upBlue700 */
+}
+
 .up-button:not(.text):not(.primary) {
     @apply border-2 border-black dark:border-white;
 }
 
-.up-button:not(.text):not(:disabled):hover {
-    @apply bg-black text-white;
+.up-button:not(.text):not(.primary):not(:disabled):hover {
+    @apply bg-black text-white dark:bg-white dark:text-black;
 }
 
 .up-button.text:not(:disabled):hover{
