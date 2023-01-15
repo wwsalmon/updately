@@ -26,11 +26,12 @@ export default function Modal({isOpen, setIsOpen, children, wide = false}: {
     );
 }
 
-export function DeleteModal({isOpen, setIsOpen, thisUpdate, userUrlName}: {
+export function DeleteModal({isOpen, setIsOpen, thisUpdate, userUrlName, thisItem}: {
     isOpen: boolean,
     setIsOpen: Dispatch<SetStateAction<boolean>>,
     thisUpdate: Update,
     userUrlName: string,
+    thisItem?: string,
 }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -48,22 +49,23 @@ export function DeleteModal({isOpen, setIsOpen, thisUpdate, userUrlName}: {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
         >
-            <p>Are you sure you want to delete this update? This action cannot be undone.</p>
-            <div className="flex items-center mt-2 justify-center gap-4">
+            <p>Are you sure you want to delete this {thisItem || "update"}? This action cannot be undone.</p>
+            <div className="flex items-center mt-2 gap-2">
                 <button
-                    className="up-button text block"
-                    onClick={() => setIsOpen(false)}
-                >
-                    Cancel
-                </button>
-                <button
-                    className="up-button primary small relative block"
+                    className="up-button danger small relative block"
                     onClick={handleDelete}
+                    disabled={isLoading}
                 >
                     <span className={isLoading && "invisible"}>Delete</span>
                     {isLoading && (
                         <div className="up-spinner"/>
                     )}
+                </button>
+                <button
+                    className="up-button text block"
+                    onClick={() => setIsOpen(false)}
+                >
+                    Cancel
                 </button>
             </div>
         </Modal>
