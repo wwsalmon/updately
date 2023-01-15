@@ -18,7 +18,7 @@ export function getMentionInfo(body: string) {
     const mentionStrings = body.match(/(@\[).*?(\))/g);
     const mentionObjs = mentionStrings ? mentionStrings.map(d => ({
         display: d.split("@[")[1].split("](")[0],
-        id: d.split("@[")[1].split("](")[1]
+        id: d.split("@[")[1].split("](")[1].split(")")[0],
     })) : [];
 
     return {mentionStrings: mentionStrings, mentionObjs: mentionObjs};

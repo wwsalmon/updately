@@ -3,7 +3,7 @@ import axios from "axios";
 import {useRouter} from "next/router";
 import {NextSeo} from "next-seo";
 import EditUpdate from "../../components/EditUpdate"
-import { Update } from "../../utils/types";
+import {Update, User} from "../../utils/types";
 import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/react";
 import { updateModel } from "../../models/models";
@@ -11,8 +11,9 @@ import { getCurrUserRequest } from "../../utils/requests";
 import {cleanForJSON, dateOnly} from "../../utils/utils";
 import { format } from "date-fns";
 import { useInterval } from "../../utils/hooks";
+import {DeleteModal} from "../../components/Modal";
 
-const Draft = ({update}: {update: Update}) => {
+const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
     const router = useRouter();
 
     const [body, setBody] = useState<string>(update.body);
@@ -20,6 +21,7 @@ const Draft = ({update}: {update: Update}) => {
     const [date, setDate] = useState<string>(update.createdAt === update.updatedAt ? format(new Date(), "yyyy-MM-dd") : format(dateOnly(update.date), "yyyy-MM-dd"));
     const [postLoading, setPostLoading] = useState<boolean>(false);
     const [isSaved, setIsSaved] = useState<boolean>(true);
+    const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
 
     useEffect(() => {
         const x = document.getElementsByClassName("autosave")
@@ -60,18 +62,6 @@ const Draft = ({update}: {update: Update}) => {
         })
     }
 
-    const handleDelete = () => {
-        axios.delete("/api/update", {
-            data: {
-                id: update._id,
-            }
-        }).then(res => {
-            router.push("/");
-        }).catch(e => {
-            console.log(e);
-        })
-    }
-
     useInterval(() => handleSave({date, body, title}), isSaved ? null : 1000);
 
     // run this effect on update only (not on initial mount)
@@ -103,10 +93,13 @@ const Draft = ({update}: {update: Update}) => {
                 setDate={setDate}
                 isLoading={postLoading}
                 onSave={handlePublish}
-                onCancel={handleDelete}
+                onCancel={() => setIsDeleteOpen(true)}
                 confirmText="Publish update"
                 cancelText="Delete draft"
             />
+
+            <DeleteModal isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} thisUpdate={update}
+                         userUrlName={thisUser.urlName} thisItem="draft"/>
 
         </div>
     )
@@ -122,5 +115,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const thisUpdate = await updateModel.findById(context.params.draftId);
     if (!thisUpdate || thisUpdate.published || !thisUpdate.userId.equals(thisUser._id)) return { notFound: true };
 
-    return { props: { update: cleanForJSON(thisUpdate) } };
+    return { props: { update: cleanForJSON(thisUpdate), thisUser: cleanForJSON(thisUser) } };
 };

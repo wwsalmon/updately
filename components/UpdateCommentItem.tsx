@@ -13,7 +13,7 @@ import {getMentionInfo} from "../pages/api/update";
 
 export function getMentionsAndBodySegments(body: string) {
     const {mentionStrings, mentionObjs} = getMentionInfo(body);
-    const regexString = mentionStrings ? mentionStrings.map(d => `\\@\\[${escapeRegExp(d)}\\)`).join("|") : null;
+    const regexString = mentionStrings ? mentionStrings.map(d => escapeRegExp(d)).join("|") : null;
     const bodySegments = mentionStrings ? body.split(new RegExp(regexString)) : [];
     return {bodySegments: bodySegments, mentionObjs: mentionObjs};
 }
@@ -22,20 +22,20 @@ const CommentBody = ({comment, mentionedUsers}: {comment: CommentObj, mentionedU
     const {bodySegments, mentionObjs} = getMentionsAndBodySegments(comment.body);
 
     return (
-        <p className="sm:text-xl">
+        <pre className="sm:text-xl whitespace-pre-wrap font-inherit">
             {(mentionObjs && mentionObjs.length) ? bodySegments.map((segment, i) => (
                 <React.Fragment key={`comment-${comment._id}-fragment-${i}`}>
                     {segment}
                     {i !== bodySegments.length - 1 && (
                         <Link href={`/@${mentionedUsers.find(d => d._id === mentionObjs[i].id).urlName}`}>
-                            <a className="bg-gray-100 border-b-2 border-black">
+                            <a className="bg-gray-100 dark:bg-neutral-700 border-b-2 border-black dark:border-white">
                                 @{mentionObjs[i].display}
                             </a>
                         </Link>
                     )}
                 </React.Fragment>
             )) : comment.body}
-        </p>
+        </pre>
     );
 }
 

@@ -41,7 +41,7 @@ export default async function newCommentHandler(req: NextApiRequest, res: NextAp
 
     if (req.method === "POST") {
         const updateId = req.body.updateId;
-        if (!updateId) return res.status(500).json({message: "Update id required to post comment"});
+        if (!updateId) return res.status(406).json({message: "Update id required to post comment"});
 
         const commentId = req.body.commentId || "";
 
