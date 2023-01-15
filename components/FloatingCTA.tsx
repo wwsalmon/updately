@@ -13,7 +13,7 @@ export default function FloatingCta({}: {}) {
     const [isHidden, setIsHidden] = useState<boolean>(false);
 
     return (session || isHomePage) ? <></> : (
-        <div className="fixed bottom-12 sm:bottom-4 left-4 right-4 p-3 z-20 bg-gray-50 border border-gray-300 rounded max-w-sm">
+        <div className="fixed bottom-12 sm:bottom-4 left-4 right-4 p-3 z-20 bg-gray-50 dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 rounded max-w-sm">
             {!isHidden && (
                 <p className="mb-3">Updately is a platform for <b>sharing daily updates</b> with friends and teammates.</p>
             )}
