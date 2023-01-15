@@ -18,6 +18,7 @@ import PaginationBar from "../../components/PaginationBar";
 import useSWR from "swr";
 import {notificationModel, updateModel, userModel} from "../../models/models";
 import CustomSelect from "../../components/CustomSelect";
+import {FaSort} from "react-icons/fa";
 
 const options = [
 	{ value: SortBy.Date, label: 'Date' },
@@ -111,32 +112,29 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
-                    <div className="flex flex-col-reverse sm:flex-row sm:items-center">
-                        <p className="up-ui-title">Sort by:</p>
-                        <div className="flex-auto mx-2 mt-4 mb-12 sm:mb-4">
-                            <CustomSelect
-                                options={options}
-                                defaultValue={options.find(x => x.value == SortBy.Date)}
-                                onChange={option => setSortBy(option.value)}
-                                isSearchable={false}
-                                className="rounded-md text-xl"
-                            />
-                        </div>
-                        {isOwner ? (
+                    {isOwner && (
+                        <div className="flex mt-6 mb-8 justify-end">
                             <>
-                            <div className="flex ml-auto mt-4 mb-12 sm:mb-4">
                                 <Link href="/edit-template">
-                                    <a className="up-button text small ml-auto mr-4">Edit template</a>
+                                    <a className="up-button text small mr-4">Edit template</a>
                                 </Link>
                                 <Link href="/new-update">
                                     <a className="up-button primary small">Post new update</a>
                                 </Link>
-                            </div>
                             </>
-                        ) :  ''}
-                        
+                        </div>
+                    )}
+                    <div className="flex items-center mb-12">
+                        <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
+                        <div className="flex items-center ml-auto">
+                            <p className="up-ui-title mr-2 text-gray-400"><FaSort/></p>
+                            <select value={sortBy} onChange={e => setSortBy(+e.target.value)}>
+                                {options.map(d => (
+                                    <option value={d.value} key={d.value}>{d.label}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-
                     {updates && updates.length > 0 ? updates.map(update => (
                         <a
                             key={update._id}
