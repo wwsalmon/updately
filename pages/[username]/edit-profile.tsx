@@ -11,6 +11,7 @@ import axios from "axios";
 import {useRouter} from "next/router";
 import Select from "react-select";
 import {useTheme} from "next-themes";
+import CustomSelect from '../../components/CustomSelect';
 
 
 export default function EditBioPage(props: { userData: User }) {
@@ -44,53 +45,6 @@ export default function EditBioPage(props: { userData: User }) {
         { value: "unlisted", label: "Unlisted (hidden in public feeds, link accessible)" },
         { value: "private", label: "Private (hidden in public feeds, not link accessible)" },
     ]
-    
-    const customStyles = {
-        option: (provided, state) => {
-            const optionBackgroundColor = state.isSelected ? "rgb(38, 132, 255)" /* default */ : (theme === "dark" ? "#000" : "#FFF")
-
-            return ({
-                ...provided,
-                padding: 8,
-                paddingRight: 16,
-                paddingLeft: 16,
-                backgroundColor: optionBackgroundColor,
-
-                ":hover": {
-                    backgroundColor: state.isSelected ? optionBackgroundColor : theme === "dark" ? "rgba(243, 244, 246, 0.2)" : "rgba(243, 244, 246, 1)", // tailwind gray 100, just like moremenu on hover
-                },
-            })
-        },
-
-        valueContainer: (provided) => ({
-            ...provided,
-            padding: 8,
-            paddingRight: 16,
-            paddingLeft: 16,
-        }),
-
-        control: (provided) => ({
-            ...provided,
-            borderColor: "#e5e7eb",
-            backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0)" : "#FFF",
-        }),
-
-        container: (provided) => ({
-            ...provided,
-            marginBottom: 8,
-        }),
-
-        menu: (provided) => ({
-            ...provided,
-            backgroundColor: theme === "dark" ? "#000" : "#FFF",
-        }),
-
-        singleValue: (provided) => ({
-            ...provided,
-            color: theme === "dark" ? "#FFF" : "#000",
-        }),
-        
-    }
 
     return (
         <div className="max-w-4xl mx-auto px-4">
@@ -117,14 +71,13 @@ export default function EditBioPage(props: { userData: User }) {
                             Privacy settings
                         </h2>
                     </div>
-                    <Select 
+                    <CustomSelect 
                         options={options}
                         defaultValue={options.find(d => d.value === privacy)}
                         onChange={option => setPrivacy(option.value)}
                         isSearchable={false}
                         className="rounded-md text-xl"
                         isDisabled={isLoading}
-                        styles={customStyles}
                     />
                 </div>
             </div>

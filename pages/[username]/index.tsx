@@ -9,7 +9,7 @@ import {getCurrUserRequest, getProfilesByEmails, getProfilesByIds} from "../../u
 import React, {useEffect, useState} from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {Update, User} from "../../utils/types";
+import {SortBy, Update, User} from "../../utils/types";
 import UserPfpList from "../../components/UserPfpList";
 import UserHeaderLeft from "../../components/UserHeaderLeft";
 import {useRouter} from "next/router";
@@ -17,6 +17,14 @@ import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
 import useSWR from "swr";
 import {notificationModel, updateModel, userModel} from "../../models/models";
+import CustomSelect from "../../components/CustomSelect";
+import {FaSort} from "react-icons/fa";
+
+const options = [
+	{ value: SortBy.Date, label: 'Date' },
+	{ value: SortBy.WordCount, label: 'Length' },
+];
+
 
 export default function UserProfile(props: { data: {user: User, updates: Update[]}, userData: User, followers: User[], following: User[], draftCount: number }) {
     const [page, setPage] = useState<number>(1);
@@ -24,8 +32,8 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
     const isOwner = props.userData && (props.data.user.email === props.userData.email);
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
-
-    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}`, fetcher);
+    const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
+    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}&sortBy=${sortBy}`, fetcher);
 
     useEffect(() => {
         if (router.query.notification) {
@@ -104,23 +112,29 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
-                    <div className="flex flex-col-reverse sm:flex-row sm:items-center">
-                        {isOwner ? (
+                    {isOwner && (
+                        <div className="flex mt-6 mb-8 justify-end">
                             <>
-                            <div className="flex ml-auto mt-4 mb-12 sm:mb-4">
                                 <Link href="/edit-template">
-                                    <a className="up-button text small ml-auto mr-4">Edit template</a>
+                                    <a className="up-button text small mr-4">Edit template</a>
                                 </Link>
                                 <Link href="/new-update">
                                     <a className="up-button primary small">Post new update</a>
                                 </Link>
-                            </div>
                             </>
-                        ) :  (
-                            <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
-                        )}
+                        </div>
+                    )}
+                    <div className="flex items-center mb-12">
+                        <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
+                        <div className="flex items-center ml-auto">
+                            <p className="up-ui-title mr-2 text-gray-400"><FaSort/></p>
+                            <select value={sortBy} onChange={e => setSortBy(+e.target.value)}>
+                                {options.map(d => (
+                                    <option value={d.value} key={d.value}>{d.label}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-
                     {updates && updates.length > 0 ? updates.map(update => (
                         <a
                             key={update._id}
