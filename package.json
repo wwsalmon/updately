@@ -1,6 +1,6 @@
 {
   "name": "updately",
-  "version": "0.10.0-beta1",
+  "version": "0.10.0",
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
