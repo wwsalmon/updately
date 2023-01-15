@@ -54,12 +54,11 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
             <MentionsInput
                 value={commentText}
                 onChange={e => setCommentText(e.target.value)}
-                className="w-full border p-4 rounded-md text-xl up-mention-input"
+                className="w-full border dark:border-neutral-700 p-4 rounded-md text-xl up-mention-input dark:bg-gray-900"
                 placeholder="Write a comment..."
                 style={{
                     suggestions: {
                         list: {
-                            padding: "4px 0",
                             fontSize: 16,
                             boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)", // shadow-lg
                             borderRadius: "0.375rem", // rounded-md
@@ -71,7 +70,7 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
                     trigger="@"
                     displayTransform={(id, display) => `@${display}`}
                     data={getMentionUsers}
-                    className="border-b-2 border-black bg-gray-100"
+                    className="border-b-2 border-black bg-gray-100 dark:bg-neutral-700"
                     renderSuggestion={(entry, search, highlightedDisplay, index, focused) => (
                         <MentionItem
                             focused={focused}
@@ -81,26 +80,24 @@ export default function UpdateCommentForm({update, userData, parentCommentId = n
                     )}
                 />
             </MentionsInput>
-            <div className="flex mt-2">
-                <div className="ml-auto relative">
-                    <button
-                        className="up-button text ml-auto mr-4"
-                        disabled={!parentCommentId && commentText.length === 0}
-                        onClick={clearComment}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className="up-button primary small"
-                        disabled={commentText.length === 0 || isLoading}
-                        onClick={postComment}
-                    >
-                        Post
-                    </button>
+            <div className="flex items-center mt-2">
+                <button
+                    className="up-button text ml-auto mr-4 block"
+                    disabled={!parentCommentId && commentText.length === 0}
+                    onClick={clearComment}
+                >
+                    Cancel
+                </button>
+                <button
+                    className="up-button primary small relative block"
+                    disabled={commentText.length === 0 || isLoading}
+                    onClick={postComment}
+                >
+                    <span className={isLoading ? "invisible" : ""}>Post</span>
                     {isLoading && (
                         <div className="up-spinner"/>
                     )}
-                </div>
+                </button>
             </div>
         </>
     );

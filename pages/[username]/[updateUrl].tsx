@@ -20,6 +20,7 @@ import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
 import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
+import { DeleteModal } from "../../components/Modal";
 
 export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -30,6 +31,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
     const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(props.updateUrl));
 
     const [isEdit, setIsEdit] = useState<boolean>(false);
+    const [isDelete, setIsDelete] = useState<boolean>(false);
     const [body, setBody] = useState<string>(thisUpdate.body);
     const [title, setTitle] = useState<string>(thisUpdate.title);
     const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
@@ -77,19 +79,6 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
         setIsEdit(false);
     }
 
-    function handleDelete() {
-        axios.delete("/api/update", {
-            data: {
-                id: thisUpdate._id,
-            }
-        }).then(() => {
-            router.push("/@" + data.user.urlName);
-        }).catch(e => {
-            console.log(e);
-            setIsLoading(false);
-        })
-    }
-
     function onPressLike() {
         if (!userData) return router.push("/sign-in");
 
@@ -127,6 +116,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
 
     return (
         <div className="max-w-7xl relative mx-auto">
+            <DeleteModal isOpen={isDelete} setIsOpen={setIsDelete} thisUpdate={thisUpdate} userUrlName={data.user.urlName} />
             <NextSeo
                 title={`${format(dateOnly(thisUpdate.date), "M/d/yy")} | ${data.user.name}'s daily updates on Updately`}
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
@@ -216,7 +206,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                                     <MoreMenu
                                         items={[
                                             {label: "Edit", onClick: () => setIsEdit(true)},
-                                            {label: "Delete", onClick: handleDelete}
+                                            {label: "Delete", onClick: () => setIsDelete(true)}
                                         ]}
                                     />
                                 </div>
