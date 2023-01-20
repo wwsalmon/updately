@@ -298,20 +298,17 @@ async function getUserEmbeddings(userId: string) {
 		{ $match: { fromEmbeddings: { $eq: [] } } },
 		{ $project: { fromEmbeddings: 0 } },
 	]);
+    console.log("computed embeddings for: ")
 	console.log(updatesWithoutEmbeddings.map(update => update.title));
 	if (updatesWithoutEmbeddings.length != 0) {
 		console.log('cache misses: recomputing embeddings');
 		const embeddings = await generateUserEmbeddings(updatesWithoutEmbeddings);
-		console.log(embeddings[0]);
-		console.log('computed embeddings from cohere');
+		console.log(`computed ${embeddings.length} embeddings from cohere`);
 		await embeddingModel.insertMany(
 			embeddings.map((embedding, index) => ({
 				updateId: mongoose.Types.ObjectId(updatesWithoutEmbeddings[index]._id),
 				embedding: embedding,
-			})),
-			error => {
-				throw new Error(error);
-			}
+			}))
 		);
 
 		updatesWithEmbeddings.push(
