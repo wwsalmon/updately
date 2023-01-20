@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/react";
-import {getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
+import {getCurrUserRequest, getTopThree, getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
 import Link from "next/link";
@@ -20,6 +20,7 @@ import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
 import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
+import TopThree from "../../components/TopThree";
 import { DeleteModal } from "../../components/Modal";
 
 export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
@@ -217,6 +218,8 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                             {Parser(markdownConverter.makeHtml(bodyToParse))}
                         </div>
                         <hr className="my-8"/>
+                        <div className="up-ui-title mb-4 dark:text-gray-300"><span>Similar</span></div>
+                        <TopThree user={props.data.user} update={thisUpdate} />
                         <UpdateComments update={thisUpdate} userData={userData}/>
                     </>
                 )}
@@ -250,10 +253,11 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substr(0, 1) !== "@") return { notFound: true };
-    const username: string = context.params.username.substr(1);
+    if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substring(0, 1) !== "@") return { notFound: true };
+    const username: string = context.params.username.substring(1);
     const updateUrl: string = context.params.updateUrl;
     const data = await getUpdateRequest(username, updateUrl);
+    // const topThree = await getTopThree(username, updateUrl);
 
     if (!data) return { notFound: true };
 
@@ -274,5 +278,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
 
-    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
+    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl}};
 };

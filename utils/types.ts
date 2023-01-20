@@ -37,6 +37,7 @@ export interface Update {
     updatedAt: string, // date string
     mentionedUsers: string[], // ids
     published: boolean,
+    embedding?: number[]
 }
 
 export interface PrivateAggregation {

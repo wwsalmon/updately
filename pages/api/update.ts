@@ -1,11 +1,12 @@
 import {getSession} from "next-auth/react";
 import {NextApiRequest, NextApiResponse} from "next";
 import mongoose from "mongoose";
-import {userModel, updateModel, notificationModel} from "../../models/models";
+import {userModel, updateModel, notificationModel, embeddingModel} from "../../models/models";
 import short from "short-uuid";
 import {isEqual} from "date-fns";
 import {dateOnly} from "../../utils/utils";
 import {Update, User} from "../../utils/types";
+import { generateEmbedding } from "../../utils/requests";
 
 function generateUrlName(title: string, date: string) {
     let url: string = date;
@@ -61,7 +62,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const update = await updateModel.findOne({ "_id": req.body.id });
             if (update === null) return res.status(500).json({message: "No update found for given username and ID"});
             if (update.userId.toString() !== thisUser._id.toString()) return res.status(403).send("Unauthed");
-            
+            const embedding = generateEmbedding(req.body.body);
+            await embeddingModel.findOneAndUpdate(
+                { updateId: req.body.id },
+                {
+                    updateId: req.body.id,
+                    embedding: embedding
+                },
+                { upsert: true }
+            )
             switch(req.body.requestType) {
                 case "saveDraft": {
                     update["title"] = req.body.title;

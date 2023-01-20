@@ -46,9 +46,15 @@ const updateSchema: Schema = new Schema({
     comments: [commentSchema],
     mentionedUsers: [mongoose.Schema.Types.ObjectId],
     published: {type: Boolean, required: true},
+    embedding: [mongoose.Schema.Types.Number]
 }, {
     timestamps: true,
 });
+
+const embeddingSchema: Schema = new Schema({
+    updateId: mongoose.Schema.Types.ObjectId,
+    embedding: [mongoose.Schema.Types.Number]
+})
 
 const userSchema: Schema = new Schema({
     ...authorObj,
@@ -83,6 +89,7 @@ const likeSchema: Schema = new Schema({
 
 export const userModel = (!!mongoose.models && mongoose.models.user) || mongoose.model("user", userSchema);
 export const updateModel = (!!mongoose.models && mongoose.models.update) || mongoose.model("update", updateSchema);
+export const embeddingModel = (!!mongoose.models && mongoose.models.embedding) || mongoose.model("embedding", embeddingSchema);
 export const commentModel = (!!mongoose.models && mongoose.models.comment) || mongoose.model("comment", commentSchema);
 export const notificationModel: Model<NotificationDoc> = (!!mongoose.models && mongoose.models.notification) || mongoose.model("notification", notificationSchema);
 export const likeModel: Model<LikeDoc> = (!!mongoose.models && mongoose.models.like) || mongoose.model("like", likeSchema);
