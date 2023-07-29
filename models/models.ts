@@ -21,9 +21,6 @@ const authorObj = {
     email: { ...reqString, unique: true },
     urlName: { ...unreqString, unique: true, },
     bio: unreqString,
-    linkedin: unreqString,
-    twitter: unreqString,
-    website: unreqString,
 };
 
 const commentSchema: Schema = new Schema({
