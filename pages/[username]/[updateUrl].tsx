@@ -52,6 +52,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
             id: thisUpdate._id,
             date: date,
             body: body,
+            tags: tags,
             title: title,
         }).then(res => {
             setIsLoading(false);
@@ -65,6 +66,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                 newData.updates[thisUpdateIndex].date = date;
                 newData.updates[thisUpdateIndex].body = body;
                 newData.updates[thisUpdateIndex].title = title;
+                newData.updates[thisUpdateIndex].tags = tags;
                 setData(newData);
             }
         }).catch(e => {

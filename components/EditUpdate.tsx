@@ -142,7 +142,7 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
                 <div className="my-8 md:my-0 md:w-1/2">
                     <div className="up-ui-title mt-4 mb-5"><span>Tags (optional)</span></div>
                     <Creatable options={userTags.map(d => ({ value: d, label: d }))} isMulti={true} isClearable={true}
-                        onChange={option => setTags(option.map(d => d.value))} />
+                        onChange={option => setTags(option.map(d => d.value))} defaultValue={tags.map(d => ({value: d, label: d}))} />
                 </div>
 
             </div>
