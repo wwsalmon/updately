@@ -4,6 +4,7 @@ import Link from "next/link";
 import FollowButton from "./FollowButton";
 import axios from "axios";
 import RemoveFollowerButton from './RemoveFollowerButton';
+import Modal from './Modal';
 
 export default function UserListItem({itemUserId, userList, setUserList, userData, setUserData, showRemoveFollows}: {
     itemUserId: string,
@@ -15,6 +16,7 @@ export default function UserListItem({itemUserId, userList, setUserList, userDat
 }) {
     const thisUser = userList.find(d => d._id === itemUserId);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isRemoveFollowModalOpen, setIsRemoveFollowModalOpen] = useState<boolean>(false);
 
     function onFollow() {
         setIsLoading(true);
@@ -47,6 +49,13 @@ export default function UserListItem({itemUserId, userList, setUserList, userDat
 
     return (
         <>
+            <RemoveFollowerConfirmationModal
+                isOpen={isRemoveFollowModalOpen}
+                setIsOpen={setIsRemoveFollowModalOpen}
+                onRemoveFollow={onRemoveFollow}
+                isLoading={isLoading}
+                name={thisUser.name}
+            />
             <div className="my-4 flex items-center">
                 <Link href={"/@" + thisUser.urlName} key={thisUser.urlName}>
                     <a className="flex items-center">
@@ -61,7 +70,7 @@ export default function UserListItem({itemUserId, userList, setUserList, userDat
                             isRequesting={userData && (userData.requesting.includes(thisUser._id))}
                             isLoading={isLoading}
                             isLoggedIn={!!userData}
-                            onClick={onRemoveFollow}
+                            onClick={() => setIsRemoveFollowModalOpen(true)}
                         />}
                         <div className={showRemoveFollows && userData && (!userData.following.includes(thisUser._id)) && "mx-3"}>
                             <FollowButton
@@ -79,4 +88,40 @@ export default function UserListItem({itemUserId, userList, setUserList, userDat
             </div>
         </>
     );
+}
+
+export function RemoveFollowerConfirmationModal({isOpen, setIsOpen, onRemoveFollow, isLoading, name}: {
+    isOpen: boolean,
+    setIsOpen: Dispatch<SetStateAction<boolean>>,
+    onRemoveFollow: () => void,
+    isLoading: boolean,
+    name: string,
+}) {
+    
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+        >
+            <p>Remove {name} from your followers? {name.split(" ")[0]} will no longer be able to see your updates until they request to follow you again.</p>
+            <div className="flex items-center mt-4 gap-2">
+                <button
+                    className="up-button danger small relative block"
+                    onClick={onRemoveFollow}
+                >
+                    <span>Delete</span>
+                    {isLoading && (
+                        <div className="up-spinner"/>
+                    )}
+                </button>
+                <button
+                    className="up-button text block"
+                    onClick={() => setIsOpen(false)}
+                >
+                    Cancel
+                </button>
+            </div>
+        </Modal>
+    )
 }

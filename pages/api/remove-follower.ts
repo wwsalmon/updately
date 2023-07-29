@@ -31,7 +31,7 @@ export default async function newUpdateHandler(req: NextApiRequest, res: NextApi
         if (!removedUser) return res.status(500).json({message: "No user exists with the given ID."});
 
         if (currUser.followers.some(d => d === removedUser.email)) {
-            currUser.followers = currUser.following.slice(0).filter(d => !d.equals(removedUser.email));
+            currUser.followers = currUser.followers.slice(0).filter(d => d !== removedUser.email);
             removedUser.following = removedUser.following.slice(0).filter(d => !d.equals(currUser._id));
             currUser.markModified("followers");
             removedUser.markModified("following");
