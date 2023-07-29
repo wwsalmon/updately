@@ -33,7 +33,19 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
     const [data, setData] = useState<{user: User, updates: Update[]}>(props.data);
     const [userData, setUserData] = useState<User>(props.userData);
     const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
-    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}&sortBy=${sortBy}`, fetcher);
+    const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
+    const {data: updates, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${data.user.urlName}&sortBy=${sortBy}&filter=${filterBy}`, fetcher);
+
+    let filterOptions = [];
+
+    filterOptions.push({label: "All updates", value: "all"});
+
+    if (isOwner) filterOptions.push(
+        {label: "Published", value: "published"},
+        {label: "Drafts", value: "draft"},
+    );
+
+    filterOptions.push(...data.user.tags.map(d => ({label: `#${d}`, value: d})));
 
     useEffect(() => {
         if (router.query.notification) {
@@ -46,6 +58,16 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
             });
         }
     }, [router.query.notification]);
+
+    useEffect(() => {
+        if (router.query.tag && filterOptions.map(d => d.value).includes(router.query.tag as string)) {
+            setFilterBy(router.query.tag as string);
+        }
+    }, [router.query.tag]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [filterBy]);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
@@ -125,7 +147,11 @@ export default function UserProfile(props: { data: {user: User, updates: Update[
                         </div>
                     )}
                     <div className="flex items-center mb-12">
-                        <h2 className="up-ui-title">Latest updates ({data.updates.length})</h2>
+                        <select value={filterBy} onChange={e => setFilterBy(e.target.value)} className="up-ui-title">
+                            {filterOptions.map(d => (
+                                <option key={d.value} value={d.value}>{d.label}</option>
+                            ))}
+                        </select>
                         <div className="flex items-center ml-auto">
                             <p className="up-ui-title mr-2 text-gray-400"><FaSort/></p>
                             <select value={sortBy} onChange={e => setSortBy(+e.target.value)}>

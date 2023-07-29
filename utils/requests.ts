@@ -47,7 +47,10 @@ export async function getUpdatesRequest({req}) {
 
     let conditions = { userId: user._id };
 
-    if (!thisUser || thisUser._id.toString() !== user._id.toString()) conditions["published"] = true;
+    if (!thisUser || thisUser._id.toString() !== user._id.toString() || req.query.filter === "published") conditions["published"] = true;
+    else if (thisUser && (thisUser._id.toString() === user._id.toString()) && req.query.filter === "draft") conditions["published"] = false;
+    
+    if (!["all", "drafts", "published"].includes(req.query.filter)) conditions["tags"] = req.query.filter;
 
     if (parseInt(req.query.sortBy) == SortBy.WordCount) {
         updates = await updateModel.aggregate([

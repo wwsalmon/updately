@@ -163,6 +163,13 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                             <div className="mr-4 break-words overflow-hidden">
                                 <h1 className="up-h1 mb-4 dark:text-gray-300">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
                                 <h2 className="up-h2 dark:text-gray-300">{thisUpdate.title}</h2>
+                                {!!tags.length && (
+                                    <div className="flex items-center my-8">
+                                        {tags.map(d => (
+                                            <a href="" key={d} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-sm text-white mr-2">#{d}</a>
+                                        ))}
+                                    </div>
+                                )}
                                 <div className="mt-8 md:flex opacity-50 dark:text-gray-300 dark:opacity-75">
                                     <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d 'at' h:mm a")}</p>
                                     <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
