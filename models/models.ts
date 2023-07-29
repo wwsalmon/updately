@@ -15,14 +15,6 @@ const unreqString = {
     required: false,
 };
 
-const authorObj = {
-    name: reqString,
-    image: reqString,
-    email: { ...reqString, unique: true },
-    urlName: { ...unreqString, unique: true, },
-    bio: unreqString,
-};
-
 const commentSchema: Schema = new Schema({
     authorId: mongoose.Schema.Types.ObjectId,
     updateId: mongoose.Schema.Types.ObjectId,
@@ -48,7 +40,11 @@ const updateSchema: Schema = new Schema({
 });
 
 const userSchema: Schema = new Schema({
-    ...authorObj,
+    name: reqString,
+    image: reqString,
+    email: { ...reqString, unique: true },
+    urlName: { ...reqString, unique: true, },
+    bio: unreqString,
     private: {type: Boolean, required: true},
     truePrivate: {type: Boolean, required: true},
     following:  [mongoose.Schema.Types.ObjectId],
