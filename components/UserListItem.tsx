@@ -6,13 +6,13 @@ import axios from "axios";
 import RemoveFollowerButton from './RemoveFollowerButton';
 import Modal from './Modal';
 
-export default function UserListItem({itemUserId, userList, setUserList, userData, setUserData, showRemoveFollows}: {
+export default function UserListItem({itemUserId, userList, setUserList, userData, setUserData, showRemoveFollows = false}: {
     itemUserId: string,
     userList: User[], 
     setUserList: Dispatch<SetStateAction<User[]>>,
     userData: User,
     setUserData: Dispatch<SetStateAction<User>>,
-    showRemoveFollows: boolean,
+    showRemoveFollows?: boolean,
 }) {
     const thisUser = userList.find(d => d._id === itemUserId);
     const [isLoading, setIsLoading] = useState<boolean>(false);
