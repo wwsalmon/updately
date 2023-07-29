@@ -14,6 +14,7 @@ import {IoMdExit} from "react-icons/io";
 import SignInButton from "./SignInButton";
 import FloatingCta from "./FloatingCTA";
 import NavbarNotificationMenu from "./NavbarNotificationMenu";
+import {useKey} from "../utils/hooks";
 
 export default function Navbar() {
     const router = useRouter();
@@ -35,6 +36,11 @@ export default function Navbar() {
     }, [router.asPath]);
 
     const {theme, setTheme} = useTheme();
+
+    useKey("KeyF", () => {if (router.route !== "/") router.push("/")})
+    useKey("KeyE", () => {if (router.route !== "/explore") router.push("/explore")})
+    useKey("KeyP", () => {if (router.route !== "/profile" && session) router.push("/@" + data.data.urlName)})
+    useKey("KeyN", () => {if (router.route !== "/new-update" && session) router.push("/new-update")})
 
     const NavbarDarkModeButton = () => (
         <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="up-button text">
