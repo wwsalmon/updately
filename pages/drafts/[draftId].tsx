@@ -22,6 +22,7 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
     const [postLoading, setPostLoading] = useState<boolean>(false);
     const [isSaved, setIsSaved] = useState<boolean>(true);
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+    const [tags, setTags] = useState<string[]>(update.tags || []);
 
     useEffect(() => {
         const x = document.getElementsByClassName("autosave")
@@ -91,11 +92,14 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
                 setTitle={setTitle}
                 date={date}
                 setDate={setDate}
+                tags={tags}
+                setTags={setTags}
                 isLoading={postLoading}
                 onSave={handlePublish}
                 onCancel={() => setIsDeleteOpen(true)}
                 confirmText="Publish update"
                 cancelText="Delete draft"
+                userTags={thisUser.tags}
             />
 
             <DeleteModal isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} thisUpdate={update}

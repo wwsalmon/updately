@@ -35,6 +35,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
     const [body, setBody] = useState<string>(thisUpdate.body);
     const [title, setTitle] = useState<string>(thisUpdate.title);
     const [date, setDate] = useState<string>(format(dateOnly(thisUpdate.date), "yyyy-MM-dd"));
+    const [tags, setTags] = useState<string[]>(thisUpdate.tags || []);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [likesIter, setLikesIter] = useState<number>(0);
 
@@ -148,6 +149,9 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                         isLoading={isLoading}
                         onSave={onEdit}
                         onCancel={onCancelEdit}
+                        tags={tags}
+                        setTags={setTags}
+                        userTags={userData.tags}
                         confirmText="Save changes"
                         cancelText="Cancel"
                     />

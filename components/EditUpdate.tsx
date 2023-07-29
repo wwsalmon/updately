@@ -4,6 +4,7 @@ import React, {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} f
 import {User} from "../utils/types";
 import axios from "axios";
 import MentionItem from "./MentionItem";
+import Creatable from "react-select/creatable";
 
 function getMentionFromCM(instance) {
     const cursorInfo = instance.getCursor();
@@ -30,18 +31,21 @@ export function setUserListByQuery(setUserList: Dispatch<SetStateAction<User[]>>
     });
 }
 
-export default function EditUpdate({body, setBody, title, setTitle, date, setDate, isLoading, onSave, onCancel, confirmText, cancelText}: {
+export default function EditUpdate({body, setBody, title, setTitle, date, setDate, tags, setTags, isLoading, onSave, onCancel, confirmText, cancelText, userTags}: {
     body: string,
     setBody: Dispatch<SetStateAction<string>>,
     title: string,
     setTitle: Dispatch<SetStateAction<string>>,
     date: string,
     setDate: Dispatch<SetStateAction<string>>,
+    tags: string[],
+    setTags: Dispatch<SetStateAction<string[]>>,
     isLoading: boolean,
     onSave: (any) => any,
     onCancel: (any) => any,
     confirmText: string,
     cancelText: string,
+    userTags: string[],
 }) {
     const editorRef = useRef();
     const [mentionOpen, setMentionOpen] = useState<boolean>(false);
@@ -121,15 +125,26 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
 
             <hr className="my-8"/>
 
-            <div className="my-8">
-                <div className="up-ui-title my-4"><span>Title (optional)</span></div>
-                <input
-                    type="text"
-                    className="w-full text-xl h-12"
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    placeholder="Add a title"
-                />
+            <div className="md:flex gap-8">
+                <div className="my-8 md:my-0 md:w-1/2">
+                    <div className="up-ui-title my-4"><span>Title (optional)</span></div>
+                    <input
+                        type="text"
+                        className="w-full text-xl h-12"
+                        value={title}
+                        onChange={e => setTitle(e.target.value)}
+                        placeholder="Add a title"
+                    />
+                </div>
+
+                <hr className="my-8 md:hidden" />
+
+                <div className="my-8 md:my-0 md:w-1/2">
+                    <div className="up-ui-title mt-4 mb-5"><span>Tags (optional)</span></div>
+                    <Creatable options={userTags.map(d => ({ value: d, label: d }))} isMulti={true} isClearable={true}
+                        onChange={option => setTags(option.map(d => d.value))} />
+                </div>
+
             </div>
 
             <hr className="my-8"/>
