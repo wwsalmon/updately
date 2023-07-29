@@ -109,8 +109,9 @@ export function RemoveFollowerConfirmationModal({isOpen, setIsOpen, onRemoveFoll
                 <button
                     className="up-button danger small relative block"
                     onClick={onRemoveFollow}
+                    disabled={isLoading}
                 >
-                    <span>Delete</span>
+                    <span className={isLoading && "invisible"}>Remove</span>
                     {isLoading && (
                         <div className="up-spinner"/>
                     )}
