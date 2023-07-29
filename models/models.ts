@@ -31,10 +31,10 @@ const updateSchema: Schema = new Schema({
     url: unreqString, // required only for published updates
     title: reqString, // the field is always there but it is an empty string on untitled updates
     date: Date,
-    readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],
     mentionedUsers: [mongoose.Schema.Types.ObjectId],
     published: {type: Boolean, required: true},
+    tags: [String],
 }, {
     timestamps: true,
 });
@@ -52,6 +52,7 @@ const userSchema: Schema = new Schema({
     requests: [reqString], // emails of users requesting follows
     requesting:  [mongoose.Schema.Types.ObjectId],
     template: unreqString,
+    tags: [String],
 }, {
     timestamps: true,
 });
