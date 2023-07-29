@@ -14,3 +14,14 @@ export const fetcher = url => fetch(url).then(res => res.json());
 export function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+
+export function waitForEl(selector: string) {
+    const input = document.getElementById(selector);
+    if (input) {
+        input.focus();
+    } else {
+        setTimeout(function() {
+            waitForEl(selector);
+        }, 100);
+    }
+};
