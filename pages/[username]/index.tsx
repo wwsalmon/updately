@@ -79,9 +79,9 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                 <UserHeaderLeft pageUser={pageUser} userData={userData}/>
                 <div className="flex sm:ml-auto mt-6 sm:mt-0">
                     <div className="ml-auto">
-                        {/* {!isOwner && (
-                            <ProfileFollowButton data={data} setData={setData} userData={userData} setUserData={setUserData} primary={true}/>
-                        )} */}
+                        {!isOwner && (
+                            <ProfileFollowButton pageUser={pageUser} updatePageUser={setPageUser} userData={userData} setUserData={setUserData} primary={true}/>
+                        )}
                     </div>
                 </div>
             </div>

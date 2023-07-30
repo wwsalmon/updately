@@ -23,7 +23,7 @@ export async function getUpdateRequest(username: string, url: string): Promise<G
         getLookup("users", "_id", "mentionedUsers", "mentionedUsersArr"),
     ]);
 
-    console.log(url, user._id, updates);
+    console.log(user._id, url);
 
     if (!updates.length) return null;
 

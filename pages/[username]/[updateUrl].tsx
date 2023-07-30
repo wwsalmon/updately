@@ -137,7 +137,11 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                     </Link>
                     <div className="ml-auto">
                         {!isOwner && (
-                            <ProfileFollowButton data={data} setData={setData} userData={userData} setUserData={setUserData}/>
+                            <ProfileFollowButton pageUser={data.user} updatePageUser={(newUser: User) => {
+                                let newData = {...data};
+                                newData.user = newUser;
+                                setData(newData);
+                            }} userData={userData} setUserData={setUserData}/>
                         )}
                     </div>
                 </div>
@@ -266,7 +270,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
 export const getServerSideProps: GetServerSideProps = async (context) => {
     if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substring(0, 1) !== "@") return { notFound: true };
     const username: string = context.params.username.substring(1);
-    const updateUrl: string = context.params.updateUrl;
+    const updateUrl: string = encodeURIComponent(context.params.updateUrl);
     const data = await getUpdateRequest(username, updateUrl);
     if (!data) return { notFound: true };
 
