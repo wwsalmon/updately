@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/react";
-import {getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
+import {GetUpdateRequestResponse, getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
 import Link from "next/link";
@@ -22,13 +22,13 @@ import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 import { DeleteModal } from "../../components/Modal";
 
-export default function UpdatePage(props: { data: {user: User, updates: (Update & {mentionedUsersArr: User[]})[]}, updateUrl: string, userData: User }) {
+export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User }) {
     const router = useRouter();
-    const [data, setData] = useState<{user: User, updates: (Update & {mentionedUsersArr: User[]})[]}>(props.data);
+    const [data, setData] = useState<GetUpdateRequestResponse>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
 
     const isOwner = userData && (data.user.email === userData.email);
-    const thisUpdate = data.updates.find(d => d.url === encodeURIComponent(props.updateUrl));
+    const thisUpdate = data.update;
 
     const [isEdit, setIsEdit] = useState<boolean>(false);
     const [isDelete, setIsDelete] = useState<boolean>(false);
@@ -39,7 +39,9 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [likesIter, setLikesIter] = useState<number>(0);
 
-    const {data: updates} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}`, fetcher);
+    const {data: updatesObj} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}`, fetcher);
+    const updates = (updatesObj && updatesObj.length) ? updatesObj[0].paginatedResults : [];
+    const numUpdates = (updatesObj && updatesObj.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
     const {data: likesData, error: likesError}: responseInterface<{ likes: LikeItem[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
 
     const isLike = likesData && likesData.likes && userData && !!likesData.likes.find(d => d.userId === userData._id);
@@ -62,11 +64,10 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
             }
             else {
                 let newData = {...data};
-                const thisUpdateIndex = newData.updates.findIndex(d => d._id === thisUpdate._id);
-                newData.updates[thisUpdateIndex].date = date;
-                newData.updates[thisUpdateIndex].body = body;
-                newData.updates[thisUpdateIndex].title = title;
-                newData.updates[thisUpdateIndex].tags = tags;
+                newData.update.date = date;
+                newData.update.body = body;
+                newData.update.title = title;
+                newData.update.tags = tags;
                 setData(newData);
             }
         }).catch(e => {
@@ -253,7 +254,7 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
                             </Link>
                         </div>
                     ))}
-                    {updates && data.updates.length > 20 && <p
+                    {numUpdates > 20 && <p
                     className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
                     ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>}
                 </div>
@@ -263,11 +264,10 @@ export default function UpdatePage(props: { data: {user: User, updates: (Update 
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substr(0, 1) !== "@") return { notFound: true };
-    const username: string = context.params.username.substr(1);
+    if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substring(0, 1) !== "@") return { notFound: true };
+    const username: string = context.params.username.substring(1);
     const updateUrl: string = context.params.updateUrl;
     const data = await getUpdateRequest(username, updateUrl);
-
     if (!data) return { notFound: true };
 
     const session = await getSession(context);
@@ -275,6 +275,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const isTruePrivate = data.user.truePrivate;
 
+    // this check could happen before the getUpdateRequest fetch tbh...but bleh technical debt
     if (isTruePrivate && (
         !userData ||
         !(
@@ -285,7 +286,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         )
     )) return { notFound: true };
 
-    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.updates.find(d => d.url === encodeURIComponent(updateUrl))._id}, {read: true});
+    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.update._id}, {read: true});
 
     return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
 };

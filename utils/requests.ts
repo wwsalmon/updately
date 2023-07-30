@@ -3,9 +3,12 @@ import {updateModel, userModel} from "../models/models";
 import short from "short-uuid";
 import axios from "axios";
 import {getSession} from "next-auth/react";
-import { SortBy } from "./types";
+import { SortBy, Update, User } from "./types";
+import getLookup from "./getLookup";
 
-export async function getUpdateRequest(username: string, url: string) {
+export interface GetUpdateRequestResponse {user: User, update: Update & {mentionedUsersArr: User[]}};
+
+export async function getUpdateRequest(username: string, url: string): Promise<GetUpdateRequestResponse> {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -14,15 +17,20 @@ export async function getUpdateRequest(username: string, url: string) {
 
     let user = await userModel.findOne({ "urlName": username });
     if (user === null) return null;
+
     const updates = await updateModel.aggregate([
-        {$match: {"userId": user._id}},
-        {$lookup: {from: "users", foreignField: "_id", localField: "mentionedUsers", as: "mentionedUsersArr"}}
-    ])
-    if (!updates.some(d => d.url === encodeURIComponent(url))) return null;
+        {$match: {"url": url, "userId": user._id}},
+        getLookup("users", "_id", "mentionedUsers", "mentionedUsersArr"),
+    ]);
+
+    console.log(url, user._id, updates);
+
+    if (!updates.length) return null;
+
 
     return {
         user: user,
-        updates: updates,
+        update: updates[0],
     };
 }
 
@@ -50,7 +58,12 @@ export async function getUpdatesRequest({req}) {
     if (!thisUser || thisUser._id.toString() !== user._id.toString() || req.query.filter === "published") conditions["published"] = true;
     else if (thisUser && (thisUser._id.toString() === user._id.toString()) && req.query.filter === "draft") conditions["published"] = false;
     
-    if (!["all", "drafts", "published"].includes(req.query.filter)) conditions["tags"] = req.query.filter;
+    if (req.query.filter && !["all", "drafts", "published"].includes(req.query.filter)) conditions["tags"] = req.query.filter;
+
+    const facetStage = {$facet: {
+        paginatedResults: [{$skip: (+req.query.page - 1) * 10}, {$limit: 10}],
+        totalCount: [{$count: "estimatedDocumentCount"}],
+    }};
 
     if (parseInt(req.query.sortBy) == SortBy.WordCount) {
         updates = await updateModel.aggregate([
@@ -64,14 +77,16 @@ export async function getUpdatesRequest({req}) {
             },
             { $sort: { wordCount: -1, date: -1, _id: 1 } },
             {$project: {"wordCount": 0}},
-            { $skip: (+req.query.page - 1) * 10 },
-            { $limit: 10 },
+            facetStage,
         ]);
     }
     else {
-        updates = await updateModel.find(conditions).sort('-date').skip((+req.query.page - 1) * 10).limit(10);
+        updates = await updateModel.aggregate([
+            { $match: conditions },
+            { $sort: { date: -1 } },
+            facetStage,
+        ]);
     }
-
 
     return updates;
 }

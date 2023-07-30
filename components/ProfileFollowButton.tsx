@@ -2,10 +2,11 @@ import axios from "axios";
 import {Dispatch, SetStateAction, useState} from "react";
 import {Update, User} from "../utils/types";
 import FollowButton from "./FollowButton";
+import { GetUpdateRequestResponse } from "../utils/requests";
 
 export default function ProfileFollowButton({data, setData, userData, setUserData, primary = false}: {
-    data: {user: User, updates: Update[]},
-    setData: Dispatch<SetStateAction<{user: User, updates: Update[]}>>,
+    data: GetUpdateRequestResponse,
+    setData: Dispatch<SetStateAction<GetUpdateRequestResponse>>,
     userData: User,
     setUserData: Dispatch<SetStateAction<User>>,
     primary?: boolean,
