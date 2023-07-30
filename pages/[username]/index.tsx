@@ -42,7 +42,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
 
     if (isOwner) filterOptions.push(
         {label: "Published", value: "published"},
-        {label: "Drafts", value: "draft"},
+        {label: "Drafts (only visible to you)", value: "draft"},
     );
 
     filterOptions.push(...pageUser.tags.map(d => ({label: `#${d}`, value: d})));
