@@ -171,7 +171,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                                 {!!tags.length && (
                                     <div className="flex items-center my-8">
                                         {tags.map(d => (
-                                            <a href="" key={d} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-sm text-white mr-2">#{d}</a>
+                                            <a href={`/@${data.user.urlName}?tag=${encodeURIComponent(d)}`} key={d} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-sm text-white mr-2">#{d}</a>
                                         ))}
                                     </div>
                                 )}
@@ -239,7 +239,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                     </>
                 )}
             </div>
-            <div className="xl:absolute xl:left-4 xl:top-8 xl:h-full max-w-3xl mx-auto px-4 xl:mx-0 xl:px-0">
+            <div className="xl:absolute xl:left-4 xl:top-8 xl:h-full xl:w-56 max-w-3xl mx-auto px-4 xl:mx-0 xl:px-0">
                 <hr className="my-8 xl:hidden"/>
                 <div className="xl:sticky xl:top-24 dark:text-gray-300">
                     {updates && updates.length > 0 && updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
@@ -253,7 +253,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                             >
                                 <a>
                                     <div className="font-bold"><span>{update.published ? "" : "DRAFT: "}{format(dateOnly(update.date), "MMMM d, yyyy")}</span></div>
-                                    <div><span>{update.title.substr(0,24)}{update.title.length > 24 ? "..." : ""}</span></div>
+                                    <div className="truncate"><span>{update.title.substr(0,24)}{update.title.length > 24 ? "..." : ""}</span> {update.tags && update.tags.map(d => <span className="opacity-50 mr-1" key={d}>#{d}</span>)}</div>
                                 </a>
                             </Link>
                         </div>

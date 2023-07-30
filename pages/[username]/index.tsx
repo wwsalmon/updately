@@ -60,10 +60,14 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     }, [router.query.notification]);
 
     useEffect(() => {
-        if (router.query.tag && filterOptions.map(d => d.value).includes(router.query.tag as string)) {
-            setFilterBy(router.query.tag as string);
+        if (router.query.filter && ["all", "published", "draft", ...filterOptions].map(d => d.value).includes(router.query.filter as string)) {
+            setFilterBy(router.query.filter as string);
         }
-    }, [router.query.tag]);
+    }, [router.query.filter]);
+
+    useEffect(() => {
+        router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}`, undefined, {shallow: true});
+    }, [filterBy]);
 
     useEffect(() => {
         setPage(1);
@@ -162,17 +166,23 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                         </div>
                     </div>
                     {updates && updates.length > 0 ? updates.map(update => (
-                        <a
+                        <div
                             key={update._id}
-                            className="block my-8"
-                            href={update.published ? `/@${pageUser.urlName}/${update.url}` : `/drafts/${update._id}`}
+                            className="my-8"
                         >
-                            <h3 className="up-ui-item-title">{update.published ? "" : "DRAFT: "}{format(dateOnly(update.date), "MMMM d, yyyy")}</h3>
-                            <p className="up-ui-item-subtitle">
-                                {update.title && (<span className="mr-2">{update.title}</span>)}
-                                <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
-                            </p>
-                        </a>
+                            <h3 className="up-ui-item-title"><a href={update.published ? `/@${pageUser.urlName}/${update.url}` : `/drafts/${update._id}`}>{update.published ? "" : "DRAFT: "}{format(dateOnly(update.date), "MMMM d, yyyy")}</a></h3>
+                            <div className="flex items-center flex-wrap">
+                                <p className="up-ui-item-subtitle mr-4">
+                                    <a href={update.published ? `/@${pageUser.urlName}/${update.url}` : `/drafts/${update._id}`}>
+                                        {update.title && (<span className="mr-2">{update.title}</span>)}
+                                        <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
+                                    </a>
+                                </p>
+                                {update.tags && update.tags.map(tag => (
+                                    <button onClick={() => setFilterBy(tag)} key={tag} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</button>
+                                ))}
+                            </div>
+                        </div>
                     )) : (
                         <p className="up-ui-item-subtitle">No updates yet.</p>
                     )}
