@@ -17,6 +17,7 @@ export default function UserFollowListPage(props: {
     const [userData, setUserData] = useState<User>(props.userData);
     const [userList, setUserList] = useState<User[]>(props.userList);
     const isOwner = props.userData && (props.pageUser.email === props.userData.email);
+    const showRemoveFollows = isOwner && (props.userData.private || props.userData.truePrivate) && props.isFollowers;
 
     return (
         <div className="max-w-4xl mx-auto px-4">
@@ -59,6 +60,7 @@ export default function UserFollowListPage(props: {
                         setUserList={setUserList}
                         userData={userData}
                         setUserData={setUserData}
+                        showRemoveFollows={showRemoveFollows}
                     />
                 </div>
             ))}

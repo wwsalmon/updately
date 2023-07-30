@@ -1,20 +1,21 @@
 import React from 'react';
 import Link from "next/link";
 
-export default function FollowButton({isFollowing, isRequesting, isLoading, isLoggedIn, onClick, primary = false}: {
+export default function FollowButton({isFollowing, isRequesting, isLoading, isLoggedIn, onClick, primary = false, secondary = false}: {
     isFollowing: boolean,
     isRequesting: boolean,
     isLoading: boolean,
     isLoggedIn: boolean,
     onClick: () => any,
     primary?: boolean,
+    secondary?: boolean,
 }) {
     return (
         <>
             {isLoggedIn ? (
                 <div className="relative">
                     {(isFollowing || isRequesting) ? (
-                        <button className="up-button small text" onClick={onClick}>
+                        <button className={`up-button small ${!secondary && "text"}`} onClick={onClick}>
                             <span className={isLoading ? "invisible" : ""}>{isFollowing ? "Following" : "Requested"}</span>
                         </button>
                     ) : (

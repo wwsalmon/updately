@@ -22,11 +22,11 @@ export interface User {
     urlName: string,
     bio: string,
     template: string,
+    tags: string[],
 }
 
 export interface Update {
     _id: string,
-    readBy: string[],
     date: string, // date string
     body: string,
     url: string,
@@ -37,6 +37,7 @@ export interface Update {
     updatedAt: string, // date string
     mentionedUsers: string[], // ids
     published: boolean,
+    tags: string[],
 }
 
 export interface PrivateAggregation {

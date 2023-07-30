@@ -2,10 +2,11 @@ import axios from "axios";
 import {Dispatch, SetStateAction, useState} from "react";
 import {Update, User} from "../utils/types";
 import FollowButton from "./FollowButton";
+import { GetUpdateRequestResponse } from "../utils/requests";
 
-export default function ProfileFollowButton({data, setData, userData, setUserData, primary = false}: {
-    data: {user: User, updates: Update[]},
-    setData: Dispatch<SetStateAction<{user: User, updates: Update[]}>>,
+export default function ProfileFollowButton({pageUser, updatePageUser, userData, setUserData, primary = false}: {
+    pageUser: User,
+    updatePageUser: (User) => any,
     userData: User,
     setUserData: Dispatch<SetStateAction<User>>,
     primary?: boolean,
@@ -16,13 +17,11 @@ export default function ProfileFollowButton({data, setData, userData, setUserDat
         setIsLoading(true);
 
         axios.post("/api/follow-user", {
-            id: data.user._id,
+            id: pageUser._id,
         }).then(res => {
             setIsLoading(false);
             setUserData(res.data.currUserData);
-            let newData = {...data};
-            newData.user = res.data.followUserData;
-            setData(newData);
+            updatePageUser(res.data.followUserData);
         }).catch(e => {
             console.log(e);
             setIsLoading(false);
@@ -32,8 +31,8 @@ export default function ProfileFollowButton({data, setData, userData, setUserDat
     return (
         <>
             <FollowButton
-                isFollowing={userData && userData.following.includes(data.user._id)}
-                isRequesting={userData && userData.requesting.includes(data.user._id)}
+                isFollowing={userData && userData.following.includes(pageUser._id)}
+                isRequesting={userData && userData.requesting.includes(pageUser._id)}
                 isLoading={isLoading}
                 isLoggedIn={!!userData}
                 onClick={onFollow}
