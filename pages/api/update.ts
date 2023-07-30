@@ -61,12 +61,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const update = await updateModel.findOne({ "_id": req.body.id });
             if (update === null) return res.status(500).json({message: "No update found for given username and ID"});
             if (update.userId.toString() !== thisUser._id.toString()) return res.status(403).send("Unauthed");
+
+            update["title"] = req.body.title;
+            update["date"] = req.body.date;
+            update["body"] = req.body.body;
+            update["tags"] = req.body.tags;
+
+            const newUserTags = Array.from(new Set([...thisUser.tags, ...req.body.tags]));
             
             switch(req.body.requestType) {
                 case "saveDraft": {
-                    update["title"] = req.body.title;
-                    update["date"] = req.body.date;
-                    update["body"] = req.body.body;
                     await update.save();
                     return res.status(200).json({message: "success"});
                 }
@@ -76,13 +80,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
 
                     update["mentionedUsers"] = mentionedUsersIds;
-                    update["title"] = req.body.title;
-                    update["date"] = req.body.date;
-                    update["body"] = req.body.body;
                     update["url"] = url;
                     update["published"] = true;
 
                     await update.save();
+
+                    // if there are any new tags, update usertags
+                    if (newUserTags.some(d => !thisUser.tags.includes(d))) {
+                        thisUser.tags = newUserTags;
+                        await thisUser.save();
+                    }
 
                     const notifsToAdd = getMentionNotifs(mentionedUsersIds, update, thisUser);
 
@@ -102,9 +109,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     const mentionedUsersIds = await getMentionedUsersIds(req.body.body, thisUser);
 
                     update["mentionedUsers"] = mentionedUsersIds;
-                    update["title"] = req.body.title;
-                    update["date"] = req.body.date;
-                    update["body"] = req.body.body;
 
                     await update.save();
 
@@ -113,6 +117,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     const notifsToAdd = getMentionNotifs(newMentions, update, thisUser);
 
                     await notificationModel.insertMany(notifsToAdd);
+
+                    // if there are any new tags, update usertags
+                    if (newUserTags.some(d => !thisUser.tags.includes(d))) {
+                        thisUser.tags = newUserTags;
+                        await thisUser.save();
+                    }
 
                     return res.status(200).json({message: "success", urlChanged: urlChanged});
                 }

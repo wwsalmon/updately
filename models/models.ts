@@ -15,17 +15,6 @@ const unreqString = {
     required: false,
 };
 
-const authorObj = {
-    name: reqString,
-    image: reqString,
-    email: { ...reqString, unique: true },
-    urlName: { ...unreqString, unique: true, },
-    bio: unreqString,
-    linkedin: unreqString,
-    twitter: unreqString,
-    website: unreqString,
-};
-
 const commentSchema: Schema = new Schema({
     authorId: mongoose.Schema.Types.ObjectId,
     updateId: mongoose.Schema.Types.ObjectId,
@@ -42,16 +31,20 @@ const updateSchema: Schema = new Schema({
     url: unreqString, // required only for published updates
     title: reqString, // the field is always there but it is an empty string on untitled updates
     date: Date,
-    readBy:  [mongoose.Schema.Types.ObjectId],
     comments: [commentSchema],
     mentionedUsers: [mongoose.Schema.Types.ObjectId],
     published: {type: Boolean, required: true},
+    tags: [String],
 }, {
     timestamps: true,
 });
 
 const userSchema: Schema = new Schema({
-    ...authorObj,
+    name: reqString,
+    image: reqString,
+    email: { ...reqString, unique: true },
+    urlName: { ...reqString, unique: true, },
+    bio: unreqString,
     private: {type: Boolean, required: true},
     truePrivate: {type: Boolean, required: true},
     following:  [mongoose.Schema.Types.ObjectId],
@@ -59,6 +52,7 @@ const userSchema: Schema = new Schema({
     requests: [reqString], // emails of users requesting follows
     requesting:  [mongoose.Schema.Types.ObjectId],
     template: unreqString,
+    tags: [String],
 }, {
     timestamps: true,
 });
