@@ -5,8 +5,8 @@ import useSWR from "swr";
 import {fetcher, waitForEl} from "../utils/utils";
 import { DatedObj, Update, User } from "../utils/types";
 import Modal from "./Modal";
-import { useRouter } from "next/router";
 import { format } from "date-fns";
+import Link from 'next/link';
 
 type UpdateGraphObj = Update & {
     user: User
@@ -17,8 +17,6 @@ const QuickSwitcher = (props: { isOpen: boolean, onRequestClose: () => (any) }) 
     const [page, setPage] = useState<number>(0);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
     const { data } = useSWR<{ data: DatedObj<UpdateGraphObj>[], count: number }>(`/api/search?query=${query}&page=${page}`, query.length ? fetcher : async () => []);
-    const router = useRouter();
-    console.log(data)
 
     const onRequestClose = (x) => {
         props.onRequestClose();
@@ -107,22 +105,22 @@ const QuickSwitcher = (props: { isOpen: boolean, onRequestClose: () => (any) }) 
                                 </>
                             )
                             let onClick = () => {
-                                router.push("/@" + u.user.urlName + "/" + u.url)
                                 onRequestClose(false)
                             }
 
                             return (
-                                <button
+                                <Link
                                     key={u._id}
                                     className={("py-2 px-8 text-left") + (idx === selectedIndex ? " bg-gray-100" : "")}
                                     id={`searched-doc-${idx}`}
                                     onClick={onClick}
                                     onMouseEnter={() => setSelectedIndex(idx)}
+                                    href={"/@" + u.user.urlName + "/" + u.url}
                                 >
                                     <div className="w-full">
                                         {buttonChildren}
                                     </div>
-                                </button>
+                                </Link>
                             )
                         })}
                         {/* Pagination bar */}

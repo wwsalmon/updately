@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const matchingUpdates = await updateModel.aggregate([
             {$match: {$or: [
                 {"body": {$regex: `.*${req.query.query}.*`, $options: "i"}}, 
-                {"name": {$regex: `.*${req.query.query}.*`, $options: "i"}}
+                {"title": {$regex: `.*${req.query.query}.*`, $options: "i"}}
             ]}},
             {$lookup: {from: "users", localField: "userId", foreignField: "_id", as: "user"}},
             {$unwind: "$user"},
