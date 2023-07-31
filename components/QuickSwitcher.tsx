@@ -1,17 +1,23 @@
-import axios from "axios";
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { FiSearch } from "react-icons/fi";
 import Skeleton from "react-loading-skeleton";
 import useSWR from "swr";
 import {fetcher, waitForEl} from "../utils/utils";
-import { DatedObj, Update } from "../utils/types";
+import { DatedObj, Update, User } from "../utils/types";
 import Modal from "./Modal";
+import { useRouter } from "next/router";
+import { format } from "date-fns";
+
+type UpdateGraphObj = Update & {
+    user: User
+}
 
 const QuickSwitcher = (props: { isOpen: boolean, onRequestClose: () => (any) }) => {
     const [query, setQuery] = useState<string>("");
     const [page, setPage] = useState<number>(0);
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
-    const { data } = useSWR<{ data: DatedObj<Update>[], count: number }>(`/api/search?query=${query}&page=${page}`, query.length ? fetcher : async () => []);
+    const { data } = useSWR<{ data: DatedObj<UpdateGraphObj>[], count: number }>(`/api/search?query=${query}&page=${page}`, query.length ? fetcher : async () => []);
+    const router = useRouter();
     console.log(data)
 
     const onRequestClose = (x) => {
@@ -36,7 +42,7 @@ const QuickSwitcher = (props: { isOpen: boolean, onRequestClose: () => (any) }) 
             {/* Because I want scrollbar to be snug against border of modal, i can't add padding x or y to the modal directly. */}
             {/* Every direct child of modal has px-4 */}
             {/* Also modal has py-6 so top should have mt-6 and bottom mb-6 */}
-            <div className="flex items-center border-gray-100 px-4 mt-6" id="f">
+            <div className="flex items-center border-gray-100 px-4 mt-6">
                 <FiSearch className="text-gray-400 mr-6" />
                 <input
                     value={query}
@@ -46,7 +52,7 @@ const QuickSwitcher = (props: { isOpen: boolean, onRequestClose: () => (any) }) 
                         setSelectedIndex(0);
                     }}
                     id="quick-switcher-input"
-                    placeholder="Go to document"
+                    placeholder="Go to update"
                     className="w-full focus:online-none outline-none py-1 text-gray-500"
                     autoFocus
                     onKeyDown={e => {
@@ -93,13 +99,15 @@ const QuickSwitcher = (props: { isOpen: boolean, onRequestClose: () => (any) }) 
                             let buttonChildren = (
                                 <>
                                     {/* @ts-ignore */}
-                                    <SearchNameH3 query={query}>{`${u.title || "Unknown update"} ${u.date}`}</SearchNameH3>
+                                    <div className="py-2">
+                                        <p className="text-xs text-gray-700 font-medium">{format(new Date(u.date), "M/d/yy")} • {u.user.name}</p>
+                                        <SearchNameH3 query={query}>{`${u.title || "Unknown update"}`}</SearchNameH3>
+                                    </div>
                                     <SearchBody update={u} query={query} />
                                 </>
                             )
                             let onClick = () => {
-                                // TODO
-                                // props.setOpenFileId(u._id)
+                                router.push("/@" + u.user.urlName + "/" + u.url)
                                 onRequestClose(false)
                             }
 
@@ -134,7 +142,10 @@ const QuickSwitcher = (props: { isOpen: boolean, onRequestClose: () => (any) }) 
                 ) : (query.length ? (
                     <p className="text-gray-400 px-8 text-sm mt-2">No documents containing the given query were found.</p>
                 ) : <></>) : (
-                    <div className="px-8 mt-2"><Skeleton height={32} count={5} className="my-2" /></div>
+                    <div className="px-8 mt-2">
+                        <p className="text-gray-400 text-sm">Loading...</p>
+                        <Skeleton height={32} count={5} className="my-2" />
+                    </div>
                 )}
             </div>
         </Modal>

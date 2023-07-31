@@ -17,15 +17,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         await dbConnect();
 
-        const thisUser = await userModel.findOne({email: session.user.email})
-
         const matchingUpdates = await updateModel.aggregate([
             {$match: {$or: [
                 {"body": {$regex: `.*${req.query.query}.*`, $options: "i"}}, 
                 {"name": {$regex: `.*${req.query.query}.*`, $options: "i"}}
             ]}},
-            {$sort: {updatedAt: -1}},
-            {$project: {date: 1, title: 1, body: 1}},
+            {$lookup: {from: "users", localField: "userId", foreignField: "_id", as: "user"}},
+            {$unwind: "$user"},
+            {$sort: {date: -1}},
+            // {$project: {date: 1, title: 1, body: 1}},
         ])
         const count = matchingUpdates.length
         const skip = req.query.page ? (+req.query.page * countPerPage) : 0
