@@ -12,8 +12,6 @@ export default async function readNotificationsHandler(req: NextApiRequest, res:
     if (!req.body.id) return res.status(422).json({message: "No notification ID found in request"});
 
     try {
-        console.log(req.body.id);
-
         const thisUser: User = await getCurrUserRequest(session.user.email);
         const thisNotification: NotificationDoc = await getNotification(req.body.id);
 

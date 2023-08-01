@@ -39,10 +39,15 @@ export default function UpdateFeed({updates, page, setPage, count}: {updates: Fe
                                             />
                                             <div className="my-6 leading-snug mr-4 dark:text-gray-300 break-words overflow-hidden">
                                                 <div className="up-ui-item-title"><span>{update.userArr[0].name}</span></div>
-                                                <p className="up-ui-item-subtitle">
-                                                    {update.title && (<span className="mr-2">{update.title}</span>)}
-                                                    <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
-                                                </p>
+                                                <div className="flex items-center flex-wrap">
+                                                    <p className="up-ui-item-subtitle mr-4">
+                                                        {update.title && (<span className="mr-2">{update.title}</span>)}
+                                                        <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
+                                                    </p>
+                                                    {update.tags && update.tags.map(tag => (
+                                                        <div key={tag} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="ml-auto flex-shrink-0 mb-4 sm:mb-0">

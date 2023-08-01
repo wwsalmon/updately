@@ -22,6 +22,7 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
     const [postLoading, setPostLoading] = useState<boolean>(false);
     const [isSaved, setIsSaved] = useState<boolean>(true);
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+    const [tags, setTags] = useState<string[]>(update.tags || []);
 
     useEffect(() => {
         const x = document.getElementsByClassName("autosave")
@@ -30,7 +31,7 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
 
 
 
-    const handleSave = useCallback(({date, body, title}) => {
+    const handleSave = useCallback(({date, body, title, tags}) => {
         setIsSaved(false);
 
         axios.post("/api/update", {
@@ -39,6 +40,7 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
             body: body,
             title: title,
             id: update._id,
+            tags: tags,
         }).then(res => {
             setIsSaved(true);
         }).catch(e => {
@@ -53,6 +55,7 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
             date: date,
             body: body,
             title: title,
+            tags: tags,
             id: update._id,
         }).then(res => {
             router.push(res.data.url);
@@ -62,7 +65,7 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
         })
     }
 
-    useInterval(() => handleSave({date, body, title}), isSaved ? null : 1000);
+    useInterval(() => handleSave({date, body, title, tags}), isSaved ? null : 1000);
 
     // run this effect on update only (not on initial mount)
     const isInitialMount = useRef(true);
@@ -72,7 +75,7 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
     } else {
         setIsSaved(false);
     }
-    }, [body, title, date]);
+    }, [body, title, date, tags]);
 
     return (
         <div className="max-w-4xl mx-auto px-4">
@@ -91,11 +94,14 @@ const Draft = ({update, thisUser}: {update: Update, thisUser: User}) => {
                 setTitle={setTitle}
                 date={date}
                 setDate={setDate}
+                tags={tags}
+                setTags={setTags}
                 isLoading={postLoading}
                 onSave={handlePublish}
                 onCancel={() => setIsDeleteOpen(true)}
                 confirmText="Publish update"
                 cancelText="Delete draft"
+                userTags={thisUser.tags}
             />
 
             <DeleteModal isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} thisUpdate={update}
