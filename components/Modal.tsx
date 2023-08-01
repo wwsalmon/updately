@@ -6,13 +6,14 @@ import {useRouter} from "next/router";
 import {Update} from "../utils/types";
 import {useTheme} from "next-themes";
 
-export default function Modal({isOpen, setIsOpen, children, wide = false}: {
+export default function Modal({isOpen, setIsOpen, children, wide = false, className}: {
     isOpen: boolean,
     setIsOpen: Dispatch<SetStateAction<boolean>>,
     children: ReactNode,
     wide?: boolean,
+    className?: string,
 }) {
-    const modalClasses = "top-24 left-1/2 fixed bg-white dark:bg-gray-900 p-4 rounded-md shadow-xl mx-4 overflow-y-auto";
+    const modalClasses = "top-24 left-1/2 fixed bg-white dark:bg-gray-900 p-4 rounded-md shadow-xl mx-4 overflow-y-auto " + className;
     const {theme} = useTheme();
     return (
         <ReactModal
