@@ -14,6 +14,10 @@ body {
     opacity: 0.1;
 }
 
+.dark .prose hr {
+    border-color: inherit !important;
+}
+
 input, textarea {
     border-color: #e5e7eb;
 }
