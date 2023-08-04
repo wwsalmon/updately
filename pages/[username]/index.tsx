@@ -1,26 +1,27 @@
-import {GetServerSideProps} from "next";
-import {getSession} from "next-auth/react";
-import {format} from "date-fns";
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
+import { format } from "date-fns";
 import wordsCount from "words-count";
 import Link from "next/link";
-import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
-import React, {useEffect, useState} from "react";
+import { cleanForJSON, dateOnly, fetcher } from "../../utils/utils";
+import React, { useEffect, useState } from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
-import {NextSeo} from "next-seo";
-import {SortBy, Update, User} from "../../utils/types";
+import { NextSeo } from "next-seo";
+import { SortBy, Update, User } from "../../utils/types";
 import UserPfpList from "../../components/UserPfpList";
 import UserHeaderLeft from "../../components/UserHeaderLeft";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
 import useSWR from "swr";
-import {notificationModel, updateModel, userModel} from "../../models/models";
-import {FaSort} from "react-icons/fa";
+import { notificationModel, updateModel, userModel } from "../../models/models";
+import { FaSort } from "react-icons/fa";
 import getLookup from "../../utils/getLookup";
+import ActivityGridWrapper from "../../components/ActivityGridWrapper";
 
 const options = [
-	{ value: SortBy.Date, label: 'Date' },
-	{ value: SortBy.WordCount, label: 'Length' },
+    { value: SortBy.Date, label: 'Date' },
+    { value: SortBy.WordCount, label: 'Length' },
 ];
 
 
@@ -32,20 +33,21 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     const [userData, setUserData] = useState<User>(props.userData);
     const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
     const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
-    const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}`, fetcher);
+    const { data: updatesObj, error: feedError } = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}`, fetcher);
+    const { data: updateActivity, error: updateActivityError } = useSWR(`/api/get-update-activity?userId=${pageUser._id}`, fetcher);
     const updates = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
     const numUpdates = (updatesObj && updatesObj.length && updatesObj[0].totalCount.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
 
     let filterOptions = [];
 
-    filterOptions.push({label: "All updates", value: "all"});
+    filterOptions.push({ label: "All updates", value: "all" });
 
     if (isOwner) filterOptions.push(
-        {label: "Published", value: "published"},
-        {label: "Drafts (only visible to you)", value: "draft"},
+        { label: "Published", value: "published" },
+        { label: "Drafts (only visible to you)", value: "draft" },
     );
 
-    filterOptions.push(...pageUser.tags.map(d => ({label: `#${d}`, value: d})));
+    filterOptions.push(...pageUser.tags.map(d => ({ label: `#${d}`, value: d })));
 
     useEffect(() => {
         if (router.query.notification) {
@@ -66,7 +68,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     }, [router.query.filter]);
 
     useEffect(() => {
-        router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}`, undefined, {shallow: true});
+        router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}`, undefined, { shallow: true });
     }, [filterBy]);
 
     useEffect(() => {
@@ -80,11 +82,11 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                 description={`Follow ${pageUser.name} on Updately to get their updates in your feed.`}
             />
             <div className="sm:flex mt-16 mb-8">
-                <UserHeaderLeft pageUser={pageUser} userData={userData}/>
+                <UserHeaderLeft pageUser={pageUser} userData={userData} />
                 <div className="flex sm:ml-auto mt-6 sm:mt-0">
                     <div className="ml-auto">
                         {!isOwner && (
-                            <ProfileFollowButton pageUser={pageUser} updatePageUser={setPageUser} userData={userData} setUserData={setUserData} primary={true}/>
+                            <ProfileFollowButton pageUser={pageUser} updatePageUser={setPageUser} userData={userData} setUserData={setUserData} primary={true} />
                         )}
                     </div>
                 </div>
@@ -116,7 +118,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                     Following ({props.following.length})
                 </a>
             </Link>
-            <UserPfpList userList={props.following} pageUser={pageUser} isFollowers={false}/>
+            <UserPfpList userList={props.following} pageUser={pageUser} isFollowers={false} />
 
             <div className="mb-4 mt-12">
                 <Link href={`/@${pageUser.urlName}/followers`}>
@@ -126,13 +128,17 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                 </Link>
                 {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
             </div>
-            <UserPfpList userList={props.followers} pageUser={pageUser} isFollowers={true}/>
+            <UserPfpList userList={props.followers} pageUser={pageUser} isFollowers={true} />
 
             <div className="mt-12">
                 <p className="opacity-50">{pageUser.name} joined Updately on {format(new Date(pageUser.createdAt), "MMMM d, yyyy")}</p>
             </div>
 
-            <hr className="my-8"/>
+            <hr className="my-8" />
+
+            <div className="mb-16">
+                <ActivityGridWrapper updates={updateActivity || []} />
+            </div>
 
             {(pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner) ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
@@ -157,7 +163,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                             ))}
                         </select>
                         <div className="flex items-center ml-auto">
-                            <p className="up-ui-title mr-2 text-gray-400"><FaSort/></p>
+                            <p className="up-ui-title mr-2 text-gray-400"><FaSort /></p>
                             <select value={sortBy} onChange={e => setSortBy(+e.target.value)}>
                                 {options.map(d => (
                                     <option value={d.value} key={d.value}>{d.label}</option>
@@ -186,7 +192,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                     )) : (
                         <p className="up-ui-item-subtitle">No updates yet.</p>
                     )}
-                    {updates && updates.length > 0 && <PaginationBar page={page} count={numUpdates} label={"updates"} setPage={setPage}/>}
+                    {updates && updates.length > 0 && <PaginationBar page={page} count={numUpdates} label={"updates"} setPage={setPage} />}
                 </>
             )}
 
@@ -194,7 +200,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     )
 }
 
-type UserAgg = User & {followingArr: User[], followersArr: User[]};
+type UserAgg = User & { followingArr: User[], followersArr: User[] };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     if (Array.isArray(context.params.username) || context.params.username.substring(0, 1) !== "@") return { notFound: true };
@@ -203,17 +209,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const session = await getSession(context);
     const userArr: UserAgg[] = await userModel.aggregate([
-        {$match: {urlName: username }},
+        { $match: { urlName: username } },
         getLookup("users", "_id", "following", "followingArr"),
         getLookup("users", "email", "followers", "followersArr"),
     ]);
 
-    if (!userArr.length) return {notFound: true};
+    if (!userArr.length) return { notFound: true };
 
     const user = userArr[0];
 
-    const thisUser = session ? await userModel.findOne({email: session.user.email}) : null;
-    if (thisUser) await notificationModel.updateMany({userId: thisUser._id, type: "follow", authorId: user._id}, {read: true});
+    const thisUser = session ? await userModel.findOne({ email: session.user.email }) : null;
+    if (thisUser) await notificationModel.updateMany({ userId: thisUser._id, type: "follow", authorId: user._id }, { read: true });
 
-    return { props: { user: cleanForJSON(user), userData: cleanForJSON(thisUser), followers: cleanForJSON(user.followersArr), following: cleanForJSON(user.followingArr), key: user._id.toString() }};
+    return { props: { user: cleanForJSON(user), userData: cleanForJSON(thisUser), followers: cleanForJSON(user.followersArr), following: cleanForJSON(user.followingArr), key: user._id.toString() } };
 };
