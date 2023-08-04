@@ -136,7 +136,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
 
             <hr className="my-8" />
 
-            <div className="mb-16">
+            <div className="mb-16 mt-10">
                 <ActivityGridWrapper updates={updateActivity || []} />
             </div>
 

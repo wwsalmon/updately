@@ -1,6 +1,5 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { addDays, format, subDays } from "date-fns";
-import ResizeObserver from "react-resize-observer";
 
 export interface ActivityDay {
     date: string,
@@ -20,22 +19,19 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
             gridColumn: col,
             fontSize: 10,
         }}
+        className="text-stone-300 dark:text-stone-700"
     ><span>{children}</span></div>
 )
 
-export default function ActivityGrid({ data, label, color }: { data: ActivityDay[], label?: string, color?: string }) {
-    const [numCols, setNumCols] = useState<number>(0);
+export default function ActivityGrid({ data, label, color, endDate = new Date() }: { data: ActivityDay[], label?: string, color?: string, endDate?: Date }) {
     const [gridDays, setGridDays] = useState<GridDay[]>([]);
+    const numCols = 54;
 
-    function onResize(rect) {
-        const gridWidth = rect.width;
-        const newNumCols = Math.floor((gridWidth - 24) / 16);
-        setNumCols(newNumCols);
-
-        const today = new Date();
+    useEffect(() => {
+        const today = endDate;
         const todayDayOfWeek = today.getDay();
         const todayFirstDayOfWeek = subDays(today, todayDayOfWeek);
-        const firstDayOnGraph = subDays(todayFirstDayOfWeek, (newNumCols - 1) * 7);
+        const firstDayOnGraph = subDays(todayFirstDayOfWeek, (numCols - 1) * 7);
 
         let newGridDays: GridDay[] = [];
         let currDay = firstDayOnGraph;
@@ -53,7 +49,7 @@ export default function ActivityGrid({ data, label, color }: { data: ActivityDay
         }
 
         setGridDays(newGridDays);
-    }
+    }, [data])
 
     const monthChangeDays = gridDays.filter((d, i, a) => (
         i === 0 || a[i - 1].date.getMonth() !== d.date.getMonth()
@@ -69,9 +65,9 @@ export default function ActivityGrid({ data, label, color }: { data: ActivityDay
                 gridTemplateRows: "repeat(8, 16px)",
                 gridTemplateColumns: `24px repeat(${numCols}, 16px)`,
                 width: "100%",
+                // overflowX: "auto",
             }}
         >
-            <ResizeObserver onResize={onResize} />
             {monthChangeDays.map(d => (
                 <GridLabel row={1} col={d.week + 2} key={format(d.date, "yyyy-MM-dd")}>
                     {format(d.date, "MMM")}
