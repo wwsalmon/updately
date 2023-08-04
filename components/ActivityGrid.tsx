@@ -25,7 +25,7 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
 
 export default function ActivityGrid({ data, label, color, endDate = new Date() }: { data: ActivityDay[], label?: string, color?: string, endDate?: Date }) {
     const [gridDays, setGridDays] = useState<GridDay[]>([]);
-    const numCols = 54;
+    const numCols = 53;
 
     useEffect(() => {
         const today = endDate;
