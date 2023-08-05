@@ -3,9 +3,9 @@ import { format } from "date-fns";
 
 export interface ActivityDay {
     date: Date,
-    count: number,
-    day: number,
-    week: number,
+    count: number, // number of updates on that day
+    day: number, // 0-6 (Sun-Sat)
+    week: number, // 0-52
 }
 
 const GridLabel = ({ row, col, children }: { row: number, col: number, children: ReactNode }) => (
@@ -19,14 +19,14 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
     ><span>{children}</span></div>
 )
 
-export default function ActivityGrid({ data, label, color }: { data: ActivityDay[], label?: string, color?: string }) {
+export default function ActivityGrid({ data, label, color }: { data: any, label?: string, color?: string }) {
     const numCols = 53;
 
-    const monthChangeDays = data.filter((d, i, a) => (
-        i === 0 || a[i - 1].date.getMonth() !== d.date.getMonth()
-    ));
+    // @ts-ignore
+    const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (i === 0 || a[i - 1].date.getMonth() !== d.date.getMonth()));
 
-    const maxCount = Math.max(...data.map(d => d.count));
+    // @ts-ignore
+    const maxCount = Math.max(...Object.values(data).map(d => d.count));
 
     return (
         <div
@@ -47,20 +47,23 @@ export default function ActivityGrid({ data, label, color }: { data: ActivityDay
             <GridLabel row={3} col={1}>Mon</GridLabel>
             <GridLabel row={5} col={1}>Wed</GridLabel>
             <GridLabel row={7} col={1}>Fri</GridLabel>
-            {data.map(d => (
-                <div
-                    style={{
-                        backgroundColor: d.count > 0 ? (color || "#0026ff") : "#000",
-                        opacity: d.count > 0 ? d.count / maxCount : 0.05,
-                        width: 14,
-                        height: 14,
-                        gridRow: d.day + 2,
-                        gridColumn: d.week + 2,
-                        borderRadius: 3,
-                    }}
-                    key={format(d.date, "yyyy-MM-dd")}
-                />
-            ))}
+            {Object.keys(data).map(dateString => {
+                const dateActivity = data[dateString];
+                return (
+                    <div
+                        style={{
+                            backgroundColor: dateActivity.count > 0 ? (color || "#0026ff") : "#000",
+                            opacity: dateActivity.count > 0 ? dateActivity.count / maxCount : 0.05,
+                            width: 14,
+                            height: 14,
+                            gridRow: dateActivity.day + 2,
+                            gridColumn: dateActivity.week + 2,
+                            borderRadius: 3,
+                        }}
+                        key={format(dateActivity.date, "yyyy-MM-dd")}
+                    />
+                )
+            })}
         </div>
     );
 }
