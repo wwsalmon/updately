@@ -1,11 +1,15 @@
 import { ReactNode } from "react";
 import { format } from "date-fns";
 
-export interface ActivityDay {
+interface ActivityDay {
     date: Date,
     count: number, // number of updates on that day
     day: number, // 0-6 (Sun-Sat)
     week: number, // 0-52
+}
+
+export interface ActivityDayMap {
+    [key: string]: ActivityDay
 }
 
 const GridLabel = ({ row, col, children }: { row: number, col: number, children: ReactNode }) => (
@@ -19,13 +23,11 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
     ><span>{children}</span></div>
 )
 
-export default function ActivityGrid({ data, label, color }: { data: any, label?: string, color?: string }) {
+export default function ActivityGrid({ data, label, color }: { data: ActivityDayMap, label?: string, color?: string }) {
     const numCols = 53;
 
-    // @ts-ignore
     const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (i === 0 || a[i - 1].date.getMonth() !== d.date.getMonth()));
 
-    // @ts-ignore
     const maxCount = Math.max(...Object.values(data).map(d => d.count));
 
     return (

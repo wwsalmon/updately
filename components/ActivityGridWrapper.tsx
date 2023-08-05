@@ -1,11 +1,10 @@
 import { format, subDays, addDays } from 'date-fns';
-import ActivityGrid from './ActivityGrid';
+import ActivityGrid, { ActivityDayMap } from './ActivityGrid';
 import { useState } from 'react';
 
 const numCols = 53;
 
-function makeGridArr(arr: { date: string }[], endDate: Date): { gridHashmap: any, years: string[] } {
-    // gridHashmap: { date (string): ActivityDay }
+function makeGridArr(arr: { date: string }[], endDate: Date): { gridHashmap: ActivityDayMap, years: string[] } {
     let years = []
 
     const today = endDate;
