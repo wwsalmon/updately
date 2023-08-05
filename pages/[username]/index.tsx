@@ -222,4 +222,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (thisUser) await notificationModel.updateMany({userId: thisUser._id, type: "follow", authorId: user._id}, {read: true});
 
     return { props: { user: cleanForJSON(user), userData: cleanForJSON(thisUser), followers: cleanForJSON(user.followersArr), following: cleanForJSON(user.followingArr), key: user._id.toString() }};
-}
+};
