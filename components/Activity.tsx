@@ -51,7 +51,7 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
     return { gridHashmap, years, totalCount };
 }
 
-const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
+const Activity = ({ updates }: { updates: { date: string }[] }) => {
     const [year, setYear] = useState<string>("last-year"); // a year string OR "last-year"
     const { gridHashmap, years, totalCount } = makeGridArr(updates, year);
 
@@ -76,4 +76,4 @@ const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
     )
 }
 
-export default ActivityGridWrapper
+export default Activity

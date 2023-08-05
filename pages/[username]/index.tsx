@@ -17,7 +17,7 @@ import useSWR from "swr";
 import {notificationModel, userModel} from "../../models/models";
 import {FaSort} from "react-icons/fa";
 import getLookup from "../../utils/getLookup";
-import ActivityGridWrapper from "../../components/ActivityGridWrapper";
+import Activity from "../../components/Activity";
 
 const options = [
 	{ value: SortBy.Date, label: 'Date' },
@@ -137,7 +137,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
             <hr className="my-8"/>
 
             <div className="mb-16 mt-10">
-                <ActivityGridWrapper updates={updateActivity || []} />
+                <Activity updates={updateActivity || []} />
             </div>
 
             {(pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner) ? (
