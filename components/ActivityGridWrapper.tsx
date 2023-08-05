@@ -1,38 +1,55 @@
-import { format } from 'date-fns';
+import { format, subDays, addDays } from 'date-fns';
 import ActivityGrid, { ActivityDay } from './ActivityGrid';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-function makeGridArr(arr: { date: string }[]) {
+const numCols = 53;
+
+function makeGridArr(arr: { date: string }[], endDate: Date): { gridArr: ActivityDay[], years: string[] } {
+    let years = []
+
+    const today = endDate;
+    const todayDayOfWeek = today.getDay();
+    const todayFirstDayOfWeek = subDays(today, todayDayOfWeek);
+    const firstDayOnGraph = subDays(todayFirstDayOfWeek, (numCols - 1) * 7);
+
     let gridArr: ActivityDay[] = [];
-    for (let item of arr) {
-        const existingIndex = gridArr.findIndex(d => d.date === format(new Date(item.date), "yyyy-MM-dd"));
-        if (existingIndex > -1) gridArr[existingIndex].count += 1;
-        else gridArr.push({
-            date: format(new Date(item.date), "yyyy-MM-dd"),
-            count: 1,
-        });
-    }
-    return gridArr;
-}
+    let currDay = firstDayOnGraph;
+    let week = 0;
 
-function getYears(arr: { date: string }[]) {
-    let years: string[] = [];
+    while (currDay <= today) {
+        gridArr.push({
+            date: currDay,
+            day: currDay.getDay(),
+            week: week,
+            count: 0,
+        });
+
+        if (currDay.getDay() === 6) week++;
+        currDay = addDays(currDay, 1);
+    }
+
     for (let item of arr) {
+        const existingIndex = gridArr.findIndex(d => format(d.date, "yyyy-MM-dd") === format(new Date(item.date), "yyyy-MM-dd"));
+        if (existingIndex > -1) gridArr[existingIndex].count += 1;
+        else console.log("error, date not found in gridArr")
+
         const year = format(new Date(item.date), "yyyy");
         if (!years.includes(year)) years.push(year);
     }
-    return years;
+
+    return { gridArr, years };
 }
 
 const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
     const [year, setYear] = useState<string>("last-year"); // a year string OR "last-year"
     const endDate = year === "last-year" ? new Date() : new Date(`${year}-12-31`);
+    const { gridArr, years } = makeGridArr(updates, endDate);
 
     return (
         <>
             <div className="flex gap-4 mb-4">
                 {/* get the years that the user has written updates and display them as tabs above */}
-                {getYears(updates).map(y => (
+                {years.map(y => (
                     <button
                         key={y}
                         onClick={() => {
@@ -43,10 +60,7 @@ const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
                 ))}
 
             </div >
-            <ActivityGrid
-                data={year === "last-year" ? makeGridArr(updates) : makeGridArr(updates.filter(u => format(new Date(u.date), "yyyy") === year))}
-                endDate={endDate}
-            />
+            <ActivityGrid data={gridArr} />
         </>
     )
 }
