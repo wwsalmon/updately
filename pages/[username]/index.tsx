@@ -113,32 +113,32 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                 </div>
             )}
 
-            <Link href={`/@${pageUser.urlName}/following`}>
-                <a className="up-ui-title mb-4 block">
-                    Following ({props.following.length})
-                </a>
-            </Link>
-            <UserPfpList userList={props.following} pageUser={pageUser} isFollowers={false}/>
-
-            <div className="mb-4 mt-12">
-                <Link href={`/@${pageUser.urlName}/followers`}>
-                    <a className="up-ui-title">
-                        Followers ({props.followers.length})
+            <div className="sm:flex items-center">
+                <Link href={`/@${pageUser.urlName}/following`}>
+                    <a className="up-ui-title mb-4 block">
+                        Following ({props.following.length})
                     </a>
                 </Link>
-                {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
+                <UserPfpList userList={props.following} pageUser={pageUser} isFollowers={false} className="ml-auto"/>
             </div>
-            <UserPfpList userList={props.followers} pageUser={pageUser} isFollowers={true}/>
+
+            <div className="mb-4 mt-12 sm:flex items-center">
+                <div className="mb-4">
+                    <Link href={`/@${pageUser.urlName}/followers`}>
+                        <a className="up-ui-title">
+                            Followers ({props.followers.length})
+                        </a>
+                    </Link>
+                    {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
+                </div>
+                <UserPfpList userList={props.followers} pageUser={pageUser} isFollowers={true} className="ml-auto"/>
+            </div>
 
             <div className="mt-12">
-                <p className="opacity-50">{pageUser.name} joined Updately on {format(new Date(pageUser.createdAt), "MMMM d, yyyy")}</p>
+                <Activity updates={updateActivity || []} pageUser={pageUser}/>
             </div>
 
             <hr className="my-8"/>
-
-            <div className="mb-16 mt-10">
-                <Activity updates={updateActivity || []} />
-            </div>
 
             {(pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner) ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
