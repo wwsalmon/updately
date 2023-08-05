@@ -75,6 +75,8 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
         setPage(1);
     }, [filterBy]);
 
+    const isProfilePrivateToLoggedInUser = (pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner);
+
     return (
         <div className="max-w-4xl mx-auto px-4">
             <NextSeo
@@ -134,13 +136,16 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                 <UserPfpList userList={props.followers} pageUser={pageUser} isFollowers={true} className="ml-auto"/>
             </div>
 
-            <div className="mt-12">
-                <Activity updates={updateActivity || []} pageUser={pageUser}/>
-            </div>
+            {!isProfilePrivateToLoggedInUser && (
+                <div className="mt-12">
+                    <Activity updates={updateActivity || []} pageUser={pageUser}/>
+                </div>
+            )}
+
 
             <hr className="my-8"/>
 
-            {(pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner) ? (
+            {isProfilePrivateToLoggedInUser ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
