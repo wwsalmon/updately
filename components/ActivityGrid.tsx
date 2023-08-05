@@ -33,12 +33,11 @@ export default function ActivityGrid({ data, label, color }: { data: ActivityDay
     return (
         <div
             style={{
-                position: "relative",
                 display: "grid",
-                gridTemplateRows: "repeat(8, 16px)",
-                gridTemplateColumns: `24px repeat(${numCols}, 16px)`,
+                gridTemplateRows: "repeat(8, 15px)",
+                gridTemplateColumns: `24px repeat(${numCols}, 15px)`,
                 width: "100%",
-                // overflowX: "auto",
+                overflowX: "auto",
             }}
         >
             {monthChangeDays.map(d => (
@@ -49,23 +48,20 @@ export default function ActivityGrid({ data, label, color }: { data: ActivityDay
             <GridLabel row={3} col={1}>Mon</GridLabel>
             <GridLabel row={5} col={1}>Wed</GridLabel>
             <GridLabel row={7} col={1}>Fri</GridLabel>
-            {Object.keys(data).map(dateString => {
-                const dateActivity = data[dateString];
-                return (
-                    <div
-                        style={{
-                            backgroundColor: dateActivity.count > 0 ? (color || "#0026ff") : "#000",
-                            opacity: dateActivity.count > 0 ? dateActivity.count / maxCount : 0.05,
-                            width: 14,
-                            height: 14,
-                            gridRow: dateActivity.day + 2,
-                            gridColumn: dateActivity.week + 2,
-                            borderRadius: 3,
-                        }}
-                        key={format(dateActivity.date, "yyyy-MM-dd")}
-                    />
-                )
-            })}
+            {Object.values(data).map(dateActivity => (
+                <div
+                    style={{
+                        backgroundColor: dateActivity.count > 0 ? (color || "#0026ff") : "#000",
+                        opacity: dateActivity.count > 0 ? dateActivity.count / maxCount : 0.05,
+                        width: 13,
+                        height: 13,
+                        gridRow: dateActivity.day + 2,
+                        gridColumn: dateActivity.week + 2,
+                        borderRadius: 3,
+                    }}
+                    key={format(dateActivity.date, "yyyy-MM-dd")}
+                />
+            ))}
         </div>
     );
 }
