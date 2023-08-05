@@ -4,10 +4,10 @@ import { useState } from 'react';
 
 const numCols = 53;
 
-function makeGridArr(arr: { date: string }[], endDate: Date): { gridHashmap: ActivityDayMap, years: string[] } {
-    let years = []
+function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: ActivityDayMap, years: string[] } {
+    // year: a year string OR "last-year"
 
-    const today = endDate;
+    const today = year === "last-year" ? new Date() : new Date(`${year}-12-31`);
     const todayDayOfWeek = today.getDay();
     const todayFirstDayOfWeek = subDays(today, todayDayOfWeek);
     const firstDayOnGraph = subDays(todayFirstDayOfWeek, (numCols - 1) * 7);
@@ -17,6 +17,10 @@ function makeGridArr(arr: { date: string }[], endDate: Date): { gridHashmap: Act
     let week = 0;
 
     while (currDay <= today) {
+        if (year !== "last-year" && currDay.getFullYear() !== parseInt(year)) {
+            currDay = addDays(currDay, 1);
+            continue;
+        }
         gridHashmap[format(currDay, "yyyy-MM-dd")] = {
             date: currDay,
             day: currDay.getDay(),
@@ -28,6 +32,7 @@ function makeGridArr(arr: { date: string }[], endDate: Date): { gridHashmap: Act
         currDay = addDays(currDay, 1);
     }
 
+    let years = []
     for (let item of arr) {
         const year = format(new Date(item.date), "yyyy");
         if (!years.includes(year)) years.push(year);
@@ -46,8 +51,7 @@ function makeGridArr(arr: { date: string }[], endDate: Date): { gridHashmap: Act
 
 const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
     const [year, setYear] = useState<string>("last-year"); // a year string OR "last-year"
-    const endDate = year === "last-year" ? new Date() : new Date(`${year}-12-31`);
-    const { gridHashmap, years } = makeGridArr(updates, endDate);
+    const { gridHashmap, years } = makeGridArr(updates, year);
 
     return (
         <>
@@ -56,9 +60,7 @@ const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
                 {years.map(y => (
                     <button
                         key={y}
-                        onClick={() => {
-                            setYear(y)
-                        }}
+                        onClick={() => setYear(y)}
                         className={`pb-0.5 border-b-2 text-xs ${((year === "last-year" && y === format(new Date(), "yyyy")) || y === year) ? "border-stone-700 text-stone-700 font-bold" : "text-stone-400 border-transparent"}`}
                     >{y}</button>
                 ))}
