@@ -69,7 +69,7 @@ const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
 
             </div >
             <ActivityGrid data={gridHashmap} />
-            <div className="text-stone-500 text-sm mt-4">
+            <div className="text-stone-500 text-xs mt-4">
                 {totalCount} updates in {year === "last-year" ? "the past year" : year}
             </div>
         </>

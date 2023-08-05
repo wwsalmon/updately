@@ -26,7 +26,9 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
 export default function ActivityGrid({ data, label, color }: { data: ActivityDayMap, label?: string, color?: string }) {
     const numCols = 53;
 
-    const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (i === 0 || a[i - 1].date.getMonth() !== d.date.getMonth()));
+    const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (
+        i === 0 || a[i - 1].date.getMonth() !== d.date.getMonth()) && d.date.getDate() < 20
+    );
 
     const maxCount = Math.max(...Object.values(data).map(d => d.count));
 
