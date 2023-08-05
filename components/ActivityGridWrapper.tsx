@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const numCols = 53;
 
-function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: ActivityDayMap, years: string[] } {
+function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: ActivityDayMap, years: string[], totalCount: number } {
     // year: a year string OR "last-year"
 
     const today = year === "last-year" ? new Date() : new Date(`${year}-12-31`);
@@ -33,6 +33,7 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
     }
 
     let years = []
+    let totalCount = 0;
     for (let item of arr) {
         const year = format(new Date(item.date), "yyyy");
         if (!years.includes(year)) years.push(year);
@@ -40,18 +41,19 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
         const index = format(new Date(item.date), "yyyy-MM-dd");
         try {
             gridHashmap[index].count += 1;
+            totalCount += 1;
         } catch (error) {
             // the date isn't in the past year
             continue;
         }
     }
 
-    return { gridHashmap, years };
+    return { gridHashmap, years, totalCount };
 }
 
 const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
     const [year, setYear] = useState<string>("last-year"); // a year string OR "last-year"
-    const { gridHashmap, years } = makeGridArr(updates, year);
+    const { gridHashmap, years, totalCount } = makeGridArr(updates, year);
 
     return (
         <>
@@ -67,6 +69,9 @@ const ActivityGridWrapper = ({ updates }: { updates: { date: string }[] }) => {
 
             </div >
             <ActivityGrid data={gridHashmap} />
+            <div className="text-stone-500 text-sm mt-4">
+                {totalCount} updates in {year === "last-year" ? "the past year" : year}
+            </div>
         </>
     )
 }
