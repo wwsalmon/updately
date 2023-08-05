@@ -82,7 +82,7 @@ const Activity = ({ updates, pageUser }: { updates: { date: string }[], pageUser
             </div>
             <ActivityGrid data={gridHashmap} />
             <div className="text-stone-500 text-sm mt-6">
-                {totalCount} updates in {year === "last-year" ? "the past year" : year}{(year === joinYear.toString()) && `. ${pageUser.name} joined Updately on ${format(joinDate, "MMMM d, yyyy")}`}
+                {totalCount} update{totalCount === 1 ? "" : "s"} in {year === "last-year" ? "the past year" : year}{(year === joinYear.toString()) && `. ${pageUser.name} joined Updately on ${format(joinDate, "MMMM d, yyyy")}`}
             </div>
         </>
     )
