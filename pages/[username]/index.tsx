@@ -14,9 +14,10 @@ import {useRouter} from "next/router";
 import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
 import useSWR from "swr";
-import {notificationModel, updateModel, userModel} from "../../models/models";
+import {notificationModel, userModel} from "../../models/models";
 import {FaSort} from "react-icons/fa";
 import getLookup from "../../utils/getLookup";
+import Activity from "../../components/Activity";
 
 const options = [
 	{ value: SortBy.Date, label: 'Date' },
@@ -33,7 +34,8 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
     const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
     const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}`, fetcher);
-    const updates = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
+    const {data: updateActivity, error: updateActivityError} = useSWR(`/api/activity?userId=${pageUser._id}`, fetcher);
+    const updates: Update[] = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
     const numUpdates = (updatesObj && updatesObj.length && updatesObj[0].totalCount.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
 
     let filterOptions = [];
@@ -73,6 +75,8 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
         setPage(1);
     }, [filterBy]);
 
+    const isProfilePrivateToLoggedInUser = (pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner);
+
     return (
         <div className="max-w-4xl mx-auto px-4">
             <NextSeo
@@ -111,30 +115,37 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                 </div>
             )}
 
-            <Link href={`/@${pageUser.urlName}/following`}>
-                <a className="up-ui-title mb-4 block">
-                    Following ({props.following.length})
-                </a>
-            </Link>
-            <UserPfpList userList={props.following} pageUser={pageUser} isFollowers={false}/>
-
-            <div className="mb-4 mt-12">
-                <Link href={`/@${pageUser.urlName}/followers`}>
-                    <a className="up-ui-title">
-                        Followers ({props.followers.length})
+            <div className="sm:flex items-center">
+                <Link href={`/@${pageUser.urlName}/following`}>
+                    <a className="up-ui-title mb-4 block">
+                        Following ({props.following.length})
                     </a>
                 </Link>
-                {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
+                <UserPfpList userList={props.following} pageUser={pageUser} isFollowers={false} className="ml-auto"/>
             </div>
-            <UserPfpList userList={props.followers} pageUser={pageUser} isFollowers={true}/>
 
-            <div className="mt-12">
-                <p className="opacity-50">{pageUser.name} joined Updately on {format(new Date(pageUser.createdAt), "MMMM d, yyyy")}</p>
+            <div className="mb-4 mt-12 sm:flex items-center">
+                <div className="mb-4">
+                    <Link href={`/@${pageUser.urlName}/followers`}>
+                        <a className="up-ui-title">
+                            Followers ({props.followers.length})
+                        </a>
+                    </Link>
+                    {isOwner && <p>Have your friends follow you by sharing this profile page with them!</p>}
+                </div>
+                <UserPfpList userList={props.followers} pageUser={pageUser} isFollowers={true} className="ml-auto"/>
             </div>
+
+            {!isProfilePrivateToLoggedInUser && (
+                <div className="mt-12">
+                    <Activity updates={updateActivity || []} pageUser={pageUser}/>
+                </div>
+            )}
+
 
             <hr className="my-8"/>
 
-            {(pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner) ? (
+            {isProfilePrivateToLoggedInUser ? (
                 <p>This user's profile is private and you do not have permission to view it. Request to follow this user to see their updates.</p>
             ) : (
                 <>
