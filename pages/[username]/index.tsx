@@ -13,8 +13,8 @@ import UserHeaderLeft from "../../components/UserHeaderLeft";
 import { useRouter } from "next/router";
 import axios from "axios";
 import PaginationBar from "../../components/PaginationBar";
-import useSWR from "swr";
-import { notificationModel, updateModel, userModel } from "../../models/models";
+import useSWR, { responseInterface } from "swr";
+import { notificationModel, userModel } from "../../models/models";
 import { FaSort } from "react-icons/fa";
 import getLookup from "../../utils/getLookup";
 import ActivityGridWrapper from "../../components/ActivityGridWrapper";
@@ -35,8 +35,8 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
     const { data: updatesObj, error: feedError } = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}`, fetcher);
     const { data: updateActivity, error: updateActivityError } = useSWR(`/api/activity?userId=${pageUser._id}`, fetcher);
-    const updates = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
-    const numUpdates = (updatesObj && updatesObj.length && updatesObj[0].totalCount.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
+    const updates: Update[] = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
+    const numUpdates: number = (updatesObj && updatesObj.length && updatesObj[0].totalCount.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
 
     let filterOptions = [];
 

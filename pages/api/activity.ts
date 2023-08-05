@@ -9,7 +9,6 @@ export default async function getActivityHandler(req: NextApiRequest, res: NextA
     if (!req.query.userId) return res.status(406).json({error: "userId is required"});
 
     try {
-        console.log("here")
         await dbConnect();
 
         const updateActivity = await updateModel.aggregate([
