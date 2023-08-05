@@ -4,7 +4,7 @@ import { updateModel } from "../../models/models";
 import dbConnect from "../../utils/dbConnect";
 import { cleanForJSON } from "../../utils/utils";
 
-export default async function getCurrUserUpdatesHandler(req: NextApiRequest, res: NextApiResponse) {
+export default async function getActivityHandler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405).json({error: "Invalid method"});
     if (!req.query.userId) return res.status(406).json({error: "userId is required"});
 
