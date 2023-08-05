@@ -12,7 +12,7 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
     const todayFirstDayOfWeek = subDays(today, todayDayOfWeek);
     const firstDayOnGraph = subDays(todayFirstDayOfWeek, (numCols - 1) * 7);
 
-    let gridHashmap = {}; // dates to ActivityDay objects.
+    let gridHashmap: ActivityDayMap = {}; // dates to ActivityDay objects.
     let currDay = firstDayOnGraph;
     let week = 0;
 
