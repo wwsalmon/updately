@@ -1,23 +1,23 @@
-import {GetServerSideProps} from "next";
-import {getSession} from "next-auth/react";
-import {format} from "date-fns";
-import wordsCount from "words-count";
-import Link from "next/link";
-import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
-import React, {useEffect, useState} from "react";
-import ProfileFollowButton from "../../components/ProfileFollowButton";
-import {NextSeo} from "next-seo";
-import {SortBy, Update, User} from "../../utils/types";
-import UserPfpList from "../../components/UserPfpList";
-import UserHeaderLeft from "../../components/UserHeaderLeft";
-import {useRouter} from "next/router";
 import axios from "axios";
-import PaginationBar from "../../components/PaginationBar";
+import { format } from "date-fns";
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
+import { NextSeo } from "next-seo";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { FaSort } from "react-icons/fa";
 import useSWR from "swr";
-import {notificationModel, userModel} from "../../models/models";
-import {FaSort} from "react-icons/fa";
-import getLookup from "../../utils/getLookup";
+import wordsCount from "words-count";
 import Activity from "../../components/Activity";
+import PaginationBar from "../../components/PaginationBar";
+import ProfileFollowButton from "../../components/ProfileFollowButton";
+import UserHeaderLeft from "../../components/UserHeaderLeft";
+import UserPfpList from "../../components/UserPfpList";
+import { notificationModel, userModel } from "../../models/models";
+import getLookup from "../../utils/getLookup";
+import { SortBy, Update, User } from "../../utils/types";
+import { cleanForJSON, dateOnly, fetcher } from "../../utils/utils";
 
 const options = [
 	{ value: SortBy.Date, label: 'Date' },
@@ -33,7 +33,8 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     const [userData, setUserData] = useState<User>(props.userData);
     const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
     const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
-    const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}`, fetcher);
+    const [dateQuery, setDateQuery] = useState<string>(null); // format in yyyy-MM-dd
+    const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}&date=${dateQuery}`, fetcher);
     const {data: updateActivity, error: updateActivityError} = useSWR(`/api/activity?userId=${pageUser._id}`, fetcher);
     const updates: Update[] = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
     const numUpdates = (updatesObj && updatesObj.length && updatesObj[0].totalCount.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
@@ -68,12 +69,18 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     }, [router.query.filter]);
 
     useEffect(() => {
-        router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}`, undefined, {shallow: true});
-    }, [filterBy]);
+        if (router.query.date) {
+            setDateQuery(router.query.date as string);
+        }
+    }, [router.query.date]);
+
+    useEffect(() => {
+        router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}${dateQuery ? `&date=${dateQuery}` : ""}`, undefined, {shallow: true});
+    }, [filterBy, dateQuery]);
 
     useEffect(() => {
         setPage(1);
-    }, [filterBy]);
+    }, [filterBy, dateQuery]);
 
     const isProfilePrivateToLoggedInUser = (pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner);
 
@@ -138,10 +145,9 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
 
             {!isProfilePrivateToLoggedInUser && (
                 <div className="mt-12">
-                    <Activity updates={updateActivity || []} pageUser={pageUser}/>
+                    <Activity updates={updateActivity || []} pageUser={pageUser} setDate={setDateQuery}/>
                 </div>
             )}
-
 
             <hr className="my-8"/>
 
@@ -176,6 +182,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                             </select>
                         </div>
                     </div>
+                    {dateQuery && <p className="opacity-50">Showing updates for {dateQuery}</p>}
                     {updates && updates.length > 0 ? updates.map(update => (
                         <div
                             key={update._id}

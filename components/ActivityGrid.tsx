@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
 import { format } from "date-fns";
+import { Dispatch, ReactNode, SetStateAction } from "react";
 
 interface ActivityDay {
     date: Date,
@@ -23,7 +23,7 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
     ><span>{children}</span></div>
 )
 
-export default function ActivityGrid({ data, label, color }: { data: ActivityDayMap, label?: string, color?: string }) {
+export default function ActivityGrid({ data, label, color, setDate }: { data: ActivityDayMap, label?: string, color?: string, setDate: Dispatch<SetStateAction<string>> }) {
     const numCols = 53;
 
     const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (
@@ -62,6 +62,7 @@ export default function ActivityGrid({ data, label, color }: { data: ActivityDay
                         borderRadius: 3,
                     }}
                     key={format(dateActivity.date, "yyyy-MM-dd")}
+                    onClick={() => setDate(format(dateActivity.date, "yyyy-MM-dd"))}
                 />
             ))}
         </div>

@@ -1,10 +1,10 @@
-import * as mongoose from "mongoose";
-import {updateModel, userModel} from "../models/models";
-import short from "short-uuid";
 import axios from "axios";
-import {getSession} from "next-auth/react";
-import { SortBy, Update, User } from "./types";
+import * as mongoose from "mongoose";
+import { getSession } from "next-auth/react";
+import short from "short-uuid";
+import { updateModel, userModel } from "../models/models";
 import getLookup from "./getLookup";
+import { SortBy, Update, User } from "./types";
 
 export interface GetUpdateRequestResponse {user: User, update: Update & {mentionedUsersArr: User[]}};
 
@@ -60,6 +60,10 @@ export async function getUpdatesRequest({req}) {
     
     if (req.query.filter && !["all", "drafts", "published"].includes(req.query.filter)) conditions["tags"] = req.query.filter;
 
+    // Technically, this is unrobust because it checks for the exact time being 00:00:00.000Z, but all updates have this so :shrug: it works
+    // (might break in future if we change how we store dates) 
+    if (req.query.date) conditions["date"] = new Date(req.query.date);
+    
     const facetStage = {$facet: {
         paginatedResults: [{$skip: (+req.query.page - 1) * 10}, {$limit: 10}],
         totalCount: [{$count: "estimatedDocumentCount"}],
