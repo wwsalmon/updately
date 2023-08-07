@@ -1,8 +1,8 @@
-import classNames from 'classnames';
-import { addDays, format, subDays } from 'date-fns';
+import { format, subDays, addDays } from 'date-fns';
+import ActivityGrid, { ActivityDayMap } from './ActivityGrid';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { User } from '../utils/types';
-import ActivityGrid, { ActivityDayMap } from './ActivityGrid';
+import classNames from 'classnames';
 
 const numCols = 53;
 

@@ -1,23 +1,23 @@
-import axios from "axios";
-import { format } from "date-fns";
-import { GetServerSideProps } from "next";
-import { getSession } from "next-auth/react";
-import { NextSeo } from "next-seo";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { FaSort } from "react-icons/fa";
-import useSWR from "swr";
+import {GetServerSideProps} from "next";
+import {getSession} from "next-auth/react";
+import {format} from "date-fns";
 import wordsCount from "words-count";
-import Activity from "../../components/Activity";
-import PaginationBar from "../../components/PaginationBar";
+import Link from "next/link";
+import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
+import React, {useEffect, useState} from "react";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
-import UserHeaderLeft from "../../components/UserHeaderLeft";
+import {NextSeo} from "next-seo";
+import {SortBy, Update, User} from "../../utils/types";
 import UserPfpList from "../../components/UserPfpList";
-import { notificationModel, userModel } from "../../models/models";
+import UserHeaderLeft from "../../components/UserHeaderLeft";
+import {useRouter} from "next/router";
+import axios from "axios";
+import PaginationBar from "../../components/PaginationBar";
+import useSWR from "swr";
+import {notificationModel, userModel} from "../../models/models";
+import {FaSort} from "react-icons/fa";
 import getLookup from "../../utils/getLookup";
-import { SortBy, Update, User } from "../../utils/types";
-import { cleanForJSON, dateOnly, fetcher } from "../../utils/utils";
+import Activity from "../../components/Activity";
 
 const options = [
 	{ value: SortBy.Date, label: 'Date' },
