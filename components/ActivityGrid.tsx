@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { format } from "date-fns";
 import { Dispatch, ReactNode, SetStateAction } from "react";
 
@@ -53,16 +54,13 @@ export default function ActivityGrid({ data, label, color, setDate }: { data: Ac
             {Object.values(data).map(dateActivity => (
                 <div
                     style={{
-                        backgroundColor: dateActivity.count > 0 ? (color || "#0026ff") : "#000",
-                        opacity: dateActivity.count > 0 ? dateActivity.count / maxCount : 0.05,
-                        width: 13,
-                        height: 13,
+                        opacity: dateActivity.count > 0 ? dateActivity.count / maxCount : 1,
                         gridRow: dateActivity.day + 2,
                         gridColumn: dateActivity.week + 2,
-                        borderRadius: 3,
                     }}
+                    className={classNames(dateActivity.count > 0 ? "bg-tblue cursor-pointer" : "bg-gray-100", "hover:!opacity-100 w-[13px] h-[13px] rounded-[3px]")}
                     key={format(dateActivity.date, "yyyy-MM-dd")}
-                    onClick={() => setDate(format(dateActivity.date, "yyyy-MM-dd"))}
+                    onClick={() => dateActivity.count > 0 && setDate(format(dateActivity.date, "yyyy-MM-dd"))}
                 />
             ))}
         </div>

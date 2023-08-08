@@ -8,7 +8,8 @@ module.exports = {
             colors: {    
                 gray: {
                     900: '#121212',
-                }
+                },
+                tblue: "#0026ff",
             },
         }  
     },
