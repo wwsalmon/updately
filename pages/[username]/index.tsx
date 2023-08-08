@@ -18,6 +18,7 @@ import {notificationModel, userModel} from "../../models/models";
 import {FaSort} from "react-icons/fa";
 import getLookup from "../../utils/getLookup";
 import Activity from "../../components/Activity";
+import { FiX } from "react-icons/fi";
 
 const options = [
 	{ value: SortBy.Date, label: 'Date' },
@@ -62,24 +63,22 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
         }
     }, [router.query.notification]);
 
-    useEffect(() => {
-        if (router.query.filter && ["all", "published", "draft", ...filterOptions].map(d => d.value).includes(router.query.filter as string)) {
-            setFilterBy(router.query.filter as string);
-        }
-    }, [router.query.filter]);
+    // useEffect(() => {
+    //     if (router.query.filter && ["all", "published", "draft", ...filterOptions].map(d => d.value).includes(router.query.filter as string)) {
+    //         setFilterBy(router.query.filter as string);
+    //     }
+    // }, [router.query.filter]);
 
-    useEffect(() => {
-        if (router.query.date) {
-            setDateQuery(router.query.date as string);
-        }
-    }, [router.query.date]);
-
-    useEffect(() => {
-        router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}${dateQuery ? `&date=${dateQuery}` : ""}`, undefined, {shallow: true});
-    }, [filterBy, dateQuery]);
+    // useEffect(() => {
+    //     if (router.query.date) {
+    //         setDateQuery(router.query.date as string);
+    //     }
+    // }, [router.query.date]);
 
     useEffect(() => {
         setPage(1);
+        // if (dateQuery) {setFilterBy("all");}
+        // router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}${dateQuery ? `&date=${dateQuery}` : ""}`, undefined, {shallow: true});
     }, [filterBy, dateQuery]);
 
     const isProfilePrivateToLoggedInUser = (pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner);
@@ -168,11 +167,26 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                         </div>
                     )}
                     <div className="flex items-center mb-12">
-                        <select value={filterBy} onChange={e => setFilterBy(e.target.value)} className="up-ui-title">
-                            {filterOptions.map(d => (
-                                <option key={d.value} value={d.value}>{d.label}</option>
-                            ))}
-                        </select>
+                        {dateQuery ? (
+                            <>
+                                <p className="up-ui-title">Showing updates for {format(dateOnly(dateQuery), "MMMM d, yyyy")}</p>
+                                <button
+                                    className="opacity-50 text-red-500 inline-flex items-center hover:opacity-75 ml-4"
+                                    onClick={() => setDateQuery("")}
+                                >
+                                    <FiX/>
+                                    <span className="ml-1">
+                                        Clear
+                                    </span>
+                                </button>
+                            </>
+                        ) : (
+                            <select value={filterBy} onChange={e => setFilterBy(e.target.value)} className="up-ui-title">
+                                {filterOptions.map(d => (
+                                    <option key={d.value} value={d.value}>{d.label}</option>
+                                ))}
+                            </select>
+                        )}
                         <div className="flex items-center ml-auto">
                             <p className="up-ui-title mr-2 text-gray-400"><FaSort/></p>
                             <select value={sortBy} onChange={e => setSortBy(+e.target.value)}>
@@ -182,7 +196,6 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                             </select>
                         </div>
                     </div>
-                    {dateQuery && <p className="opacity-50">Showing updates for {dateQuery}</p>}
                     {updates && updates.length > 0 ? updates.map(update => (
                         <div
                             key={update._id}
