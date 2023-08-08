@@ -33,7 +33,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     const [userData, setUserData] = useState<User>(props.userData);
     const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
     const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
-    const [dateQuery, setDateQuery] = useState<string>(null); // format in yyyy-MM-dd
+    const [dateQuery, setDateQuery] = useState<string>(""); // format in yyyy-MM-dd
     const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}&date=${dateQuery}`, fetcher);
     const {data: updateActivity, error: updateActivityError} = useSWR(`/api/activity?userId=${pageUser._id}`, fetcher);
     const updates: Update[] = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
