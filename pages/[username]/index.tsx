@@ -34,7 +34,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     const [userData, setUserData] = useState<User>(props.userData);
     const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
     const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
-    const [dateQuery, setDateQuery] = useState<string>(""); // format in yyyy-MM-dd
+    const dateQuery = router.query.date !== undefined ? router.query.date as string : ""; // format in yyyy-MM-dd
     const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}&date=${dateQuery}`, fetcher);
     const {data: updateActivity, error: updateActivityError} = useSWR(`/api/activity?userId=${pageUser._id}`, fetcher);
     const updates: Update[] = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
@@ -62,13 +62,14 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
             });
         }
     }, [router.query.notification]);
-
     // useEffect(() => {
     //     if (router.query.filter && ["all", "published", "draft", ...filterOptions].map(d => d.value).includes(router.query.filter as string)) {
     //         setFilterBy(router.query.filter as string);
     //     }
     // }, [router.query.filter]);
-
+    // if(router.query.date) {
+    //     setDateQuery(router.query.date as string); // this seems bad since we might want multiple dates at some point
+    // }
     // useEffect(() => {
     //     if (router.query.date) {
     //         setDateQuery(router.query.date as string);
@@ -144,7 +145,21 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
             {!isProfilePrivateToLoggedInUser && (
                 <div className="mt-12">
                     <Activity updates={updateActivity || []} pageUser={pageUser} onClickDate={(date) => {
-                        setDateQuery(date);
+                        router.push(
+                            {
+                                query: {
+                                    filter: filterBy,
+                                    date: date,
+                                    username: `@${pageUser.urlName}`
+                                },
+                                pathname: router.pathname,
+                            },
+                            undefined,
+                            {
+                                scroll : false,
+                                shallow: true
+                            }
+                        );
                         setPage(1);
                     }}/>
                 </div>
@@ -174,7 +189,22 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                                 <p className="up-ui-title">Showing updates for {format(dateOnly(dateQuery), "MMMM d, yyyy")}</p>
                                 <button
                                     className="opacity-50 text-red-500 inline-flex items-center hover:opacity-75 ml-4"
-                                    onClick={() => setDateQuery("")}
+                                    onClick={() =>
+                                        router.push(
+                                            {
+                                                query: {
+                                                    filter: filterBy,
+                                                    username: `@${pageUser.urlName}`
+                                                },
+                                                pathname: router.pathname,
+                                            },
+                                            undefined,
+                                            {
+                                                scroll : false,
+                                                shallow: true
+                                            }
+                                        )
+                                    }
                                 >
                                     <FiX/>
                                     <span className="ml-1">
