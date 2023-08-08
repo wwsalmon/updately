@@ -1,8 +1,9 @@
-import { format, subDays, addDays } from 'date-fns';
+import { format, subDays, addDays, parseISO, parse } from 'date-fns';
 import ActivityGrid, { ActivityDayMap } from './ActivityGrid';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { User } from '../utils/types';
 import classNames from 'classnames';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const numCols = 53;
 
@@ -37,17 +38,21 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
     let years = []
     let totalCount = 0;
     for (let item of arr) {
-        const year = format(new Date(item.date), "yyyy");
-        if (!years.includes(year)) years.push(year);
+        const FORMAT_STR = 'yyyy-MM-dd'
+        const dateFromDB = formatInTimeZone(parseISO(item.date), 'UTC',  FORMAT_STR)
 
-        const index = format(new Date(item.date), "yyyy-MM-dd");
-        try {
-            gridHashmap[index].count += 1;
-            totalCount += 1;
-        } catch (error) {
-            // the date isn't in the past year
-            continue;
-        }
+		const year = format(parse(dateFromDB, FORMAT_STR, new Date()), "yyyy")
+		if (!years.includes(year)) years.push(year);
+		console.log(
+			`date from database: ${item.date}, parsed date: ${dateFromDB}`
+		);
+		try {
+			gridHashmap[dateFromDB].count += 1;
+			totalCount += 1;
+		} catch (error) {
+			// the date isn't in the past year
+			continue;
+		}
     }
 
     return { gridHashmap, years, totalCount };

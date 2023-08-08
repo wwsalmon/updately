@@ -16,6 +16,7 @@
     "axios": "^0.21.0",
     "classnames": "^2.3.2",
     "date-fns": "^2.16.1",
+    "date-fns-tz": "^2.0.0",
     "html-react-parser": "^0.14.2",
     "mongoose": "^5.10.16",
     "next": "^12.1.6",
