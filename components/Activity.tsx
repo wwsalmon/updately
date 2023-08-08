@@ -43,9 +43,6 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
 
 		const year = format(parse(dateFromDB, FORMAT_STR, new Date()), "yyyy")
 		if (!years.includes(year)) years.push(year);
-		console.log(
-			`date from database: ${item.date}, parsed date: ${dateFromDB}`
-		);
 		try {
 			gridHashmap[dateFromDB].count += 1;
 			totalCount += 1;
