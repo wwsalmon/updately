@@ -75,11 +75,10 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     //     }
     // }, [router.query.date]);
 
-    useEffect(() => {
-        setPage(1);
-        // if (dateQuery) {setFilterBy("all");}
-        // router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}${dateQuery ? `&date=${dateQuery}` : ""}`, undefined, {shallow: true});
-    }, [filterBy, dateQuery]);
+    // useEffect(() => {
+    //     // if (dateQuery) {setFilterBy("all");}
+    //     // router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}${dateQuery ? `&date=${dateQuery}` : ""}`, undefined, {shallow: true});
+    // }, [filterBy, dateQuery]);
 
     const isProfilePrivateToLoggedInUser = (pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner);
 
@@ -144,7 +143,10 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
 
             {!isProfilePrivateToLoggedInUser && (
                 <div className="mt-12">
-                    <Activity updates={updateActivity || []} pageUser={pageUser} setDate={setDateQuery}/>
+                    <Activity updates={updateActivity || []} pageUser={pageUser} onClickDate={(date) => {
+                        setDateQuery(date);
+                        setPage(1);
+                    }}/>
                 </div>
             )}
 
@@ -181,7 +183,10 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                                 </button>
                             </>
                         ) : (
-                            <select value={filterBy} onChange={e => setFilterBy(e.target.value)} className="up-ui-title">
+                            <select value={filterBy} onChange={e => {
+                                setFilterBy(e.target.value)
+                                setPage(1)
+                                }} className="up-ui-title">
                                 {filterOptions.map(d => (
                                     <option key={d.value} value={d.value}>{d.label}</option>
                                 ))}

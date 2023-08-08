@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { format } from "date-fns";
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { ReactNode } from "react";
 
 interface ActivityDay {
     date: Date,
@@ -24,7 +24,7 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
     ><span>{children}</span></div>
 )
 
-export default function ActivityGrid({ data, label, color, setDate }: { data: ActivityDayMap, label?: string, color?: string, setDate: Dispatch<SetStateAction<string>> }) {
+export default function ActivityGrid({ data, label, color, onClickDate }: { data: ActivityDayMap, label?: string, color?: string, onClickDate: (date: string) => void }) {
     const numCols = 53;
 
     const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (
@@ -60,7 +60,10 @@ export default function ActivityGrid({ data, label, color, setDate }: { data: Ac
                     }}
                     className={classNames(dateActivity.count > 0 ? "bg-tblue cursor-pointer" : "bg-gray-100", "hover:!opacity-100 w-[13px] h-[13px] rounded-[3px]")}
                     key={format(dateActivity.date, "yyyy-MM-dd")}
-                    onClick={() => dateActivity.count > 0 && setDate(format(dateActivity.date, "yyyy-MM-dd"))}
+                    onClick={() => {
+                        if (dateActivity.count > 0)
+                            onClickDate(format(dateActivity.date, "yyyy-MM-dd"))
+                    }}
                 />
             ))}
         </div>

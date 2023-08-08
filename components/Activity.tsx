@@ -1,6 +1,6 @@
 import { format, subDays, addDays, parseISO, parse } from 'date-fns';
 import ActivityGrid, { ActivityDayMap } from './ActivityGrid';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { User } from '../utils/types';
 import classNames from 'classnames';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -58,7 +58,7 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
     return { gridHashmap, years, totalCount };
 }
 
-const Activity = ({ updates, pageUser, setDate }: { updates: { date: string }[], pageUser: User, setDate: Dispatch<SetStateAction<string>>}) => {
+const Activity = ({ updates, pageUser, onClickDate }: { updates: { date: string }[], pageUser: User, onClickDate: (date: string) => void}) => {
     const [year, setYear] = useState<string>("last-year"); // a year string OR "last-year"
     const { gridHashmap, years, totalCount } = makeGridArr(updates, year);
     const joinDate = new Date(pageUser.createdAt);
@@ -85,7 +85,7 @@ const Activity = ({ updates, pageUser, setDate }: { updates: { date: string }[],
                     ))}
                 </div >
             </div>
-            <ActivityGrid data={gridHashmap} setDate={setDate} />
+            <ActivityGrid data={gridHashmap} onClickDate={onClickDate} />
             <div className="text-stone-500 text-sm mt-6">
                 {totalCount} update{totalCount === 1 ? "" : "s"} in {year === "last-year" ? "the past year" : year}{(year === joinYear.toString()) && `. ${pageUser.name} joined Updately on ${format(joinDate, "MMMM d, yyyy")}`}
             </div>
