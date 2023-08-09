@@ -250,7 +250,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                             </div>
                         </div>
                     )) : (
-                        <p className="up-ui-item-subtitle">No updates yet.</p>
+                        <p className="up-ui-item-subtitle">{updatesObj ? "No updates yet." : "Loading..."}</p>
                     )}
                     {updates && updates.length > 0 && <PaginationBar page={page} count={numUpdates} label={"updates"} setPage={setPage}/>}
                 </>
