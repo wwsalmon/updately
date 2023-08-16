@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
+import classNames from "classnames";
 import { format } from "date-fns";
+import { ReactNode } from "react";
 
 interface ActivityDay {
     date: Date,
@@ -23,7 +24,7 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
     ><span>{children}</span></div>
 )
 
-export default function ActivityGrid({ data, label, color }: { data: ActivityDayMap, label?: string, color?: string }) {
+export default function ActivityGrid({ data, label, color, onClickDate }: { data: ActivityDayMap, label?: string, color?: string, onClickDate: (date: string) => void }) {
     const numCols = 53;
 
     const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (
@@ -53,15 +54,16 @@ export default function ActivityGrid({ data, label, color }: { data: ActivityDay
             {Object.values(data).map(dateActivity => (
                 <div
                     style={{
-                        backgroundColor: dateActivity.count > 0 ? (color || "#0026ff") : "#000",
-                        opacity: dateActivity.count > 0 ? dateActivity.count / maxCount : 0.05,
-                        width: 13,
-                        height: 13,
+                        opacity: dateActivity.count > 0 ? dateActivity.count / maxCount : 1,
                         gridRow: dateActivity.day + 2,
                         gridColumn: dateActivity.week + 2,
-                        borderRadius: 3,
                     }}
+                    className={classNames(dateActivity.count > 0 ? "bg-tblue cursor-pointer" : "bg-gray-100", "hover:!opacity-100 w-[13px] h-[13px] rounded-[3px]")}
                     key={format(dateActivity.date, "yyyy-MM-dd")}
+                    onClick={() => {
+                        if (dateActivity.count > 0)
+                            onClickDate(format(dateActivity.date, "yyyy-MM-dd"))
+                    }}
                 />
             ))}
         </div>

@@ -18,6 +18,7 @@ import {notificationModel, userModel} from "../../models/models";
 import {FaSort} from "react-icons/fa";
 import getLookup from "../../utils/getLookup";
 import Activity from "../../components/Activity";
+import { FiX } from "react-icons/fi";
 
 const options = [
 	{ value: SortBy.Date, label: 'Date' },
@@ -33,7 +34,8 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
     const [userData, setUserData] = useState<User>(props.userData);
     const [sortBy, setSortBy] = useState<SortBy>(SortBy.Date);
     const [filterBy, setFilterBy] = useState<string>("all"); // all, drafts, tag
-    const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}`, fetcher);
+    const dateQuery = router.query.date !== undefined ? router.query.date as string : ""; // format in yyyy-MM-dd
+    const {data: updatesObj, error: feedError} = useSWR(`/api/get-curr-user-updates?page=${page}&urlName=${pageUser.urlName}&sortBy=${sortBy}&filter=${filterBy}&date=${dateQuery}`, fetcher);
     const {data: updateActivity, error: updateActivityError} = useSWR(`/api/activity?userId=${pageUser._id}`, fetcher);
     const updates: Update[] = (updatesObj && updatesObj.length && updatesObj[0].paginatedResults.length) ? updatesObj[0].paginatedResults : [];
     const numUpdates = (updatesObj && updatesObj.length && updatesObj[0].totalCount.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
@@ -60,20 +62,24 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
             });
         }
     }, [router.query.notification]);
+    // useEffect(() => {
+    //     if (router.query.filter && ["all", "published", "draft", ...filterOptions].map(d => d.value).includes(router.query.filter as string)) {
+    //         setFilterBy(router.query.filter as string);
+    //     }
+    // }, [router.query.filter]);
+    // if(router.query.date) {
+    //     setDateQuery(router.query.date as string); // this seems bad since we might want multiple dates at some point
+    // }
+    // useEffect(() => {
+    //     if (router.query.date) {
+    //         setDateQuery(router.query.date as string);
+    //     }
+    // }, [router.query.date]);
 
-    useEffect(() => {
-        if (router.query.filter && ["all", "published", "draft", ...filterOptions].map(d => d.value).includes(router.query.filter as string)) {
-            setFilterBy(router.query.filter as string);
-        }
-    }, [router.query.filter]);
-
-    useEffect(() => {
-        router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}`, undefined, {shallow: true});
-    }, [filterBy]);
-
-    useEffect(() => {
-        setPage(1);
-    }, [filterBy]);
+    // useEffect(() => {
+    //     // if (dateQuery) {setFilterBy("all");}
+    //     // router.push(`/@${pageUser.urlName}?filter=${encodeURIComponent(filterBy)}${dateQuery ? `&date=${dateQuery}` : ""}`, undefined, {shallow: true});
+    // }, [filterBy, dateQuery]);
 
     const isProfilePrivateToLoggedInUser = (pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner);
 
@@ -138,10 +144,26 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
 
             {!isProfilePrivateToLoggedInUser && (
                 <div className="mt-12">
-                    <Activity updates={updateActivity || []} pageUser={pageUser}/>
+                    <Activity updates={updateActivity || []} pageUser={pageUser} onClickDate={(date) => {
+                        router.push(
+                            {
+                                query: {
+                                    filter: filterBy,
+                                    date: date,
+                                    username: `@${pageUser.urlName}`
+                                },
+                                pathname: router.pathname,
+                            },
+                            undefined,
+                            {
+                                scroll : false,
+                                shallow: true
+                            }
+                        );
+                        setPage(1);
+                    }}/>
                 </div>
             )}
-
 
             <hr className="my-8"/>
 
@@ -162,11 +184,44 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                         </div>
                     )}
                     <div className="flex items-center mb-12">
-                        <select value={filterBy} onChange={e => setFilterBy(e.target.value)} className="up-ui-title">
-                            {filterOptions.map(d => (
-                                <option key={d.value} value={d.value}>{d.label}</option>
-                            ))}
-                        </select>
+                        {dateQuery ? (
+                            <>
+                                <p className="up-ui-title">Showing updates for {format(dateOnly(dateQuery), "MMMM d, yyyy")}</p>
+                                <button
+                                    className="opacity-50 text-red-500 inline-flex items-center hover:opacity-75 ml-4"
+                                    onClick={() =>
+                                        router.push(
+                                            {
+                                                query: {
+                                                    filter: filterBy,
+                                                    username: `@${pageUser.urlName}`
+                                                },
+                                                pathname: router.pathname,
+                                            },
+                                            undefined,
+                                            {
+                                                scroll : false,
+                                                shallow: true
+                                            }
+                                        )
+                                    }
+                                >
+                                    <FiX/>
+                                    <span className="ml-1">
+                                        Clear
+                                    </span>
+                                </button>
+                            </>
+                        ) : (
+                            <select value={filterBy} onChange={e => {
+                                setFilterBy(e.target.value)
+                                setPage(1)
+                                }} className="up-ui-title">
+                                {filterOptions.map(d => (
+                                    <option key={d.value} value={d.value}>{d.label}</option>
+                                ))}
+                            </select>
+                        )}
                         <div className="flex items-center ml-auto">
                             <p className="up-ui-title mr-2 text-gray-400"><FaSort/></p>
                             <select value={sortBy} onChange={e => setSortBy(+e.target.value)}>
@@ -195,7 +250,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                             </div>
                         </div>
                     )) : (
-                        <p className="up-ui-item-subtitle">No updates yet.</p>
+                        <p className="up-ui-item-subtitle">{updatesObj ? "No updates yet." : "Loading..."}</p>
                     )}
                     {updates && updates.length > 0 && <PaginationBar page={page} count={numUpdates} label={"updates"} setPage={setPage}/>}
                 </>

@@ -12,7 +12,7 @@ export default async function getActivityHandler(req: NextApiRequest, res: NextA
         await dbConnect();
 
         const updateActivity = await updateModel.aggregate([
-            {$match: {userId: new mongoose.Types.ObjectId(`${req.query.userId}`)}},
+            {$match: {userId: new mongoose.Types.ObjectId(`${req.query.userId}`), published: true}},
             {$sort: {date: -1}},
             {$project: {date: 1}}
         ])

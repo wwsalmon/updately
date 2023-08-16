@@ -1,8 +1,9 @@
-import { format, subDays, addDays } from 'date-fns';
+import { format, subDays, addDays, parseISO, parse } from 'date-fns';
 import ActivityGrid, { ActivityDayMap } from './ActivityGrid';
 import { useState } from 'react';
 import { User } from '../utils/types';
 import classNames from 'classnames';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const numCols = 53;
 
@@ -37,23 +38,24 @@ function makeGridArr(arr: { date: string }[], year: string): { gridHashmap: Acti
     let years = []
     let totalCount = 0;
     for (let item of arr) {
-        const year = format(new Date(item.date), "yyyy");
-        if (!years.includes(year)) years.push(year);
+        const FORMAT_STR = 'yyyy-MM-dd'
+        const dateFromDB = formatInTimeZone(parseISO(item.date), 'UTC',  FORMAT_STR)
 
-        const index = format(new Date(item.date), "yyyy-MM-dd");
-        try {
-            gridHashmap[index].count += 1;
-            totalCount += 1;
-        } catch (error) {
-            // the date isn't in the past year
-            continue;
-        }
+		const year = format(parse(dateFromDB, FORMAT_STR, new Date()), "yyyy")
+		if (!years.includes(year)) years.push(year);
+		try {
+			gridHashmap[dateFromDB].count += 1;
+			totalCount += 1;
+		} catch (error) {
+			// the date isn't in the past year
+			continue;
+		}
     }
 
     return { gridHashmap, years, totalCount };
 }
 
-const Activity = ({ updates, pageUser }: { updates: { date: string }[], pageUser: User}) => {
+const Activity = ({ updates, pageUser, onClickDate }: { updates: { date: string }[], pageUser: User, onClickDate: (date: string) => void}) => {
     const [year, setYear] = useState<string>("last-year"); // a year string OR "last-year"
     const { gridHashmap, years, totalCount } = makeGridArr(updates, year);
     const joinDate = new Date(pageUser.createdAt);
@@ -80,7 +82,7 @@ const Activity = ({ updates, pageUser }: { updates: { date: string }[], pageUser
                     ))}
                 </div >
             </div>
-            <ActivityGrid data={gridHashmap} />
+            <ActivityGrid data={gridHashmap} onClickDate={onClickDate} />
             <div className="text-stone-500 text-sm mt-6">
                 {totalCount} update{totalCount === 1 ? "" : "s"} in {year === "last-year" ? "the past year" : year}{(year === joinYear.toString()) && `. ${pageUser.name} joined Updately on ${format(joinDate, "MMMM d, yyyy")}`}
             </div>
