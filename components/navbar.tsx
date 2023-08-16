@@ -32,7 +32,7 @@ export default function Navbar() {
 
     useEffect(() => {
         setNotificationsIter(notificationsIter + 1);
-    }, [router.asPath]);
+    }, [router.asPath.split("?")[0]]);
 
     const {theme, setTheme} = useTheme();
 
