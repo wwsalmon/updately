@@ -49,11 +49,17 @@ export default function NotificationItem({
                         `/@${thisAuthor.urlName}`
                         : `/@${thisUpdateUser.urlName}/${thisUpdate.url}`;
 
+                    const dateString = new Intl.DateTimeFormat(navigator.language, {
+                        day: "numeric",
+                        month: "numeric",
+                        year: "2-digit"
+                    }).format(new Date(thisUpdate.date));
+
                     if (notification.type === "comment") {
                         return (
                             <>
                                 <span>
-                                    <Link href={href}><a><b>{thisAuthor.name}</b> commented on your {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
+                                    <Link href={href}><a><b>{thisAuthor.name}</b> commented on your {dateString} update</a></Link>
                                 </span>
                             </>
                         );
@@ -69,7 +75,7 @@ export default function NotificationItem({
                                                     "their" :
                                                     thisUpdateUser.name + "'s"
                                         ) + " "}
-                                        {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
+                                        {dateString} update</a></Link>
                                 </span>
                                 <br/>
                                 <span className="opacity-50">
@@ -134,7 +140,7 @@ export default function NotificationItem({
                                 <div>
                                     <span>
                                         <b><Link href={href}><a>{thisAuthor.name} </a></Link></b>
-                                        <Link href={href}><a>liked your {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
+                                        <Link href={href}><a>liked your {dateString} update</a></Link>
                                     </span>
                                     <br/>
                                     <span className="opacity-50">
@@ -157,7 +163,7 @@ export default function NotificationItem({
                                                         "their" :
                                                         thisUpdateUser.name + "'s"
                                             ) + " "}
-                                            {format(new Date(thisUpdate.date), "M/d/yy")} update
+                                            {dateString} update
                                         </a>
                                     </Link>
                                 </span>
@@ -174,7 +180,7 @@ export default function NotificationItem({
                                 <div>
                                     <span>
                                         <b><Link href={href}><a>{thisAuthor.name} </a></Link></b>
-                                        <Link href={href}><a>mentioned you in their {format(new Date(thisUpdate.date), "M/d/yy")} update</a></Link>
+                                        <Link href={href}><a>mentioned you in their {dateString} update</a></Link>
                                     </span>
                                     <br/>
                                     <span className="opacity-50">
@@ -197,7 +203,7 @@ export default function NotificationItem({
                                                         "their" :
                                                         thisUpdateUser.name + "'s"
                                             ) + " "}
-                                            {format(new Date(thisUpdate.date), "M/d/yy")} update
+                                            {dateString} update
                                         </a>
                                     </Link>
                                 </span>
