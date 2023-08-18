@@ -20,11 +20,11 @@ const GridLabel = ({ row, col, children }: { row: number, col: number, children:
             gridColumn: col,
             fontSize: 10,
         }}
-        className="text-stone-300 dark:text-stone-700"
+        className="text-neutral-300 dark:text-neutral-700"
     ><span>{children}</span></div>
 )
 
-export default function ActivityGrid({ data, label, color, onClickDate }: { data: ActivityDayMap, label?: string, color?: string, onClickDate: (date: string) => void }) {
+export default function ActivityGrid({ data, onClickDate }: { data: ActivityDayMap, onClickDate: (date: string) => void }) {
     const numCols = 53;
 
     const monthChangeDays: ActivityDay[] = Object.values(data).filter((d, i, a) => (
@@ -58,7 +58,7 @@ export default function ActivityGrid({ data, label, color, onClickDate }: { data
                         gridRow: dateActivity.day + 2,
                         gridColumn: dateActivity.week + 2,
                     }}
-                    className={classNames(dateActivity.count > 0 ? "bg-tblue cursor-pointer" : "bg-gray-100", "hover:!opacity-100 w-[13px] h-[13px] rounded-[3px]")}
+                    className={classNames(dateActivity.count > 0 ? "bg-tblue cursor-pointer" : "bg-gray-100 dark:bg-neutral-800", "hover:!opacity-100 w-[13px] h-[13px] rounded-[3px]")}
                     key={format(dateActivity.date, "yyyy-MM-dd")}
                     onClick={() => {
                         if (dateActivity.count > 0)
