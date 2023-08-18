@@ -21,6 +21,7 @@ import {FiHeart} from "react-icons/fi";
 import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 import { DeleteModal } from "../../components/Modal";
+import { ssrRedirect } from "next-response-helpers";
 
 export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -288,7 +289,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             // or are the user
             data.user._id.toString() === userData._id.toString()
         )
-    )) return { notFound: true };
+    )) return ssrRedirect(`/@${data.user.urlName}?privateredirect=true`);
 
     if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.update._id}, {read: true});
 
