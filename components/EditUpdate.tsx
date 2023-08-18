@@ -5,6 +5,8 @@ import {User} from "../utils/types";
 import axios from "axios";
 import MentionItem from "./MentionItem";
 import Creatable from "react-select/creatable";
+import { getCustomStyles } from "./CustomSelect";
+import { useTheme } from "next-themes";
 
 function getMentionFromCM(instance) {
     const cursorInfo = instance.getCursor();
@@ -110,6 +112,8 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
 
         return () => editorEl.removeEventListener("keydown", keydownHandler);
     }, [editorRef.current, mentionOpen, mentionQuery, userSelectedIndex, userList]);
+    
+	const { theme, setTheme } = useTheme();
 
     return (
         <>
@@ -141,8 +145,8 @@ export default function EditUpdate({body, setBody, title, setTitle, date, setDat
 
                 <div className="my-8 md:my-0 md:w-1/2">
                     <div className="up-ui-title mt-4 mb-5"><span>Tags (optional)</span></div>
-                    <Creatable options={userTags.map(d => ({ value: d, label: d }))} isMulti={true} isClearable={true}
-                        onChange={option => setTags(option.map(d => d.value))} defaultValue={tags.map(d => ({value: d, label: d}))} />
+                    <Creatable options={userTags.map(d => ({ value: d, label: d }))} isMulti={true} isClearable={true} className="z-10 relative"
+                        onChange={option => setTags(option.map(d => d.value))} defaultValue={tags.map(d => ({value: d, label: d}))} styles={{...getCustomStyles(theme), multiValueRemove: (styles) => ({...styles, color: "black"})}}/>
                 </div>
 
             </div>

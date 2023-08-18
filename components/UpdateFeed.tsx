@@ -45,7 +45,7 @@ export default function UpdateFeed({updates, page, setPage, count}: {updates: Fe
                                                         <span className="opacity-50">{wordsCount(update.body)} word{wordsCount(update.body) > 1 ? "s" : ""}</span>
                                                     </p>
                                                     {update.tags && update.tags.map(tag => (
-                                                        <div key={tag} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</div>
+                                                        <div key={tag} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</div>
                                                     ))}
                                                 </div>
                                             </div>

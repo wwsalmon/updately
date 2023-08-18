@@ -83,12 +83,19 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
 
     const isProfilePrivateToLoggedInUser = (pageUser.private || pageUser.truePrivate) && (!userData || !pageUser.followers.includes(props.userData.email) && !isOwner);
 
+    const isPrivateUpdateRedirect = !!router.query.privateredirect;
+
     return (
         <div className="max-w-4xl mx-auto px-4">
             <NextSeo
                 title={`${pageUser.name}'s daily updates | Updately`}
                 description={`Follow ${pageUser.name} on Updately to get their updates in your feed.`}
             />
+            {isPrivateUpdateRedirect && (
+                <div className="my-16 bg-black p-4 text-white rounded">
+                    <p>You accessed a link to an update on a private account that you do not follow. Follow the account to view the update.</p>
+                </div>
+            )}
             <div className="sm:flex mt-16 mb-8">
                 <UserHeaderLeft pageUser={pageUser} userData={userData}/>
                 <div className="flex sm:ml-auto mt-6 sm:mt-0">
@@ -245,7 +252,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                                     </a>
                                 </p>
                                 {update.tags && update.tags.map(tag => (
-                                    <button onClick={() => setFilterBy(tag)} key={tag} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</button>
+                                    <button onClick={() => setFilterBy(tag)} key={tag} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</button>
                                 ))}
                             </div>
                         </div>

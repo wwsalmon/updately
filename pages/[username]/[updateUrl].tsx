@@ -21,6 +21,7 @@ import {FiHeart} from "react-icons/fi";
 import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 import { DeleteModal } from "../../components/Modal";
+import { ssrRedirect } from "next-response-helpers";
 
 export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User }) {
     const router = useRouter();
@@ -171,7 +172,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                                 {!!tags.length && (
                                     <div className="flex items-center my-8">
                                         {tags.map(d => (
-                                            <a href={`/@${data.user.urlName}?tag=${encodeURIComponent(d)}`} key={d} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-sm text-white mr-2">#{d}</a>
+                                            <a href={`/@${data.user.urlName}?tag=${encodeURIComponent(d)}`} key={d} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-900 transition font-medium border rounded text-sm text-white mr-2">#{d}</a>
                                         ))}
                                     </div>
                                 )}
@@ -288,7 +289,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             // or are the user
             data.user._id.toString() === userData._id.toString()
         )
-    )) return { notFound: true };
+    )) return ssrRedirect(`/@${data.user.urlName}?privateredirect=true`);
 
     if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.update._id}, {read: true});
 

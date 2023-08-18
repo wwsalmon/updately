@@ -70,14 +70,14 @@ const Activity = ({ updates, pageUser, onClickDate }: { updates: { date: string 
                     </span>
                     <button
                         onClick={() => setYear("last-year")}
-                        className={classNames("pb-0.5 border-b-2 whitespace-nowrap", ("last-year" === year) ? "border-stone-700 text-stone-700 font-bold" : "text-stone-400 border-transparent")}
+                        className={classNames("pb-0.5 border-b-2 whitespace-nowrap", ("last-year" === year) ? "border-neutral-700 text-neutral-700 dark:text-white dark:border-white font-bold" : "text-neutral-400 dark:text-neutral-500 border-transparent")}
                     >Last year</button>
                     {/* get the years that the user has written updates and display them as tabs above */}
                     {years.map(y => (
                         <button
                             key={y}
                             onClick={() => setYear(y)}
-                            className={classNames("pb-0.5 border-b-2", (y === year) ? "border-stone-700 text-stone-700 font-bold" : "text-stone-400 border-transparent")}
+                            className={classNames("pb-0.5 border-b-2", (y === year) ? "border-neutral-700 text-neutral-700 dark:text-white dark:border-white font-bold" : "text-neutral-400 dark:text-neutral-500  border-transparent")}
                         >{y}</button>
                     ))}
                 </div >
