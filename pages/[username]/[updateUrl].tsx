@@ -172,7 +172,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                                 {!!tags.length && (
                                     <div className="flex items-center my-8">
                                         {tags.map(d => (
-                                            <a href={`/@${data.user.urlName}?tag=${encodeURIComponent(d)}`} key={d} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-sm text-white mr-2">#{d}</a>
+                                            <a href={`/@${data.user.urlName}?tag=${encodeURIComponent(d)}`} key={d} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-900 transition font-medium border rounded text-sm text-white mr-2">#{d}</a>
                                         ))}
                                     </div>
                                 )}

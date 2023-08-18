@@ -252,7 +252,7 @@ export default function UserProfile(props: { user: UserAgg, userData: User, foll
                                     </a>
                                 </p>
                                 {update.tags && update.tags.map(tag => (
-                                    <button onClick={() => setFilterBy(tag)} key={tag} className="px-2 py-1 bg-gray-700 hover:bg-gray-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</button>
+                                    <button onClick={() => setFilterBy(tag)} key={tag} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-900 transition font-medium border rounded text-xs text-white mr-2">#{tag}</button>
                                 ))}
                             </div>
                         </div>
