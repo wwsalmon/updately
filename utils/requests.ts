@@ -8,7 +8,7 @@ import { SortBy, Update, User } from "./types";
 
 export interface GetUpdateRequestResponse {user: User, update: Update & {mentionedUsersArr: User[]}};
 
-export async function getUpdateRequest(username: string, url: string): Promise<GetUpdateRequestResponse> {
+export async function getUpdateRequest(username: string, url: string): Promise<GetUpdateRequestResponse | null> {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -102,6 +102,36 @@ export async function getCurrUserRequest(email: string) {
     });
 
     return userModel.findOne({ email: email });
+}
+
+export async function getUserByEmail(email: string): Promise<User> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	return userModel.findOne({ email: email });
+}
+
+export async function getUserById(userId: string): Promise<User> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	return userModel.findOne({ _id: userId });
+}
+
+export async function getUserByUsername(username: string): Promise<User> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	return userModel.findOne({ urlName: username });
 }
 
 export async function getCurrUserFeedRequest(user, req) {

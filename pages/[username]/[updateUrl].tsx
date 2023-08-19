@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/react";
-import {GetUpdateRequestResponse, getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
+import {GetUpdateRequestResponse, getCurrUserRequest, getUpdateRequest, getUserByEmail, getUserByUsername} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
 import Link from "next/link";
@@ -42,6 +42,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
 
     const {data: updatesObj} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}`, fetcher);
     const updates = (updatesObj && updatesObj.length) ? updatesObj[0].paginatedResults : [];
+    console.log(updates);
     const numUpdates = (updatesObj && updatesObj.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
     const {data: likesData, error: likesError}: responseInterface<{ likes: LikeItem[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
 
@@ -271,27 +272,28 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
 export const getServerSideProps: GetServerSideProps = async (context) => {
     if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substring(0, 1) !== "@") return { notFound: true };
     const username: string = context.params.username.substring(1);
+    const session = await getSession(context);
+    const authorOfUpdate = await getUserByUsername(username);
+    const viewer = session ? await getUserByEmail(session.user.email) : null;
+    if (
+        authorOfUpdate.truePrivate &&
+        (viewer === null ||
+            !(
+                (
+                    // following user
+                    authorOfUpdate.followers.includes(viewer.email) ||
+                    // or are the user
+                    authorOfUpdate._id === viewer._id
+                )
+            ))
+    ) {
+        return ssrRedirect(`/@${authorOfUpdate.urlName}?privateredirect=true`);
+    }
+
+    
     const updateUrl: string = encodeURIComponent(context.params.updateUrl);
     const data = await getUpdateRequest(username, updateUrl);
-    if (!data) return { notFound: true };
-
-    const session = await getSession(context);
-    const userData = session ? await getCurrUserRequest(session.user.email) : null;
-
-    const isTruePrivate = data.user.truePrivate;
-
-    // this check could happen before the getUpdateRequest fetch tbh...but bleh technical debt
-    if (isTruePrivate && (
-        !userData ||
-        !(
-            // following user
-            data.user.followers.includes(userData.email) ||
-            // or are the user
-            data.user._id.toString() === userData._id.toString()
-        )
-    )) return ssrRedirect(`/@${data.user.urlName}?privateredirect=true`);
-
-    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.update._id}, {read: true});
-
-    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
+    if (data === null) return { notFound: true };
+    
+    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(viewer), key: updateUrl }};
 };
