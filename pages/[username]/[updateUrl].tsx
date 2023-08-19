@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/react";
-import {GetUpdateRequestResponse, getCurrUserRequest, getUpdateRequest, getUserByEmail, getUserByUsername} from "../../utils/requests";
+import {GetUpdateRequestResponse, getNumberOfUpdates, getUpdateRequest, getUserByEmail, getUserByUsername} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
 import Link from "next/link";
@@ -14,7 +14,7 @@ import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {LikeItem, UpdateMetadata, User} from "../../utils/types";
+import {LikeItem, Update, UpdateMetadata, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
 import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
@@ -24,7 +24,14 @@ import { DeleteModal } from "../../components/Modal";
 import { ssrRedirect } from "next-response-helpers";
 import { getSurroundingUpdateMetadata } from "../api/update-metadata";
 
-export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User, sidebarData: UpdateMetadata[] | null }) {
+type PageOfUpdates = {
+	paginatedResults: Update[];
+	totalCount: {
+		estimatedDocumentCount: number;
+	}[];
+};
+
+export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User, sidebarData: UpdateMetadata[] | null, numUpdates: number }) {
     const router = useRouter();
     const [data, setData] = useState<GetUpdateRequestResponse>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
@@ -41,10 +48,6 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [likesIter, setLikesIter] = useState<number>(0);
 
-    const {data: updatesObj} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}`, fetcher);
-    const updates = (updatesObj && updatesObj.length) ? updatesObj[0].paginatedResults : [];
-    console.log(updates);
-    const numUpdates = (updatesObj && updatesObj.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
     const {data: likesData, error: likesError}: responseInterface<{ likes: LikeItem[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
 
     const isLike = likesData && likesData.likes && userData && !!likesData.likes.find(d => d.userId === userData._id);
@@ -262,9 +265,9 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                             </Link>
                         </div>
                     ))}
-                    {numUpdates > 20 && <p
+                    {props.numUpdates > 20 && <p
                     className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
-                    ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>}
+                    ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s {props.numUpdates} updates</a></p>}
                 </div>
             </div>
         </div>
@@ -290,7 +293,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
 			authorOfUpdate._id.toString() === viewer._id.toString());
 	if (authorOfUpdate.truePrivate && !viewerFollowsAuthor) {
 		return ssrRedirect(`/@${authorOfUpdate.urlName}?privateredirect=true`);
-	}
+    }
+    const { estimatedDocumentCount } = await getNumberOfUpdates(authorOfUpdate._id);
 	const updateUrl: string = encodeURIComponent(context.params.updateUrl);
 	const data = await getUpdateRequest(username, updateUrl);
 	if (data === null) return { notFound: true };
@@ -310,7 +314,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
 			updateUrl: updateUrl,
 			userData: cleanForJSON(viewer),
 			key: updateUrl,
-			sidebarData: cleanForJSON(sidebarData),
+            sidebarData: cleanForJSON(sidebarData),
+            numUpdates: estimatedDocumentCount
 		},
 	};
 };

@@ -32,6 +32,23 @@ export async function getUpdateRequest(username: string, url: string): Promise<G
     };
 }
 
+export async function getNumberOfUpdates(
+	userId: string
+): Promise<{ estimatedDocumentCount: number }> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	const result = await updateModel.aggregate([
+		{ $match: { userId: userId, published: true } },
+		{ $count: 'estimatedDocumentCount' },
+    ]);
+	// array access is required because aggregates always return arrays
+    return result[0];
+}
+
 // Gets updates posted of a specific user
 export async function getUpdatesRequest({req}) {
     await mongoose.connect(process.env.MONGODB_URL, {
