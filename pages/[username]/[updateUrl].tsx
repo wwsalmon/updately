@@ -169,7 +169,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                     <>
                         <div className="flex">
                             <div className="mr-4 break-words overflow-hidden">
-                                <h1 className="up-h1 mb-4 dark:text-gray-300">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
+                                <h1 className="up-h1 mb-4 dark:text-gray-300">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d, yyyy")}</h1>
                                 <h2 className="up-h2 dark:text-gray-300">{thisUpdate.title}</h2>
                                 {!!tags.length && (
                                     <div className="flex items-center my-8">
