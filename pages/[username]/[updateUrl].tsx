@@ -14,7 +14,7 @@ import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {LikeItem, Update, User} from "../../utils/types";
+import {LikeItem, UpdateMetadata, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
 import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
@@ -22,8 +22,9 @@ import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 import { DeleteModal } from "../../components/Modal";
 import { ssrRedirect } from "next-response-helpers";
+import { getSurroundingUpdateMetadata } from "../api/update-metadata";
 
-export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User }) {
+export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User, sidebarData: UpdateMetadata[] | null }) {
     const router = useRouter();
     const [data, setData] = useState<GetUpdateRequestResponse>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
@@ -244,7 +245,8 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
             <div className="xl:absolute xl:left-4 xl:top-8 xl:h-full xl:w-56 max-w-3xl mx-auto px-4 xl:mx-0 xl:px-0">
                 <hr className="my-8 xl:hidden"/>
                 <div className="xl:sticky xl:top-24 dark:text-gray-300">
-                    {updates && updates.length > 0 && updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
+                    {/* sidebar */}
+                    {props.sidebarData !== null && props.sidebarData.length > 0 && props.sidebarData.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
                         <div
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition dark:opacity-75"}`}
                             key={update._id}
@@ -269,31 +271,46 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
     )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substring(0, 1) !== "@") return { notFound: true };
-    const username: string = context.params.username.substring(1);
-    const session = await getSession(context);
-    const authorOfUpdate = await getUserByUsername(username);
-    const viewer = session ? await getUserByEmail(session.user.email) : null;
-    if (
-        authorOfUpdate.truePrivate &&
-        (viewer === null ||
-            !(
-                (
-                    // following user
-                    authorOfUpdate.followers.includes(viewer.email) ||
-                    // or are the user
-                    authorOfUpdate._id === viewer._id
-                )
-            ))
-    ) {
-        return ssrRedirect(`/@${authorOfUpdate.urlName}?privateredirect=true`);
-    }
+export const getServerSideProps: GetServerSideProps = async context => {
+	if (
+		Array.isArray(context.params.username) ||
+		Array.isArray(context.params.updateUrl) ||
+		context.params.username.substring(0, 1) !== '@'
+	)
+		return { notFound: true };
+	const username: string = context.params.username.substring(1);
+	const session = await getSession(context);
+	const authorOfUpdate = await getUserByUsername(username);
+	const viewer = session ? await getUserByEmail(session.user.email) : null;
+	const viewerFollowsAuthor =
+		viewer !== null &&
+		// follows the user
+		(authorOfUpdate.followers.includes(viewer.email) ||
+			// or are the user
+			authorOfUpdate._id.toString() === viewer._id.toString());
+	if (authorOfUpdate.truePrivate && !viewerFollowsAuthor) {
+		return ssrRedirect(`/@${authorOfUpdate.urlName}?privateredirect=true`);
+	}
+	const updateUrl: string = encodeURIComponent(context.params.updateUrl);
+	const data = await getUpdateRequest(username, updateUrl);
+	if (data === null) return { notFound: true };
 
-    
-    const updateUrl: string = encodeURIComponent(context.params.updateUrl);
-    const data = await getUpdateRequest(username, updateUrl);
-    if (data === null) return { notFound: true };
-    
-    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(viewer), key: updateUrl }};
+	const shouldHideSidebar = authorOfUpdate.private && !viewerFollowsAuthor;
+	const showDrafts = authorOfUpdate._id === viewer._id;
+	const sidebarData = shouldHideSidebar
+		? null
+		: await getSurroundingUpdateMetadata(
+				authorOfUpdate._id,
+				updateUrl,
+				showDrafts
+		  );
+	return {
+		props: {
+			data: cleanForJSON(data),
+			updateUrl: updateUrl,
+			userData: cleanForJSON(viewer),
+			key: updateUrl,
+			sidebarData: cleanForJSON(sidebarData),
+		},
+	};
 };

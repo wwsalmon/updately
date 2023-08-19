@@ -40,6 +40,9 @@ export interface Update {
     tags: string[],
 }
 
+// obscure type system things:D
+export type UpdateMetadata = Pick<Update, '_id' | 'date' | 'url' | 'title' | 'tags' | 'published'>
+
 export interface PrivateAggregation {
     private: true,
     date: string, // date string
