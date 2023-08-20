@@ -172,7 +172,7 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                     <>
                         <div className="flex">
                             <div className="mr-4 break-words overflow-hidden">
-                                <h1 className="up-h1 mb-4 dark:text-gray-300">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d, yyyy")}</h1>
+                                <h1 className="up-h1 mb-4 dark:text-gray-300">{format(dateOnly(thisUpdate.date), "EEEE, MMMM d")}</h1>
                                 <h2 className="up-h2 dark:text-gray-300">{thisUpdate.title}</h2>
                                 {!!tags.length && (
                                     <div className="flex items-center my-8">
@@ -182,8 +182,8 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                                     </div>
                                 )}
                                 <div className="mt-8 md:flex opacity-50 dark:text-gray-300 dark:opacity-75">
-                                    <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d 'at' h:mm a")}</p>
-                                    <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
+                                    <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d, yyyy 'at' h:mm a")}</p>
+                                    <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d, yyyy 'at' h:mm a")}</p>
                                 </div>
                                 <div className="flex mt-6 items-center">
                                     <button
