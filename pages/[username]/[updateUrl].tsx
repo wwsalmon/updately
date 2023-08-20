@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {getSession} from "next-auth/react";
-import {GetUpdateRequestResponse, getCurrUserRequest, getUpdateRequest} from "../../utils/requests";
+import {GetUpdateRequestResponse, getNumberOfUpdates, getUpdateRequest, getUserByEmail, getUserByUsername} from "../../utils/requests";
 import {format} from "date-fns";
 import {cleanForJSON, dateOnly, fetcher} from "../../utils/utils";
 import Link from "next/link";
@@ -14,7 +14,7 @@ import showdownHtmlEscape from "showdown-htmlescape";
 import Parser from "html-react-parser";
 import ProfileFollowButton from "../../components/ProfileFollowButton";
 import {NextSeo} from "next-seo";
-import {LikeItem, Update, User} from "../../utils/types";
+import {LikeItem, Update, UpdateMetadata, User} from "../../utils/types";
 import UpdateComments from "../../components/UpdateComments";
 import useSWR, {responseInterface} from "swr";
 import {FiHeart} from "react-icons/fi";
@@ -22,8 +22,16 @@ import {notificationModel} from "../../models/models";
 import {getMentionsAndBodySegments} from "../../components/UpdateCommentItem";
 import { DeleteModal } from "../../components/Modal";
 import { ssrRedirect } from "next-response-helpers";
+import { getSurroundingUpdateMetadata } from "../api/update-metadata";
 
-export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User }) {
+type PageOfUpdates = {
+	paginatedResults: Update[];
+	totalCount: {
+		estimatedDocumentCount: number;
+	}[];
+};
+
+export default function UpdatePage(props: { data: GetUpdateRequestResponse, updateUrl: string, userData: User, sidebarData: UpdateMetadata[] | null, numUpdates: number }) {
     const router = useRouter();
     const [data, setData] = useState<GetUpdateRequestResponse>(props.data);
     const [userData, setUserData] = useState<any>(props.userData);
@@ -40,9 +48,6 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [likesIter, setLikesIter] = useState<number>(0);
 
-    const {data: updatesObj} = useSWR(`/api/get-curr-user-updates?page=${1}&urlName=${data.user.urlName}`, fetcher);
-    const updates = (updatesObj && updatesObj.length) ? updatesObj[0].paginatedResults : [];
-    const numUpdates = (updatesObj && updatesObj.length) ? updatesObj[0].totalCount[0].estimatedDocumentCount : 0;
     const {data: likesData, error: likesError}: responseInterface<{ likes: LikeItem[] }, any> = useSWR(`/api/like?updateId=${thisUpdate._id}&iter=${likesIter}`, fetcher);
 
     const isLike = likesData && likesData.likes && userData && !!likesData.likes.find(d => d.userId === userData._id);
@@ -127,6 +132,11 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
+                {!props.sidebarData && (
+                    <div className="my-16 bg-black p-4 text-white rounded">
+                        <p>This user's updates are unlisted and you accessed this update via direct link. Request to follow the user to see all of their updates.</p>
+                    </div>
+                )}
                 <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-20 dark:bg-gray-900">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
@@ -177,8 +187,8 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                                     </div>
                                 )}
                                 <div className="mt-8 md:flex opacity-50 dark:text-gray-300 dark:opacity-75">
-                                    <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d 'at' h:mm a")}</p>
-                                    <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d 'at' h:mm a")}</p>
+                                    <p className="md:mr-12"><b>Created:</b> {format(new Date(thisUpdate.createdAt), "MMMM d, yyyy 'at' h:mm a")}</p>
+                                    <p><b>Last edit:</b> {format(new Date(thisUpdate.updatedAt), "MMMM d, yyyy 'at' h:mm a")}</p>
                                 </div>
                                 <div className="flex mt-6 items-center">
                                     <button
@@ -243,7 +253,8 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
             <div className="xl:absolute xl:left-4 xl:top-8 xl:h-full xl:w-56 max-w-3xl mx-auto px-4 xl:mx-0 xl:px-0">
                 <hr className="my-8 xl:hidden"/>
                 <div className="xl:sticky xl:top-24 dark:text-gray-300">
-                    {updates && updates.length > 0 && updates.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
+                    {/* sidebar */}
+                    {props.sidebarData !== null && props.sidebarData.length > 0 && props.sidebarData.sort((a, b) => +new Date(b.date) - +new Date(a.date)).map((update) => (
                         <div
                             className={`mb-8 leading-snug ${update._id === thisUpdate._id ? "" : "opacity-50 hover:opacity-100 transition dark:opacity-75"}`}
                             key={update._id}
@@ -259,39 +270,59 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                             </Link>
                         </div>
                     ))}
-                    {numUpdates > 20 && <p
-                    className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
-                    ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s updates</a></p>}
+                    {props.sidebarData && props.numUpdates > 20 && (
+                        <p
+                            className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
+                        ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s {props.numUpdates} updates</a></p>
+                    )}
                 </div>
             </div>
         </div>
     )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    if (Array.isArray(context.params.username) || Array.isArray(context.params.updateUrl) || context.params.username.substring(0, 1) !== "@") return { notFound: true };
-    const username: string = context.params.username.substring(1);
-    const updateUrl: string = encodeURIComponent(context.params.updateUrl);
-    const data = await getUpdateRequest(username, updateUrl);
-    if (!data) return { notFound: true };
+export const getServerSideProps: GetServerSideProps = async context => {
+	if (
+		Array.isArray(context.params.username) ||
+		Array.isArray(context.params.updateUrl) ||
+		context.params.username.substring(0, 1) !== '@'
+	)
+		return { notFound: true };
+	const username: string = context.params.username.substring(1);
+	const session = await getSession(context);
+	const authorOfUpdate = await getUserByUsername(username);
+	const viewer = session ? await getUserByEmail(session.user.email) : null;
+	const viewerFollowsAuthor =
+		viewer !== null &&
+		// follows the user
+		(authorOfUpdate.followers.includes(viewer.email) ||
+			// or are the user
+			authorOfUpdate._id.toString() === viewer._id.toString());
+	if (authorOfUpdate.truePrivate && !viewerFollowsAuthor) {
+		return ssrRedirect(`/@${authorOfUpdate.urlName}?privateredirect=true`);
+    }
+    const { estimatedDocumentCount } = await getNumberOfUpdates(authorOfUpdate._id);
+	const updateUrl: string = encodeURIComponent(context.params.updateUrl);
+	const data = await getUpdateRequest(username, updateUrl);
+	if (data === null) return { notFound: true };
 
-    const session = await getSession(context);
-    const userData = session ? await getCurrUserRequest(session.user.email) : null;
-
-    const isTruePrivate = data.user.truePrivate;
-
-    // this check could happen before the getUpdateRequest fetch tbh...but bleh technical debt
-    if (isTruePrivate && (
-        !userData ||
-        !(
-            // following user
-            data.user.followers.includes(userData.email) ||
-            // or are the user
-            data.user._id.toString() === userData._id.toString()
-        )
-    )) return ssrRedirect(`/@${data.user.urlName}?privateredirect=true`);
-
-    if (userData) await notificationModel.updateMany({userId: userData._id, updateId: data.update._id}, {read: true});
-
-    return { props: { data: cleanForJSON(data), updateUrl: updateUrl, userData: cleanForJSON(userData), key: updateUrl }};
+	const shouldHideSidebar = authorOfUpdate.private && !viewerFollowsAuthor;
+	const showDrafts = !!viewer && (authorOfUpdate._id === viewer._id);
+	const sidebarData = shouldHideSidebar
+		? null
+		: await getSurroundingUpdateMetadata(
+				authorOfUpdate._id,
+				updateUrl,
+				showDrafts
+		  );
+	return {
+		props: {
+			data: cleanForJSON(data),
+			updateUrl: updateUrl,
+			userData: cleanForJSON(viewer),
+			key: updateUrl,
+            sidebarData: cleanForJSON(sidebarData),
+            numUpdates: estimatedDocumentCount
+		},
+	};
 };

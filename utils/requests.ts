@@ -8,7 +8,7 @@ import { SortBy, Update, User } from "./types";
 
 export interface GetUpdateRequestResponse {user: User, update: Update & {mentionedUsersArr: User[]}};
 
-export async function getUpdateRequest(username: string, url: string): Promise<GetUpdateRequestResponse> {
+export async function getUpdateRequest(username: string, url: string): Promise<GetUpdateRequestResponse | null> {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -30,6 +30,23 @@ export async function getUpdateRequest(username: string, url: string): Promise<G
         user: user,
         update: updates[0],
     };
+}
+
+export async function getNumberOfUpdates(
+	userId: string
+): Promise<{ estimatedDocumentCount: number }> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	const result = await updateModel.aggregate([
+		{ $match: { userId: userId, published: true } },
+		{ $count: 'estimatedDocumentCount' },
+    ]);
+	// array access is required because aggregates always return arrays
+    return result[0];
 }
 
 // Gets updates posted of a specific user
@@ -102,6 +119,36 @@ export async function getCurrUserRequest(email: string) {
     });
 
     return userModel.findOne({ email: email });
+}
+
+export async function getUserByEmail(email: string): Promise<User> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	return userModel.findOne({ email: email });
+}
+
+export async function getUserById(userId: string): Promise<User> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	return userModel.findOne({ _id: userId });
+}
+
+export async function getUserByUsername(username: string): Promise<User> {
+	await mongoose.connect(process.env.MONGODB_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
+	return userModel.findOne({ urlName: username });
 }
 
 export async function getCurrUserFeedRequest(user, req) {
