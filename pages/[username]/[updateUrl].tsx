@@ -132,6 +132,11 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                 description={`${data.user.name}'s ${format(dateOnly(thisUpdate.date), "EEEE, MMMM d")} update${thisUpdate.title ? `: ${thisUpdate.title}` : ""} on Updately`}
             />
             <div className="max-w-3xl mx-auto px-4">
+                {!props.sidebarData && (
+                    <div className="my-16 bg-black p-4 text-white rounded">
+                        <p>This user's updates are unlisted and you accessed this update via direct link. Request to follow the user to see all of their updates.</p>
+                    </div>
+                )}
                 <div className="flex h-16 my-8 items-center sticky top-0 sm:top-16 bg-white z-20 dark:bg-gray-900">
                     <Link href={`/@${data.user.urlName}`}>
                         <a href="" className="flex items-center">
@@ -265,9 +270,11 @@ export default function UpdatePage(props: { data: GetUpdateRequestResponse, upda
                             </Link>
                         </div>
                     ))}
-                    {props.numUpdates > 20 && <p
-                    className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
-                    ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s {props.numUpdates} updates</a></p>}
+                    {props.sidebarData && props.numUpdates > 20 && (
+                        <p
+                            className="opacity-50 hover:opacity-100 transition mb-8 dark:opacity-75"
+                        ><a href={`/@${data.user.urlName}`}>View all {data.user.name.split(' ')[0]}'s {props.numUpdates} updates</a></p>
+                    )}
                 </div>
             </div>
         </div>
@@ -300,7 +307,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 	if (data === null) return { notFound: true };
 
 	const shouldHideSidebar = authorOfUpdate.private && !viewerFollowsAuthor;
-	const showDrafts = authorOfUpdate._id === viewer._id;
+	const showDrafts = !!viewer && (authorOfUpdate._id === viewer._id);
 	const sidebarData = shouldHideSidebar
 		? null
 		: await getSurroundingUpdateMetadata(
