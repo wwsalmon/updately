@@ -306,6 +306,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
 	const data = await getUpdateRequest(username, updateUrl);
 	if (data === null) return { notFound: true };
 
+    if (viewer) await notificationModel.updateMany({userId: viewer._id, updateId: data.update._id}, {read: true});
+
 	const shouldHideSidebar = authorOfUpdate.private && !viewerFollowsAuthor;
 	const showDrafts = !!viewer && (authorOfUpdate._id === viewer._id);
 	const sidebarData = shouldHideSidebar
