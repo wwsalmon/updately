@@ -5,6 +5,7 @@ import short from "short-uuid";
 import { updateModel, userModel } from "../models/models";
 import getLookup from "./getLookup";
 import { SortBy, Update, User } from "./types";
+import { NUM_UPDATES_IN_PAGE } from "./utils";
 
 export interface GetUpdateRequestResponse {user: User, update: Update & {mentionedUsersArr: User[]}};
 
@@ -80,7 +81,7 @@ export async function getUpdatesRequest({req}) {
     if (req.query.date) conditions["date"] = new Date(req.query.date);
     
     const facetStage = {$facet: {
-        paginatedResults: [{$skip: (+req.query.page - 1) * 10}, {$limit: 10}],
+        paginatedResults: [{$skip: (+req.query.page - 1) * NUM_UPDATES_IN_PAGE}, {$limit: NUM_UPDATES_IN_PAGE}],
         totalCount: [{$count: "estimatedDocumentCount"}],
     }};
 
