@@ -1,4 +1,5 @@
 import React, {Dispatch, SetStateAction} from "react";
+import { NUM_UPDATES_IN_PAGE } from "../utils/utils";
 
 export default function PaginationBar({page, count, label, setPage}: {
     page: number,
@@ -9,12 +10,12 @@ export default function PaginationBar({page, count, label, setPage}: {
     return (
         <>
             <p className="opacity-50 mt-16">
-                Showing {label} {(page - 1) * 10 + 1}
-                -{(page < Math.floor(count / 10)) ? page * 10 : count} of {count}
+                Showing {label} {(page - 1) * NUM_UPDATES_IN_PAGE + 1}
+                -{(page < Math.floor(count / NUM_UPDATES_IN_PAGE)) ? page * NUM_UPDATES_IN_PAGE : count} of {count}
             </p>
-            {count > 10 && (
+            {count > NUM_UPDATES_IN_PAGE && (
                 <div className="opacity-50 mt-4">
-                    {Array.from({length: Math.ceil(count / 10)}, (x, i) => i + 1).map(d => (
+                    {Array.from({length: Math.ceil(count / NUM_UPDATES_IN_PAGE)}, (x, i) => i + 1).map(d => (
                         <button
                             className={"py-2 px-4 rounded-md mr-2 " + (d === page ? "opacity-50 cursor-not-allowed bg-gray-200 dark:bg-neutral-700" : "")}
                             onClick={() => setPage(d)}
