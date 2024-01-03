@@ -12,7 +12,7 @@ export default function PaginationBar({page, count, label, setPage}: {
                 Showing {label} {(page - 1) * 10 + 1}
                 -{(page < Math.floor(count / 10)) ? page * 10 : count} of {count}
             </p>
-            {count > 20 && (
+            {count > 10 && (
                 <div className="opacity-50 mt-4">
                     {Array.from({length: Math.ceil(count / 10)}, (x, i) => i + 1).map(d => (
                         <button
