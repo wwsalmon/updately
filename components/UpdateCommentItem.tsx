@@ -121,7 +121,7 @@ export default function UpdateCommentItem({comment, mentionedUsers, update, user
                         </a>
                     </Link>
                     <span className="opacity-50 ml-4">
-                        {format(new Date(comment.createdAt), "M/d/yyyy 'at' h:mm a")}
+                        {new Intl.DateTimeFormat(navigator.language).format(new Date(comment.createdAt)) + format(new Date(comment.createdAt), " 'at' h:mm a")}
                     </span>
                 </p>
                 <CommentBody comment={comment} mentionedUsers={mentionedUsers}/>
