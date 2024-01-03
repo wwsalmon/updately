@@ -48,12 +48,11 @@ export default function NotificationItem({
                         ?
                         `/@${thisAuthor.urlName}`
                         : `/@${thisUpdateUser.urlName}/${thisUpdate.url}`;
-
-                    const dateString = new Intl.DateTimeFormat(navigator.language, {
+                    const dateString = thisUpdate ? new Intl.DateTimeFormat(navigator.language, {
                         day: "numeric",
                         month: "numeric",
                         year: "2-digit"
-                    }).format(new Date(thisUpdate.date));
+                    }).format(new Date(thisUpdate.date)) : "";
 
                     if (notification.type === "comment") {
                         return (
