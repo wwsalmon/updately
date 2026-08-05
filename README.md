@@ -13,4 +13,6 @@ To get a local version of Updately running:
     - GOOGLE_CLIENT_SECRET: client secret from Google OAuth credentials
     - NEXTAUTH_URL: http://localhost:3000 or whatever your URL is
     - MONGODB_URL: MongoDB URL with specified cluster, password, etc. Set up your own MongoDB cluster for this
+
+    Optionally, to subscribe new users to a MailerLite newsletter on sign-up, also set `MAILERLITE_KEY` and `MAILERLITE_GROUP_ID`. If either is missing the subscription step is skipped and sign-up works as normal.
 3. Run `npm run dev` to spin up a local server. Have fun!

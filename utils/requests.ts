@@ -245,17 +245,26 @@ export async function getProfilesByIds(idList: string[]){
     ]);
 }
 
-export async function createAccount(user) {
-    await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
-        email: user.email,
-        name: user.name,
-    }, {
-        headers: {
-            "X-MailerLite-ApiKey": process.env.MAILERLITE_KEY,
-            "Content-Type": "application/json",
-        }
-    });
+// subscribing to the newsletter is a nice-to-have, so never let it block account creation
+async function subscribeToNewsletter(user) {
+    if (!process.env.MAILERLITE_KEY || !process.env.MAILERLITE_GROUP_ID) return;
 
+    try {
+        await axios.post(`https://api.mailerlite.com/api/v2/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers`, {
+            email: user.email,
+            name: user.name,
+        }, {
+            headers: {
+                "X-MailerLite-ApiKey": process.env.MAILERLITE_KEY,
+                "Content-Type": "application/json",
+            }
+        });
+    } catch (e) {
+        console.error(`Failed to subscribe ${user.email} to MailerLite:`, e.message);
+    }
+}
+
+export async function createAccount(user) {
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -264,7 +273,7 @@ export async function createAccount(user) {
 
     const urlName = user.name.split(" ").join("-") + "-" + short.generate();
 
-    return userModel.create({
+    const newUser = await userModel.create({
         email: user.email,
         name: user.name,
         image: user.image,
@@ -272,4 +281,8 @@ export async function createAccount(user) {
         private: false,
         truePrivate: false,
     });
+
+    await subscribeToNewsletter(user);
+
+    return newUser;
 }
